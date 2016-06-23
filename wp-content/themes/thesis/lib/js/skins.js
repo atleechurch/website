@@ -9,16 +9,24 @@ var thesis_skins;
 thesis_skins = {
 	init: function() {
 		$('.skin_delete').on('click', function() {
-			thesis_skins.delete($(this).attr('data-id'));
+			thesis_skins.delete($(this).attr('data-class'), $(this).attr('data-name'));
 			return false;
 		});
 		$('#skin_upload').click(function() { thesis_skins.popup('#popup_skin_uploader'); return false; });
 	},
 	popup: function(popup) {
+		var body = $(popup+' .t_popup_body');
 		$('body').addClass('no-scroll');
 		$(popup).show();
+		$(popup + ' .t_popup_body').height(function(){
+			var total_height = $(popup + ' .t_popup_html').height(),
+				head_height = $(popup + ' .t_popup_head').outerHeight(),
+				body_inner = body.innerHeight(),
+				body_height = body.height(),
+				set_height = total_height - (head_height + (body_inner - body_height));
+			return set_height;
+		});
 		if ($(popup).hasClass('triggered') && !$(popup).hasClass('force_trigger')) return;
-		var body = $(popup+' .t_popup_body');
 		$(popup).addClass('triggered');
 		$(body).css({'margin-top': $(popup+' .t_popup_head').outerHeight()});
 		$('.t_popup_close').on('click', function() {
@@ -38,11 +46,11 @@ thesis_skins = {
 			$(iframe).attr('src', url);
 		}, 5000);
 	},
-	delete: function(id) {
-		if (typeof id == "string" && confirm("Are you sure you want to delete this skin? You will lose any data associated with it, but you can always re-install this skin at a later time."))
-			$.post(ajaxurl, { action: 'delete_skin', id: id }, function(popup) {
+	delete: function(object, name) {
+		if (typeof object == 'string' && typeof name == 'string' && confirm('Are you sure you want to delete this Skin? You will lose any data associated with it, but you can always re-install this Skin at a later time.'))
+			$.post(ajaxurl, { action: 'delete_skin', class: object, name: name }, function(popup) {
 				$('#popup_skin_uploader').after(popup);
-				thesis_skins.popup('#popup_delete_'+id);
+				thesis_skins.popup('#popup_delete_'+object);
 			});
 	}
 };

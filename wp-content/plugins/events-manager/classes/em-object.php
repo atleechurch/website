@@ -11,7 +11,7 @@ class EM_Object {
 	var $mime_types = array(1 => 'gif', 2 => 'jpg', 3 => 'png');
 	
 	private static $taxonomies_array; //see self::get_taxonomies()
-	protected static $context = 'event'; //this should be overriden to the db table name for deciding on ambiguous fields to look up 
+	protected static $context = 'event'; //this should be overridden to the db table name for deciding on ambiguous fields to look up
 	
 	/**
 	 * Takes the array and provides a clean array of search parameters, along with details
@@ -46,11 +46,11 @@ class EM_Object {
 			'pagination'=>false,
 			'array'=>false,
 			'owner'=>false,
-			'rsvp'=>false, //depreciated for bookings
+			'rsvp'=>false, //deprecated for bookings
 			'bookings'=>false,
 			'search'=>false,
 			'geo'=>false, //reserved for future searching via name
-			'near'=>false, //lat,lng coordinates in array or comma-seperated format
+			'near'=>false, //lat,lng coordinates in array or comma-separated format
 			'near_unit'=>get_option('dbem_search_form_geo_unit_default'), //mi or km
 			'near_distance'=>get_option('dbem_search_form_geo_distance_default'), //distance from near coordinates - currently the default is the same as for the search form
 			'ajax'=> (defined('EM_AJAX') && EM_AJAX) //considered during pagination
@@ -98,12 +98,12 @@ class EM_Object {
 				$array['near_unit'] = !empty($array['near_unit']) && in_array($array['near_unit'], array('km','mi')) ? $array['near_unit']:$defaults['near_unit']; //default is 'mi'
 				$array['near_distance'] = !empty($array['near_distance']) && is_numeric($array['near_distance']) ? absint($array['near_distance']) : $defaults['near_distance']; //default is 25
 			}
-			//Country - Turn into array for multiple search if comma-seperated 
+			//Country - Turn into array for multiple search if comma-separated
 			if( !empty($array['country']) && is_string($array['country']) && preg_match('/^( ?.+ ?,?)+$/', $array['country']) ){
 			    $array['country'] = explode(',',$array['country']);
 			}
 			
-			//OrderBy - can be a comma-seperated array of field names to order by (field names of object, not db)
+			//OrderBy - can be a comma-separated array of field names to order by (field names of object, not db)
 			if( array_key_exists('orderby', $array)){
 				if( !is_array($array['orderby']) && preg_match('/,/', $array['orderby']) ) {
 					$array['orderby'] = explode(',', $array['orderby']);
@@ -165,7 +165,7 @@ class EM_Object {
 		$defaults['limit'] = (is_numeric($defaults['limit'])) ? $defaults['limit']:$super_defaults['limit'];
 		$defaults['offset'] = (is_numeric($defaults['offset'])) ? $defaults['offset']:$super_defaults['offset'];
 		$defaults['recurring'] = $defaults['recurring'] === 'include' ?  $defaults['recurring']:($defaults['recurring'] == true);
-		$defaults['search'] = ($defaults['search']) ? trim(esc_sql(like_escape($defaults['search']))):false;
+		$defaults['search'] = ($defaults['search']) ? trim($defaults['search']):false;
 		//Calculate offset if event page is set
 		if($defaults['page'] > 1){
 			$defaults['offset'] = $defaults['limit'] * ($defaults['page']-1);	
@@ -404,7 +404,7 @@ class EM_Object {
 			}
 		}
 		
-		//START TAXONOMY FILTERS - can be id, slug, name or comma seperated ids/slugs/names, if negative or prepended with a - then considered a negative filter
+		//START TAXONOMY FILTERS - can be id, slug, name or comma separated ids/slugs/names, if negative or prepended with a - then considered a negative filter
 		//convert taxonomies to arrays
 		$taxonomies = self::get_taxonomies();
 		foreach( $taxonomies as $item => $item_data ){ //tags and cats turned into an array regardless
@@ -772,7 +772,7 @@ class EM_Object {
 			}
 		}
 		//Add conditions for category selection
-		//Filter by category, can be id or comma seperated ids
+		//Filter by category, can be id or comma separated ids
 		//TODO create an exclude category option
 		if ( is_numeric($category) && $category > 0 ){
 			//get the term id directly
@@ -805,7 +805,7 @@ class EM_Object {
 			}
 		}		
 		//Add conditions for tags
-		//Filter by tag, can be id or comma seperated ids
+		//Filter by tag, can be id or comma separated ids
 		if ( !empty($tag) && !is_array($tag) ){
 			//get the term id directly
 			$term = new EM_Tag($tag);
@@ -966,7 +966,7 @@ class EM_Object {
 			$unique_args['action'] = $pag_args['action'] = $search_action;
 		}
 		//if we're in an ajax call, make sure we aren't calling admin-ajax.php
-		if( defined('DOING_AJAX') ) $page_url = wp_get_referer();
+		if( defined('DOING_AJAX') ) $page_url = em_wp_get_referer();
 		//finally, glue the url with querystring and pass onto pagination function
 		$page_link_template = em_add_get_params($page_url, $pag_args, false); //don't html encode, so em_paginate does its thing;
 		if( empty($args['ajax']) || defined('DOING_AJAX') ) $unique_args = array(); //don't use data method if ajax is disabled or if we're already in an ajax request (SERP irrelevenat)
@@ -999,6 +999,24 @@ class EM_Object {
 	        case 'EM_Ticket_Booking':
 	            return $this->ticket_booking_id;
 	    }
+	    return 0;
+	}
+
+	/**
+	 * Returns the user id for the owner (author) of a particular object in the table it is stored, be it Event (event_owner) or Location (location_owner).
+	 * This function accounts for the fact that previously the property $this->owner was used by objects as a shortcut and consequently in code in EM_Object, which should now use this method instead.
+	 * Extending classes should override this and provide the relevant user id that owns this object instance.
+	 * @return int
+	 */
+	function get_owner(){
+		if( !empty($this->owner) ) return $this->owner;
+	    switch( get_class($this) ){
+	        case 'EM_Event':
+	            return $this->event_owner;
+	        case 'EM_Location':
+	            return $this->location_owner;
+	    }
+	    return 0;
 	}
 	
 	/**
@@ -1017,7 +1035,8 @@ class EM_Object {
 	    }
 	    if( empty($user->ID) ) $user = wp_get_current_user();
 		//do they own this?
-		$is_owner = ( (!empty($this->owner) && ($this->owner == get_current_user_id()) || !$this->get_id() || (!empty($user) && $this->owner == $user->ID)) );
+		$owner_id = $this->get_owner();
+		$is_owner = ( (!empty($owner_id) && ($owner_id == get_current_user_id()) || !$this->get_id() || (!empty($user) && $owner_id == $user->ID)) );
 		//now check capability
 		$can_manage = false;
 		if( $is_owner && $owner_capability && $user->has_cap($owner_capability) ){
@@ -1084,7 +1103,8 @@ class EM_Object {
 	 */
 	function compat_keys(){
 		foreach($this->fields as $key => $fieldinfo){
-			if(!empty($this->$key)) $this->$fieldinfo['name'] = $this->$key;
+		    $field_name = $fieldinfo['name'];
+			if(!empty($this->$key)) $this->$field_name = $this->$key;
 		}
 	}
 
@@ -1096,7 +1116,7 @@ class EM_Object {
 		$array = array();
 		foreach ( $this->fields as $key => $val ) {
 			if($db){
-				if( !empty($this->$key) || $this->$key === 0 || empty($val['null']) ){
+				if( !empty($this->$key) || $this->$key === 0 || $this->$key === '0' || empty($val['null']) ){
 					$array[$key] = $this->$key;
 				}
 			}else{
@@ -1163,7 +1183,7 @@ class EM_Object {
 	}
 	
 	/**
-	 * Cleans arrays that contain id lists. Takes an array of items and will clean the keys passed in second argument so that if they keep numbers, explode comma-seperated numbers, and unsets the key if there's any other value
+	 * Cleans arrays that contain id lists. Takes an array of items and will clean the keys passed in second argument so that if they keep numbers, explode comma-separated numbers, and unsets the key if there's any other value
 	 * @param array $array
 	 * @param array $id_atts
 	 */
@@ -1396,22 +1416,34 @@ class EM_Object {
 	function image_delete($force_delete=true) {
 		$type = $this->get_image_type();
 		if( $type ){
+            $this->image_url = '';
 			if( $this->get_image_url() == '' ){
 				$result = true;
 			}else{
 				$post_thumbnail_id = get_post_thumbnail_id( $this->post_id );
+				//check that this image isn't being used by another CPT
+                global $wpdb;
+                $sql = $wpdb->prepare('SELECT count(*) FROM '.$wpdb->postmeta." WHERE meta_key='_thumbnail_id' AND meta_value=%d", array($post_thumbnail_id));
+				if( $wpdb->get_var($sql) <= 1 ){
+				    //not used by any other CPT, so just delete the image entirely (would usually only be used via front-end which has no media manager)
+				    //@todo add setting option to delete images from filesystem/media if not used by other posts
 				$delete_attachment = wp_delete_attachment($post_thumbnail_id, $force_delete);
-				if( $delete_attachment !== false ){
+				if( false === $delete_attachment ){
 					//check legacy image
 					$type_id_name = $type.'_id';
 					$file_name= EM_IMAGE_UPLOAD_DIR.$this->get_image_type(true)."-".$this->$type_id_name;
 					$result = false;
-					foreach($this->mime_types as $mime_type) { 
+					foreach($this->mime_types as $mime_type) {
 						if (file_exists($file_name.".".$mime_type)){
-					  		$result = unlink($file_name.".".$mime_type);
-					  		$this->image_url = '';
+							$result = unlink($file_name.".".$mime_type);
 						}
 					}
+				}else{
+				    $result = true;
+				}
+				}else{
+				    //just delete image association
+				    delete_post_meta($this->post_id, '_thumbnail_id');
 				}
 			}
 		}
@@ -1438,7 +1470,7 @@ class EM_Object {
 				return apply_filters('em_object_image_upload', true, $this);
 			}else{
 			    //error uploading, pass error message on and return false
-			    $error_string = __('There was an error uploading the image.','dbem');
+			    $error_string = __('There was an error uploading the image.','events-manager');
 			    if( current_user_can('edit_others_events') && !empty($attachment_id->errors['upload_error']) ){
     			    $error_string .= ' <em>('. implode(' ', $attachment_id->errors['upload_error']) .')</em>';
 			    }
@@ -1459,20 +1491,20 @@ class EM_Object {
 			  		list($width, $height, $mime_type, $attr) = getimagesize($_FILES[$type.'_image']['tmp_name']);
 					$maximum_size = get_option('dbem_image_max_size'); 
 					if ($_FILES[$type.'_image']['size'] > $maximum_size){ 
-				     	$this->add_error( __('The image file is too big! Maximum size:', 'dbem')." $maximum_size");
+					$this->add_error( __('The image file is too big! Maximum size:', 'events-manager')." $maximum_size");
 					}
 					$maximum_width = get_option('dbem_image_max_width'); 
 					$maximum_height = get_option('dbem_image_max_height');
 					$minimum_width = get_option('dbem_image_min_width'); 
 					$minimum_height = get_option('dbem_image_min_height');  
 				  	if (($width > $maximum_width) || ($height > $maximum_height)) { 
-						$this->add_error( __('The image is too big! Maximum size allowed:','dbem')." $maximum_width x $maximum_height");
+						$this->add_error( __('The image is too big! Maximum size allowed:','events-manager')." $maximum_width x $maximum_height");
 				  	}
 				  	if (($width < $minimum_width) || ($height < $minimum_height)) { 
-						$this->add_error( __('The image is too small! Minimum size allowed:','dbem')." $minimum_width x $minimum_height");
+						$this->add_error( __('The image is too small! Minimum size allowed:','events-manager')." $minimum_width x $minimum_height");
 				  	}
 				  	if ( empty($mime_type) || !array_key_exists($mime_type, $this->mime_types) ){ 
-						$this->add_error(__('The image is in a wrong format!','dbem'));
+						$this->add_error(__('The image is in a wrong format!','events-manager'));
 				  	}
 		  		}
 			}

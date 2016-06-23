@@ -8,12 +8,14 @@ License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 thesis_custom = {
 	init: function() {
 		thesis_custom.codeMirror = CodeMirror.fromTextArea(document.getElementById('t_css_custom'), {
+			mode: "text/css",
 			lineNumbers: true,
 			indentUnit: 4,
 			lineWrapping: true,
 			indentWithTabs: true
 		});
 		thesis_custom.height();
+        thesis_custom.codeMirror.refresh();
 		$(window).resize(function() {
 			thesis_custom.height();
 		});
@@ -94,12 +96,16 @@ thesis_custom = {
 		}
 	},
 	set_flyout_width: function() {
-		var widest = false;
-		$('.t_item_list li code').each(function() {
-			var width = $(this).outerWidth();
-			if (widest == false || width > widest)
-				widest = width;
-		});
+		var widest = false,
+			$items = $('.t_item_list li code');
+		if ($items.length)
+			$items.each(function() {
+				var width = $(this).outerWidth();
+				if (widest == false || width > widest)
+					widest = width;
+			});
+		else
+			widest = 146;
 		thesis_custom.flyout_width = widest + 54;
 	},
 	maybe_save: function(e) {

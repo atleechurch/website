@@ -69,7 +69,7 @@ jQuery(document).ready(function() {
 
 <p><?php echo __('Enable features to help with podcasting search engine optimization (SEO). The following options can assist your web and podcasting SEO strategies.', 'powerpress'); ?></p>
 <p>
-	<a href="http://create.blubrry.com/resources/powerpress/advanced-tools-and-options/podcasting-seo-settings/"><?php echo __('Learn More', 'powerpress'); ?></a>
+	<a href="http://create.blubrry.com/resources/powerpress/advanced-tools-and-options/podcasting-seo-settings/"  target="_blank"><?php echo __('Learn More', 'powerpress'); ?></a>
 </p>
 
 
@@ -129,19 +129,19 @@ jQuery(document).ready(function() {
 </td>
 </tr>
 <tr valign="top">
-<th scope="row"><?php echo __('iTunes SEO Guidance', 'powerpress'); ?></th> 
+<th scope="row"><?php echo __('Podcast Directory SEO Guidance', 'powerpress'); ?></th>
 <td>
 	<p>
 		<input name="General[seo_itunes]" type="hidden" value="0" />
 		<input name="General[seo_itunes]" type="checkbox" value="1" <?php if( !empty($General['seo_itunes']) ) echo 'checked '; ?> /> 
-		<?php echo __('Enable and highlight features that help with iTunes SEO.', 'powerpress'); ?>
+		<?php echo __('Enable and highlight features that help with Podcast Directory Search Engine Optimization.', 'powerpress'); ?>
 	</p>
 	<p>
 	<ul>
 			<li>
 		<ul>
 			<li>
-				<?php echo __('Highlight fields for iTunes SEO', 'powerpress'); ?>
+				<?php echo __('Highlight fields for Podcasting SEO', 'powerpress'); ?>
 			</li>
 			<li>
 				<?php echo __('Enables iTunes Subtitle field', 'powerpress'); ?>
@@ -167,5 +167,3 @@ jQuery(document).ready(function() {
 <?php
 } // End powerpress_admin_search()
 
-
-?>

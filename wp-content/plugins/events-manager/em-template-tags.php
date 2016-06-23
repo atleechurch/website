@@ -138,7 +138,7 @@ function em_events_list_grouped( $args = array() ){ echo em_get_events_list_grou
  */
 function em_get_link( $text = '' ) {
 	$text = ($text == '') ? get_option ( "dbem_events_page_title" ) : $text;
-	$text = ($text == '') ? __('Events','dbem') : $text; //In case options aren't there....
+	$text = ($text == '') ? __('Events','events-manager') : $text; //In case options aren't there....
 	return '<a href="'.esc_url(EM_URI).'" title="'.esc_attr($text).'">'.esc_html($text).'</a>';
 }
 /**
@@ -189,7 +189,7 @@ function em_event_form($args = array()){
 			//Give a default location & category
 			$default_cat = get_option('dbem_default_category');
 			$default_loc = get_option('dbem_default_location');
-			if( is_numeric($default_cat) && $default_cat > 0 && !empty($EM_Event->get_categories()->categories) ){
+			if( get_option('dbem_categories_enabled') && is_numeric($default_cat) && $default_cat > 0 && !empty($EM_Event->get_categories()->categories) ){
 				$EM_Category = new EM_Category($default_cat);
 				$EM_Event->get_categories()->categories[] = $EM_Category;
 			}
@@ -283,7 +283,7 @@ function em_events_admin($args = array()){
 		em_event_form($args);
 	}else{
 		if( get_option('dbem_css_editors') ) echo '<div class="css-events-admin">';
-		echo '<div class="css-events-admin-login">'. apply_filters('em_event_submission_login', __("You must log in to view and manage your events.",'dbem')) . '</div>';
+		echo '<div class="css-events-admin-login">'. apply_filters('em_event_submission_login', __("You must log in to view and manage your events.",'events-manager')) . '</div>';
 		if( get_option('dbem_css_editors') ) echo '</div>';
 	}
 }
@@ -393,7 +393,7 @@ function em_locations_admin($args = array()){
 		}
 	}else{
 		if( get_option('dbem_css_editors') ) echo '<div class="css-locations-admin">';
-		echo '<div class="css-locations-admin-login">'. __("You must log in to view and manage your locations.",'dbem') .'</div>';
+		echo '<div class="css-locations-admin-login">'. __("You must log in to view and manage your locations.",'events-manager') .'</div>';
 		if( get_option('dbem_css_editors') ) echo '</div>';
 	}
 }
@@ -441,7 +441,7 @@ function em_bookings_admin(){
 		include_once(EM_DIR.'/admin/bookings/em-rejected.php');
 		em_bookings_page();
 	}else{
-		echo '<div class="css-bookings-admin-login">'. __("You must log in to view and manage your bookings.",'dbem') .'</div>';
+		echo '<div class="css-bookings-admin-login">'. __("You must log in to view and manage your bookings.",'events-manager') .'</div>';
 	}
 	if( get_option('dbem_css_rsvpadmin') ) echo '</div>';
 }

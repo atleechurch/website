@@ -5,185 +5,14 @@ DIYthemes, Thesis, and the Thesis Theme are registered trademarks of DIYthemes, 
 License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
-class thesis_favicon extends thesis_box {
-	public $type = false;
-	protected $filters = array(
-		'menu' => 'site',
-		'priority' => 20);
-
-	protected function translate() {
-		$this->title = __('Favicon', 'thesis');
-	}
-
-	protected function class_options() {
-		return array(
-			'image' => array(
-				'type' => 'image_upload',
-				'label' => $this->title,
-				'upload_label' => __('Upload Image', 'thesis'),
-				'prefix' => $this->_class));
-	}
-
-	protected function construct() {
-		global $thesis;
-		if ($thesis->environment == 'admin') {
-			$args = array(
-				'title' => __('Upload Image', 'thesis'),
-				'prefix' => $this->_class,
-				'file_type' => 'image',
-				'show_delete' => !empty($this->class_options['image']['url']) ? true : false,
-				'delete_text' => __('Remove Image', 'thesis'));
-			if (method_exists($this, 'save'))
-				$args['save_callback'] = array($this, 'save');
-			new thesis_upload($args);
-			add_action("{$this->_class}_before_thesis_iframe_form", array($this, '_script'));
-		}
-		elseif (empty($thesis->environment))
-			add_action('hook_head', array($this, 'html'));
-	}
-
-	public function _script() {
-		$url = !empty($_GET['url']) ?
-			esc_url(urldecode($_GET['url'])) : (!empty($this->class_options['image']['url']) ?
-			esc_url($this->class_options['image']['url']) : false);
-		if (!!$url)
-			echo "<img style=\"max-width: 90%;\" id=\"", esc_attr($this->_id), "_box_image\" src=\"$url\" />\n";
-	}
-
-	public function admin_init() {
-		add_action('admin_head', array($this, 'admin_css'));
-	}
-
-	public function admin_css() {
-		echo
-			"<style type=\"text/css\">\n",
-			"#t_canvas #save_options { display: none; }\n",
-			"</style>\n";
-	}
-
-	public function html() {
-		$url = esc_url(!empty($this->class_options['image']['url']) ?
-			stripslashes($this->class_options['image']['url']) :
-			THESIS_IMAGES_URL. '/favicon.ico');
-		echo "<link rel=\"shortcut icon\" href=\"$url\" />\n";
-	}
-
-	public function save($image, $delete) {
-		global $thesis;
-		$save = !empty($image) ? $thesis->api->set_options($this->_class_options(), array('image' => $image)) : false;
-		if (empty($save)) {
-			if (!empty($delete))
-				delete_option($this->_class);
-		}
-		else
-			update_option($this->_class, $save);
-	}
-}
-
-class thesis_feed_link extends thesis_box {
-	public $type = false;
-	protected $filters = array(
-		'menu' => 'site',
-		'priority' => 25);
-
-	protected function translate() {
-		global $thesis;
-		$this->title = sprintf(__('%s Feed', 'thesis'), $thesis->api->base['rss']);
-	}
-
-	protected function construct() {
-		add_action('hook_head', array($this, 'html'), 1);
-	}
-
-	protected function class_options() {
-		global $thesis;
-		return array(
-			'url' => array(
-				'type' => 'text',
-				'width' => 'long',
-				'code' => true,
-				'label' => sprintf(__('%1$s %2$s', 'thesis'), $this->title, $thesis->api->base['url']),
-				'tooltip' => sprintf(__('If you don&#8217;t enter anything in this field, Thesis will use your default WordPress feed, <code>%1$s</code>. If you&#8217;d like to use any other feed, please enter the feed %2$s here.', 'thesis'), esc_url(get_bloginfo(get_default_feed() . '_url')), $thesis->api->base['url'])));
-	}
-
-	public function html() {
-		global $thesis;
-		if (($url = apply_filters($this->_class, !empty($this->options['url']) ? $this->options['url'] : get_bloginfo(get_default_feed() . '_url'))) && is_string($url) && !empty($url))
-			echo '<link rel="alternate" type="application/rss+xml" title="', trim((!empty($thesis->api->options['blogname']) ?
-				wptexturize(htmlspecialchars_decode(stripslashes($thesis->api->options['blogname']), ENT_QUOTES)) : __('site', 'thesis')). ' '. __('feed', 'thesis')), '" href="', esc_attr(esc_url($url)), "\" />\n";
-	}
-}
-
-class thesis_pingback_link extends thesis_box {
-	public $type = false;
-
-	protected function translate() {
-		global $thesis;
-		$this->title = sprintf(__('Pingback %s', 'thesis'), $thesis->api->base['url']);
-	}
-	
-	protected function construct() {
-		if (apply_filters($this->_class, true))
-			add_action('hook_head', array($this, 'html'), 1);
-	}
-
-	public function html() {
-		echo '<link rel="pingback" href="', esc_url(get_bloginfo('pingback_url')), "\" />\n"; #wp
-	}
-}
-
-class thesis_google_analytics extends thesis_box {
-	public $type = false;
-	protected $filters = array('menu' => 'site');
-
-	protected function translate() {
-		$this->title = __('Google Analytics', 'thesis');
-	}
-
-	protected function construct() {
-		global $thesis;
-		if (is_admin() && ($update = $thesis->api->get_option('thesis_analytics')) && !empty($update)) {
-			update_option($this->_class, ($this->options = array('ga' => $update)));
-			delete_option('thesis_analytics');
-			wp_cache_flush();
-		}
-		elseif (!empty($this->options['ga']))
-			add_action('hook_before_html', array($this, 'html'), 1);
-	}
-
-	protected function class_options() {
-		return array(
-			'ga' => array(
-				'type' => 'text',
-				'width' => 'medium',
-				'label' => __('Google Analytics Tracking ID', 'thesis'),
-				'tooltip' => sprintf(__('To add Google Analytics tracking to Thesis, simply enter your Tracking ID here. This number takes the general form <code>UA-XXXXXXX-Y</code> and can be found by clicking the Home link in your <a href="%s">Google Analytics dashboard</a> (login required).', 'thesis'), 'http://google.com/analytics/')));
-	}
-
-	public function html() {
-		global $thesis;
-		if (empty($this->options['ga']) || is_user_logged_in()) return;
-		echo
-			"<script type=\"text/javascript\">\n",
-			"var _gaq = _gaq || [];\n",
-			"_gaq.push(['_setAccount', '", trim($thesis->api->esc($this->options['ga'])), "']);\n",
-			"_gaq.push(['_trackPageview']);\n",
-			"(function() {\n",
-			"var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;\n",
-			"ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n",
-			"var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);\n",
-			"})();\n",
-			"</script>\n";
-	}
-}
-
 class thesis_tracking_scripts extends thesis_box {
 	public $type = false;
 	protected $filters = array('menu' => 'site');
 
 	protected function translate() {
 		global $thesis;
-		$this->title = $thesis->api->strings['tracking_scripts'];
+		$this->title = __($thesis->api->strings['tracking_scripts'], 'thesis');
+		$this->filters['description'] = __('Add tracking scripts to the footer of your site', 'thesis');
 	}
 
 	protected function construct() {
@@ -215,90 +44,6 @@ class thesis_tracking_scripts extends thesis_box {
 	}
 }
 
-class thesis_google_authorship extends thesis_box {
-	public $type = false;
-	protected $filters = array(
-		'menu' => 'site',
-		'canvas_left' => true);
-
-	protected function translate() {
-		global $thesis;
-		$this->title = __('Google Authorship', 'thesis');
-		$this->label = __('Google+ Profile Link', 'thesis');
-	}
-
-	protected function construct() {
-		add_action('hook_head', array($this, 'html'), 1);
-		add_filter('user_contactmethods', array($this, 'add_gplus'));
-	}
-
-	protected function class_options() {
-		return array(
-			'gplus' => array(
-				'type' => 'text',
-				'width' => 'full',
-				'label' => $this->label,
-				'tooltip' => sprintf(__('If you want your author information to display in Google search results, enter your %1$s here. If you run a multi-author website, be sure to enter each author&#8217;s %1$s on their <a href="%2$s">user profile page</a>.', 'thesis'), $this->label, admin_url('users.php'))));
-	}
-
-	public function html() {
-		global $thesis, $wp_query;
-		if (empty($this->options['gplus']) && !$wp_query->is_singular) return;
-		if ($wp_query->is_singular)
-			$gplus = get_user_option('gplus', $wp_query->post->post_author);
-		if (empty($gplus) && !empty($this->options['gplus']))
-			$gplus = $this->options['gplus'];
-		if (!empty($gplus))
-			echo '<link rel="author" href="', (preg_match('/http|https/', $gplus) ? esc_url($gplus) : 'https://plus.google.com/' . trim($thesis->api->esc($gplus))), "\" />\n";
-	}
-
-	public function add_gplus($contacts) {
-		$contacts['gplus'] = $this->label;
-		return $contacts;
-	}
-}
-
-class thesis_twitter_profile extends thesis_box {
-	protected function translate() {
-		global $thesis;
-		$this->title = __('Twitter Profile Link', 'thesis');
-	}
-
-	protected function construct() {
-		add_filter('user_contactmethods', array($this, 'add_twitter'));
-	}
-
-	protected function html_options() {
-		return array(
-			'display' => array(
-				'type' => 'radio',
-				'label' => __('Display name as:', 'thesis'),
-				'tooltip' => sprintf(__('Choose how the author&#8217;s Twitter profile link will be presented. You can edit each author&#8217;s %1$s on their <a href="%2$s">user profile page</a>.', 'thesis'), $this->title, admin_url('users.php')),
-				'options' => array(
-					'handle' => __('Twitter handle (@YourUsername)', 'thesis'),
-					'text' => __('Call-to-action text (&#8220;Follow me on Twitter here.&#8221;)', 'thesis')),
-				'default' => 'handle'));
-	}
-
-	public function html($args = array()) {
-		global $thesis, $wp_query;
-		extract($args = is_array($args) ? $args : array());
-		$tab = str_repeat("\t", !empty($depth) ? $depth : 0);
-		$twitter = str_replace('@', '', trim(get_user_option('twitter', $wp_query->post->post_author)));
-		if (!empty($twitter))
-			echo
-				"$tab<span class=\"twitter_profile\">", (!empty($this->options['display']) ?
-				sprintf(apply_filters($this->_class, __('Follow me on Twitter <a href="%s">here</a>.', 'thesis')), 'https://twitter.com/'. $thesis->api->esc($twitter)) :
-				'<a href="https://twitter.com/'. $thesis->api->esc($twitter). "\">@{$twitter}</a>"),
-				"</span>\n";
-	}
-
-	public function add_twitter($contacts) {
-		$contacts['twitter'] = $this->title;
-		return $contacts;
-	}
-}
-
 class thesis_meta_verify extends thesis_box {
 	public $type = false;
 	protected $filters = array(
@@ -311,6 +56,7 @@ class thesis_meta_verify extends thesis_box {
 
 	protected function translate() {
 		$this->title = __('Site Verification', 'thesis');
+		$this->filters['description'] = __('Verify your site with Google and/or Bing', 'thesis');
 	}
 
 	protected function construct() {
@@ -338,11 +84,93 @@ class thesis_meta_verify extends thesis_box {
 		if (!is_front_page()) return;
 		echo
 			(!empty($this->options['google']) ? (preg_match('/<meta/', $this->options['google']) ?
-			trim(wp_kses(stripslashes($this->options['google']), $this->allowed)) . "\n" :
-			"<meta name=\"google-site-verification\" content=\"" . trim($thesis->api->esc($this->options['google'])) . "\" />\n") : ''),
+			trim(wp_kses(stripslashes($this->options['google']), $this->allowed)). "\n" :
+			"<meta name=\"google-site-verification\" content=\"". trim($thesis->api->esc($this->options['google'])). "\" />\n") : ''),
 			(!empty($this->options['bing']) ? (preg_match('/<meta/', $this->options['bing']) ?
-			trim(wp_kses(stripslashes($this->options['bing']), $this->allowed)) . "\n" :
-			"<meta name=\"msvalidate.01\" content=\"" . trim($thesis->api->esc($this->options['bing'])) . "\" />\n") : '');
+			trim(wp_kses(stripslashes($this->options['bing']), $this->allowed)). "\n" :
+			"<meta name=\"msvalidate.01\" content=\"". trim($thesis->api->esc($this->options['bing'])). "\" />\n") : '');
+	}
+}
+
+class thesis_google_analytics extends thesis_box {
+	public $type = false;
+	protected $filters = array('menu' => 'site');
+
+	protected function translate() {
+		$this->title = __('Google Analytics', 'thesis');
+		$this->filters['description'] = __('Add Google Analytics to your site', 'thesis');
+	}
+
+	protected function construct() {
+		global $thesis;
+		if (is_admin() && ($update = $thesis->api->get_option('thesis_analytics')) && !empty($update)) {
+			update_option($this->_class, ($this->options = array('ga' => $update)));
+			delete_option('thesis_analytics');
+			wp_cache_flush();
+		}
+		elseif (!empty($this->options['ga']))
+			add_action('hook_before_html', array($this, 'html'), 1);
+	}
+
+	protected function class_options() {
+		return array(
+			'ga' => array(
+				'type' => 'text',
+				'width' => 'medium',
+				'label' => __('Google Analytics Tracking ID', 'thesis'),
+				'tooltip' => sprintf(__('To add Google Analytics tracking to Thesis, simply enter your Tracking ID here. This number takes the general form <code>UA-XXXXXXX-Y</code> and can be found by clicking the Home link in your <a href="%s">Google Analytics dashboard</a> (login required).', 'thesis'), 'http://google.com/analytics/')),
+			'enable' => array(
+				'type' => 'checkbox',
+				'options' => array(
+					'display' => __('Enable Display Features', 'thesis'))));
+	}
+
+	public function html() {
+		global $thesis;
+		if (empty($this->options['ga']) || is_user_logged_in()) return;
+		echo
+			"<script>\n",
+			"(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n",
+			"(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\n",
+			"m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n",
+			"})(window,document,'script','//www.google-analytics.com/analytics.js','ga');\n",
+			"ga('create', '", trim($thesis->api->esc($this->options['ga'])), "', 'auto');\n",
+			(isset($this->options['enable']['display']) ? "ga('require', 'displayfeatures');\n" : ''),
+			"ga('send', 'pageview');\n",
+			"</script>\n";
+	}
+}
+
+class thesis_google_publisher extends thesis_box {
+	public $type = false;
+	protected $filters = array(
+		'menu' => 'site',
+		'canvas_left' => true);
+
+	public function translate() {
+		$this->title = __('Google Publisher', 'thesis');
+		$this->filters['description'] = __('Add Google Publisher to your site (recommended for businesses)', 'thesis');
+	}
+
+	public function construct() {
+		add_action('hook_head', array($this, 'html'));
+	}
+
+	protected function class_options() {
+		return array(
+			'link' => array(
+				'type' => 'text',
+				'width' => 'full',
+				'title' => __('G&#43; Business Page Link'),
+				'label' => __('Google Rel Publisher', 'thesis'),
+				'tooltip' => sprintf(__('Please provide the link to your organization&#8217;s G&#43; page. The rel=&#8220;publisher&#8221; spec allows &#8220;businesses, products, brands, entertainment and organizations&#8221; to have &#8220;an identity and presence on Google&#43;&#8221;. For more information, <a href="%1$s" target="_blank">click here</a>.', 'thesis'), 'https://support.google.com/business/answer/4569085?hl=en')));
+	}
+
+	public function html() {
+		global $thesis;
+		if (!is_single() || empty($this->options['link']) || $thesis->wpseo)
+			return;
+		echo "\n<link rel=\"publisher\" href=\"", esc_url($this->options['link']), "\" />";
 	}
 }
 
@@ -356,6 +184,7 @@ class thesis_home_seo extends thesis_box {
 	public function translate() {
 		global $thesis;
 		$this->title = sprintf(__('Blog Page %s', 'thesis'), $thesis->api->base['seo']);
+		$this->filters['description'] = __('Enhance the SEO of your main blog page', 'thesis');
 	}
 
 	protected function class_options() {
@@ -364,17 +193,17 @@ class thesis_home_seo extends thesis_box {
 			'title' => array(
 				'type' => 'text',
 				'width' => 'full',
-				'label' => $thesis->api->strings['title_tag'],
-				'counter' => $thesis->api->strings['title_counter']),
+				'label' => __($thesis->api->strings['title_tag'], 'thesis'),
+				'counter' => __($thesis->api->strings['title_counter'], 'thesis')),
 			'description' => array(
 				'type' => 'textarea',
 				'rows' => 2,
-				'label' => $thesis->api->strings['meta_description'],
-				'counter' => $thesis->api->strings['description_counter']),
+				'label' => __($thesis->api->strings['meta_description'], 'thesis'),
+				'counter' => __($thesis->api->strings['description_counter'], 'thesis')),
 			'keywords' => array(
 				'type' => 'text',
 				'width' => 'full',
-				'label' => $thesis->api->strings['meta_keywords'],
+				'label' => __($thesis->api->strings['meta_keywords'], 'thesis'),
 				'tooltip' => sprintf(__('Please note that keywords will not appear unless you also include the Meta Keywords Box in your <a href="%s">HTML Head template</a>.', 'thesis'), admin_url('admin.php?page=thesis&canvas=head'))));
 	}
 }
@@ -387,8 +216,8 @@ class thesis_404 extends thesis_box {
 	private $page = false;
 
 	public function translate() {
-		global $thesis;
-		$this->title = sprintf(__('404 %s', 'thesis'), $thesis->api->strings['page']);
+		$this->title = __('404 Page', 'thesis');
+		$this->filters['description'] = __('Select a 404 page', 'thesis');
 	}
 
 	protected function construct() {
@@ -448,9 +277,9 @@ class thesis_404 extends thesis_box {
 			wp_dropdown_pages(array('name' => 'thesis_404', 'echo' => 0, 'show_option_none' => __('Select a 404 page', 'thesis'). ':', 'option_none_value' => '0', 'selected' => $this->page)),
 			"$tab\t</div>\n",
 			"$tab\t", wp_nonce_field('thesis-save-404', '_wpnonce-thesis-save-404', true, false), "\n",
-			"$tab\t<input type=\"submit\" data-style=\"button save\" class=\"t_save\" id=\"save_options\" value=\"", esc_attr(wptexturize(strip_tags(sprintf(__('%1$s %2$s', 'thesis'), $thesis->api->strings['save'], $this->title)))), "\" />\n",
+			"$tab\t<input type=\"submit\" data-style=\"button save\" class=\"t_save\" id=\"save_options\" value=\"", esc_attr(wptexturize(strip_tags(sprintf(__('%1$s %2$s', 'thesis'), __($thesis->api->strings['save'], 'thesis'), $this->title)))), "\" />\n",
 			"$tab</form>\n",
-			"$tab<a id=\"edit_404\" data-style=\"button action\" href=\"", admin_url("post.php?post=$this->page&action=edit"), "\" data-base=\"", admin_url('post.php?post='), "\">", wptexturize(sprintf(__('%1$s %2$s', 'thesis'), $thesis->api->strings['edit'], $this->title)), "</a>\n";
+			"$tab<a id=\"edit_404\" data-style=\"button action\" href=\"", admin_url("post.php?post=$this->page&action=edit"), "\" data-base=\"", admin_url('post.php?post='), "\">", wptexturize(sprintf(__('%1$s %2$s', 'thesis'), __($thesis->api->strings['edit'], 'thesis'), $this->title)), "</a>\n";
 	}
 
 	public function save() {
@@ -467,5 +296,46 @@ class thesis_404 extends thesis_box {
 		}
 		wp_redirect("admin.php?page=thesis&canvas=$this->_class&saved=$saved");
 		exit;
+	}
+}
+
+class thesis_twitter_profile extends thesis_box {
+	protected function translate() {
+		global $thesis;
+		$this->title = __('Twitter Profile Link', 'thesis');
+	}
+
+	protected function construct() {
+		add_filter('user_contactmethods', array($this, 'add_twitter'));
+	}
+
+	protected function html_options() {
+		return array(
+			'display' => array(
+				'type' => 'radio',
+				'label' => __('Display name as:', 'thesis'),
+				'tooltip' => sprintf(__('Choose how the author&#8217;s Twitter profile link will be presented. You can edit each author&#8217;s %1$s on their <a href="%2$s">user profile page</a>.', 'thesis'), $this->title, admin_url('users.php')),
+				'options' => array(
+					'handle' => __('Twitter handle (@YourUsername)', 'thesis'),
+					'text' => __('Call-to-action text (&#8220;Follow me on Twitter here.&#8221;)', 'thesis')),
+				'default' => 'handle'));
+	}
+
+	public function html($args = array()) {
+		global $thesis, $post;
+		extract($args = is_array($args) ? $args : array());
+		$tab = str_repeat("\t", !empty($depth) ? $depth : 0);
+		$twitter = str_replace('@', '', trim(get_user_option('twitter', $post->post_author)));
+		if (!empty($twitter))
+			echo
+				"$tab<span class=\"twitter_profile\">", (!empty($this->options['display']) ?
+				sprintf(apply_filters($this->_class, __('Follow me on Twitter <a href="%s">here</a>.', 'thesis')), 'https://twitter.com/'. $thesis->api->esc($twitter)) :
+				'<a href="https://twitter.com/'. $thesis->api->esc($twitter). "\">@$twitter</a>"),
+				"</span>\n";
+	}
+
+	public function add_twitter($contacts) {
+		$contacts['twitter'] = $this->title;
+		return $contacts;
 	}
 }

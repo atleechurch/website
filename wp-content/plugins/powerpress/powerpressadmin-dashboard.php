@@ -11,9 +11,35 @@ function powerpress_get_news($feed_url, $limit=10)
 	include_once(ABSPATH . WPINC . '/feed.php');
 	$rss = fetch_feed( $feed_url );
 	
-	// Bail if feed doesn't work
+	// If feed doesn't work...
 	if ( is_wp_error($rss) )
-		return false;
+	{
+		require_once( ABSPATH . WPINC . '/class-feed.php' );
+		// Try fetching the feed using CURL directly...
+		$content = powerpress_remote_fopen($feed_url, false, array(), 3, false, true);
+		if( !$content ) {
+			return false;
+		}
+		// Load the content in a fetch_feed object...
+		$rss = new SimplePie();
+
+		$rss->set_sanitize_class( 'WP_SimplePie_Sanitize_KSES' );
+		// We must manually overwrite $feed->sanitize because SimplePie's
+		// constructor sets it before we have a chance to set the sanitization class
+		$rss->sanitize = new WP_SimplePie_Sanitize_KSES();
+
+		$rss->set_cache_class( 'WP_Feed_Cache' );
+		$rss->set_file_class( 'WP_SimplePie_File' );
+		$rss->set_raw_data($content);
+		$rss->set_cache_duration( apply_filters( 'wp_feed_cache_transient_lifetime', 12 * HOUR_IN_SECONDS, $feed_url ) );
+		do_action_ref_array( 'wp_feed_options', array( &$rss, $feed_url ) );
+		$rss->init();
+		$rss->set_output_encoding( get_option( 'blog_charset' ) );
+		$rss->handle_content_type();
+
+		if ( $rss->error() )
+			return false;
+	}
 	
 	$rss_items = $rss->get_items( 0, $rss->get_item_quantity( $limit ) );
 	
@@ -22,12 +48,15 @@ function powerpress_get_news($feed_url, $limit=10)
 		$md5 = md5( $this->feed );
 		delete_transient( 'feed_' . $md5 );
 		delete_transient( 'feed_mod_' . $md5 );
+		$rss->__destruct();
+		unset($rss);
 		$rss = fetch_feed( $this->feed );
 		$rss_items = $rss->get_items( 0, $rss->get_item_quantity( $num ) );
+		$rss->__destruct();
+		unset($rss);
 	}
 	
 	return $rss_items;
-
 }
 
 	
@@ -137,6 +166,10 @@ function powerpress_dashboard_stats_content()
 			$req_url .= (defined('POWERPRESS_BLUBRRY_API_QSA')?'&'. POWERPRESS_BLUBRRY_API_QSA:'');
 			
 			$new_content = powerpress_remote_fopen($req_url, $UserPass, array(), 2); // Only give this 2 seconds to return results
+			if( !$new_content && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
+				$new_content = powerpress_remote_fopen($req_url, $UserPass, array(), 2, false, true); // Only give this 2 seconds to return results
+			}
+
 			if( $new_content )
 			{
 				update_option('powerpress_stats', array('updated'=>time(), 'content'=>$new_content) );
@@ -174,7 +207,7 @@ function powerpress_dashboard_stats_content()
 	}
 	else if( empty($content) )
 	{
-		$content = sprintf(__('Error: A network or authentication error occurred. To verify your account, click the link &quot;click here to configure Blubrry Statistics and Hosting services&quot; found in the %s tab.', 'powerpress'), '<a href="'. admin_url("admin.php?page=powerpress/powerpressadmin_basic.php") .'#tab2">'.__('Services &amp; Statistics'.'</a>', 'powerprss') );
+		$content = sprintf(__('Error: A network or authentication error occurred. To verify your account, click the link &quot;click here to configure Blubrry Statistics and Hosting services&quot; found in the %s tab.', 'powerpress'), '<a href="'. admin_url("admin.php?page=powerpress/powerpressadmin_basic.php") .'#tab2">'.__('Services &amp; Statistics'.'</a>', 'powerpress') );
 	}
 	
 ?>
@@ -230,19 +263,6 @@ function powerpress_dashboard_notice_2_content()
 	powerpress_dashboard_notice_message(2, $message );
 }
 
-function powerpress_dashboard_notice_3_content()
-{
-	$DismissedNotices = get_option('powerpress_dismissed_notices');
-	
-	if( !empty($DismissedNotices[3]) )
-		return; // Lets not do anything to the dashboard for PowerPress Notice
-	
-	$message = '<p>'. __('The 1 Pixel Out player is back! The security concerns have been addressed in this latest version.', 'powerpress') .'<br />';
-	$message .= '<a href="http://blog.blubrry.com/2013/02/14/1-pixel-out-player-returns-to-powerpress/" target="_blank">'. __("Learn More", "powerpress") .'</a></p>';
-	
-	powerpress_dashboard_notice_message(3, $message );
-}
-
 function powerpress_dashboard_notice_message($notice_id, $message)
 {
 	echo $message;
@@ -264,6 +284,9 @@ function powerpress_feed_text_limit( $text, $limit, $finish = '&hellip;') {
 function powerpress_dashboard_setup()
 {
 	if( !function_exists('wp_add_dashboard_widget') )
+		return; // We are not in the dashboard!
+
+	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 1 )
 		return;
 	
 	$Settings = get_option('powerpress_general');
@@ -278,50 +301,51 @@ function powerpress_dashboard_setup()
 		
 	if( !empty($Settings['use_caps']) && !current_user_can('view_podcast_stats') )
 		$StatsDashboard = false;
-		
-	// PowerPress Dashboard Notice 3:
-	$Notice3Dashboard = false;
-	if( time() < mktime(0, 0, 0, 2, 21, 2013) ) // One week later after update, lets no longer but folks about the news
-	{
-		$Notice3Dashboard = true;
-		$DismissedNotices = get_option('powerpress_dismissed_notices');
-		if( !empty($DismissedNotices[3]) )
-		{
-			$Notice3Dashboard = false; // Month notice is over
-		}
-	}
-	//$Notice1Dashboard = false;// Temporary till release
 
-	if( $Notice3Dashboard )
-	{
-		$user = wp_get_current_user();
-		powerpressadmin_add_dashboard_notice_widget($user->ID, 3);
-		wp_add_dashboard_widget( 'powerpress_dashboard_notice_3', __( 'Blubrry PowerPress Notice - February 2013', 'powerpress'), 'powerpress_dashboard_notice_3_content' );
+	$user = wp_get_current_user();
+
+	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 2 ) {
+		return;
 	}
 	
 	if( $NewsDashboard )
 		wp_add_dashboard_widget( 'powerpress_dashboard_news', __( 'Blubrry PowerPress & Community Podcast', 'powerpress'), 'powerpress_dashboard_news_content' );
-		
+
+	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 3 ) {
+		return;
+	}
+
 	if( $StatsDashboard )
 		wp_add_dashboard_widget( 'powerpress_dashboard_stats', __( 'Blubrry Podcast Statistics', 'powerpress'), 'powerpress_dashboard_stats_content' );
-	
-	$user_options = get_user_option('powerpress_user');
-	if( empty($user_options) || empty($user_options['dashboard_installed']) || $user_options['dashboard_installed'] < 2 )
-	{
-		if( !is_array($user_options) )
-			$user_options = array();
-		$user = wp_get_current_user();
-		
-		
-		
-		// First time we've seen this setting, so must be first time we've added the widgets, lets stack them at the top for convenience.
-		powerpressadmin_add_dashboard_widgets($user->ID);
-		$user_options['dashboard_installed'] = 2; // version of PowerPress
-		update_user_option($user->ID, "powerpress_user", $user_options, true);
+
+	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 4 ) {
+		return;
 	}
-	else
-	{
-		powerpressadmin_add_dashboard_widgets(false);
+
+	if( !empty( $user ) ) {
+		$user_options = get_user_option('powerpress_user');
+		if( empty($user_options) || empty($user_options['dashboard_installed']) || $user_options['dashboard_installed'] < 2 )
+		{
+			if( !is_array($user_options) )
+				$user_options = array();
+
+			if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 5 ) {
+				return;
+			}
+
+			// First time we've seen this setting, so must be first time we've added the widgets, lets stack them at the top for convenience.
+			powerpressadmin_add_dashboard_widgets($user->ID);
+			$user_options['dashboard_installed'] = 2; // version of PowerPress
+			update_user_option($user->ID, "powerpress_user", $user_options, true);
+		}
+		else
+		{
+			if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 6 ) {
+				return;
+			}
+
+			powerpressadmin_add_dashboard_widgets(false);
+		}
 	}
 }
 

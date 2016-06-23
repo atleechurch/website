@@ -16,8 +16,8 @@ class thesis_user_boxes {
 		$this->active = array_keys($this->boxes);
 		$this->include_boxes();
 		if ($thesis->environment == 'admin' || $thesis->environment == 'thesis') {
-			add_action('thesis_updates', array($this, 'get_updates'));
-			add_action('thesis_quicklaunch_menu', array($this, 'quicklaunch'), 40);
+			add_action('wp_loaded', array($this, 'updates'));
+			add_filter('thesis_quicklaunch_menu', array($this, 'quicklaunch'), 40);
 		}
 		if ($thesis->environment == 'admin') {
 			new thesis_upload(array(
@@ -37,13 +37,13 @@ class thesis_user_boxes {
 
 	public function include_boxes() {
 		foreach ($this->boxes as $class => $folder)
-			if (file_exists(THESIS_USER_BOXES . "/$folder/box.php"))
-				include_once(THESIS_USER_BOXES . "/$folder/box.php");
+			if (file_exists(THESIS_USER_BOXES. "/$folder/box.php"))
+				include_once(THESIS_USER_BOXES. "/$folder/box.php");
 	}
 
-	public function get_updates() {
-		$this->updates = ($updates = get_transient('thesis_boxes_update')) & !empty($updates) ?
-			$updates : array();
+	public function updates() {
+		global $thesis;
+		$this->updates = !empty($thesis->admin->updates['boxes']) ? $thesis->admin->updates['boxes'] : $this->updates;
 	}
 
 	public function quicklaunch($menu) {
@@ -68,7 +68,7 @@ class thesis_user_boxes {
 		}
 	}
 
-	public function get_items() {
+	public static function get_items() {
 		$boxes = array();
 		if (!is_dir(THESIS_USER_BOXES))
 			return $boxes;
@@ -100,14 +100,14 @@ class thesis_user_boxes {
 			$sort[$class] = $box['name'];
 		natcasesort($sort);
 		foreach ($sort as $class => $name)
-			$list .= $this->item_info($boxes[$class], $this->updates, $depth);
+			$list .= $this->item_info($boxes[$class], $this->active, $this->updates, $depth);
 		echo (!empty($_GET['saved']) ? $thesis->api->alert(($_GET['saved'] === 'yes' ?
 			__('Boxes saved!', 'thesis') :
 			__('Boxes not saved. Please try again.', 'thesis')), 'objects_saved', true, '', $depth) : ''),
-			"$tab<h3>", __('Thesis Boxes', 'thesis'), "$update_nag <span id=\"object_upload\" data-style=\"button action\" title=\"", __('upload a new box', 'thesis'), "\">", __('Upload Box', 'thesis'), "</span>",
+			"$tab<h3>", __('Thesis Boxes', 'thesis'), "$update_nag <span id=\"object_upload\" data-style=\"button action\" title=\"", __('upload a new box', 'thesis'), "\">", __('Upload a New Box', 'thesis'), "</span>",
 			"</h3>\n",
 			"$tab<p class=\"object_primer\">",
-			sprintf(__('<strong>Note:</strong> The boxes you select here will be activated and added to the <a href="%1$s">Skin %2$s Editor</a>, where you can add them to your templates. If your box is designed for use in the document <code>&lt;head&gt;</code>, it will be added to the <a href="%3$s">%2$s Head Editor</a>.', 'thesis'), set_url_scheme(home_url('?thesis_editor=1')), $thesis->api->base['html'], admin_url('admin.php?page=thesis&canvas=head')),
+			sprintf(__('<strong>Note:</strong> The boxes you select here will be activated and, if applicable, added to the <a href="%1$s">Skin %2$s Editor</a>, where you can add them to your templates. If your box is designed for use in the document <code>&lt;head&gt;</code>, it will be added to the <a href="%3$s">%2$s Head Editor</a>.', 'thesis'), set_url_scheme(home_url('?thesis_editor=1')), $thesis->api->base['html'], admin_url('admin.php?page=thesis&canvas=head')),
 			"</p>\n",
 			"$tab<form id=\"select_objects\" method=\"post\" action=\"", admin_url('admin-post.php?action=save_boxes'), "\">\n", #wp
 			"$tab\t<div class=\"object_list\">\n",
@@ -122,21 +122,22 @@ class thesis_user_boxes {
 				'body' => $thesis->api->uploader('thesis_box_uploader')));
 	}
 
-	public function item_info($box, $updates = array(), $depth = 0) {
+	public static function item_info($box, $active = array(), $updates = array(), $depth = 0) {
 		global $thesis;
 		$tab = str_repeat("\t", $depth);
-		$active_boxes = is_object($this) && property_exists($this, 'active') ? $this->active : array_keys(get_option('thesis_boxes', array()));
 		$id = esc_attr($box['class']);
-		$checked = in_array($box['class'], $active_boxes) ? ' checked="checked"' : '';
+		$checked = in_array($box['class'], $active) ? ' checked="checked"' : '';
 		$author = !empty($box['author']) ? " <span class=\"object_by\">". __('by', 'thesis'). "</span> <span class=\"object_author\">". esc_attr($box['author']). "</span>" : '';
+		$update = !empty($updates[$box['class']]) && version_compare($updates[$box['class']]['version'], $box['version'], '>') ?
+			" <a onclick=\"if(!thesis_update_message()) return false;\" data-style=\"button update\" href=\"". wp_nonce_url(admin_url("update.php?action=thesis_update_objects&type=box&class=$id&name=". urlencode($thesis->api->escht($box['name']))), 'thesis-update-objects'). '">'. sprintf(__('Update %s', 'thesis'), esc_attr($box['name'])). '</a>' : '';
 		return
 			"$tab\t\t<div id=\"box_$id\" class=\"object". (!empty($checked) ? ' active_object' : ''). "\">\n".
 			"$tab\t\t\t<label for=\"$id\">". $thesis->api->escht($box['name']). " <span class=\"object_version\">v ". esc_attr($box['version']). "</span>$author</label>\n".
-			(!empty($updates[$box['class']]) && version_compare($updates[$box['class']]['version'], $box['version'], '>') ?
-			"$tab\t\t\t<p><a onclick=\"if(!thesis_update_message()) return false;\" data-style=\"button save\" href=\"". wp_nonce_url(admin_url('update.php?action=thesis_update_objects&update_type=box&class='. $id), 'thesis-update-objects'). "\">". sprintf(__('Update %s', 'thesis'), esc_attr($box['name'])). "</a></p>" : '').
+			(!empty($update) ?
+			"$tab\t\t\t<p>$update</p>\n" : '').
 			"$tab\t\t\t<p class=\"object_description\">". wptexturize(wp_kses($box['description'], array('a' => array('href' => array(), 'title' => array(), 'target' => array()), 'code' => array(), 'em' => array(), 'strong' => array()))). "</p>\n".
 			"$tab\t\t\t<input type=\"checkbox\" class=\"select_object\" id=\"$id\" name=\"boxes[$id]\" value=\"1\"$checked />\n".
-			"$tab\t\t\t<button data-style=\"button delete\" class=\"delete_object\" data-type=\"box\" data-class=\"$id\" data-url=\"". wp_nonce_url(admin_url("update.php?action=thesis_delete_object&thesis_object_type=box&thesis_object_name=$id"), 'thesis-delete-object'). "\">". __('Delete Box', 'thesis') ."</button>\n".
+			"$tab\t\t\t<button data-style=\"button delete\" class=\"delete_object\" data-type=\"box\" data-class=\"$id\" data-name=\"". $thesis->api->escht($box['name']). "\">". __('Delete Box', 'thesis'). "</button>\n".
 			"$tab\t\t</div>\n";
 	}
 
@@ -165,12 +166,12 @@ class thesis_user_boxes {
 	public function delete() {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
-		if (empty($_POST['class']) || empty($_POST['url'])) return;
+		if (empty($_POST['class']) || empty($_POST['name'])) return;
 		echo $thesis->api->popup(array(
-			'id' => 'delete_' . esc_attr($_POST['class']),
+			'id' => 'delete_'. esc_attr($_POST['class']),
 			'title' => __('Delete Box', 'thesis'),
 			'body' =>
-				"<iframe style=\"width:100%; height:100%;\" frameborder=\"0\" src=\"". esc_url($_POST['url']). "\" id=\"thesis_delete_". esc_attr($_POST['class']). "\"></iframe>\n"));
+				"<iframe style=\"width:100%; height:100%;\" frameborder=\"0\" src=\"". wp_nonce_url(admin_url("update.php?action=thesis_delete_object&thesis_object_type=box&thesis_object_class=". esc_attr($_POST['class']). "&thesis_object_name=". urlencode($_POST['name'])), 'thesis-delete-object'). "\" id=\"thesis_delete_". esc_attr($_POST['class']). "\"></iframe>\n"));
 		if ($thesis->environment == 'ajax') die();
 	}
 }

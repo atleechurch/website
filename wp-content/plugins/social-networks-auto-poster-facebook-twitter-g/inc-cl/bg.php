@@ -8,7 +8,8 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
     // V2 Auth
     if ( isset($_GET['code']) && $_GET['code']!='' && isset($_GET['state']) && substr($_GET['state'], 0, 7) == 'nxs-bg-'){  $at = $_GET['code'];  $ii = str_replace('nxs-bg-','',$_GET['state']);
       echo "----=={ oAuth 2.0 Wordflow }==----<br/>-= This is normal technical authorization info that will dissapear (Unless you get some errors) =- <br/><br/><br/>"; 
-      $gGet = $_GET; unset($gGet['code']); unset($gGet['state']); unset($gGet['post_type']); $sturl = explode('?',$nxs_snapSetPgURL); $nxs_snapSetPgURL = $sturl[0].((!empty($gGet))?'?'.http_build_query($gGet):''); 
+      $gGet = $_GET; unset($gGet['code']); unset($gGet['state']); unset($gGet['post_type']); unset($gGet['post']);
+      $sturl = explode('?',$nxs_snapSetPgURL); $nxs_snapSetPgURL = $sturl[0].((!empty($gGet))?'?'.http_build_query($gGet):'');
       
       $nto = $ntOpts[$ii]; $wprg = array();  $wprg['sslverify'] = false;
       if (isset($nto['APIKey'])){ echo "-="; prr($nto);// die();
@@ -28,47 +29,23 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
         
         $response  = wp_remote_get($tknURL, $wprg); prr($tknURL); prr($response);  $user = json_decode($response['body'], true); prr($user);
        
-        if (!empty($user['url'])) { $nto['blogURL'] = $user['url']; $nto['bgBlogID'] = $user['id']; $nto['blogInfo'] = $user['name']." [".$user['id']."] (".$user['url'].")"; 
-          if (function_exists('get_option')) $nxs_gOptions = get_option('NS_SNAutoPoster'); if(!empty($nxs_gOptions)) { $nxs_gOptions['bg'][$ii] = $nto; prr($nto); nxs_settings_save($nxs_gOptions); }
+        if (!empty($user['url'])) { $nto['blogURL'] = $user['url']; $nto['bgBlogID'] = $user['id']; $nto['blogInfo'] = $user['name']." [".$user['id']."] (".$user['url'].")"; nxs_save_glbNtwrks($ntInfo['lcode'],$ii,$nto,'*');
+          //if (function_exists('get_option')) $nxs_gOptions = get_option('NS_SNAutoPoster'); if(!empty($nxs_gOptions)) { $nxs_gOptions['bg'][$ii] = $nto; prr($nto); nxs_settings_save($nxs_gOptions); }
           ?><script type="text/javascript">window.location = "<?php echo $nxs_snapSetPgURL; ?>"</script>      
         <?php }        
       }
       die();
     }
-    ?>    
-    <div class="nxs_box">
-      <div class="nxs_box_header"> 
-        <div class="nsx_iconedTitle" style="margin-bottom:1px;background-image:url(<?php echo $nxs_plurl;?>img/<?php echo $ntInfo['lcode']; ?>16.png);"><?php echo $ntInfo['name']; ?>
-          <?php $cbo = count($ntOpts); ?> 
-          <?php if ($cbo>1){ ?><div class="nsBigText"><?php echo "(".($cbo=='0'?'No':$cbo)." "; _e('accounts', 'social-networks-auto-poster-facebook-twitter-g'); echo ")"; ?></div><?php } ?>
-        </div>
-      </div>
-      <div class="nxs_box_inside">
-        <?php foreach ($ntOpts as $indx=>$pbo){ if (trim($pbo['nName']=='')) $pbo['nName'] = !empty($pbo[$ntInfo['defNName']])?$pbo[$ntInfo['defNName']]:'Blogger'; 
-          if (!isset($pbo[$ntInfo['lcode'].'OK']) || $pbo[$ntInfo['lcode'].'OK']=='') $pbo[$ntInfo['lcode'].'OK'] = (isset($pbo['AccessToken']) && $pbo['AccessTokenSecret']!='')?'1':'';
-        ?>
-          <p style="margin:0px;margin-left:5px;"> <img id="<?php echo $ntInfo['code'].$indx;?>LoadingImg" style="display: none;" src='<?php echo $nxs_plurl; ?>img/ajax-loader-sm.gif' />
-            <input value="0" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" type="hidden" />             
-            <?php if ((int)$pbo['do'.$ntInfo['code']] == 1 && isset($pbo['catSel']) && (int)$pbo['catSel'] == 1) { ?> <input type="radio" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" id="rbtn<?php echo $ntInfo['lcode'].$indx; ?>" value="1" checked="checked" onmouseout="nxs_hidePopUpInfo('popOnlyCat');" onmouseover="nxs_showPopUpInfo('popOnlyCat', event);" /> <?php } else { ?>            
-            <input value="1" name="<?php echo $ntInfo['lcode']; ?>[<?php echo $indx; ?>][apDo<?php echo $ntInfo['code']; ?>]" type="checkbox" <?php if ((int)$pbo['do'.$ntInfo['code']] == 1 && $pbo['catSel']!='1') echo "checked"; ?> />
-           <?php } ?>
-            <?php if (isset($pbo['catSel']) && (int)$pbo['catSel'] == 1) { ?> <span onmouseout="nxs_hidePopUpInfo('popOnlyCat');" onmouseover="nxs_showPopUpInfo('popOnlyCat', event);"><?php echo "*[".(substr_count($pbo['catSelEd'], ",")+1)."]*" ?></span><?php } ?>
-            <?php if (isset($pbo['rpstOn']) && (int)$pbo['rpstOn'] == 1) { ?> <span onmouseout="nxs_hidePopUpInfo('popReActive');" onmouseover="nxs_showPopUpInfo('popReActive', event);"><?php echo "*[R]*" ?></span><?php } ?>
-            <strong><?php  _e('Auto-publish to', 'social-networks-auto-poster-facebook-twitter-g'); ?> <?php echo $ntInfo['name']; ?> <i style="color: #005800;"><?php if($pbo['nName']!='') echo "(".$pbo['nName'].")"; ?></i></strong>
-          &nbsp;&nbsp;<?php if ($ntInfo['tstReq'] && (!isset($pbo[$ntInfo['lcode'].'OK']) || $pbo[$ntInfo['lcode'].'OK']=='')){ ?><b style="color: #800000"><?php  _e('Attention requred. Unfinished setup', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?> <?php if (!class_exists('nxsAPI_GP') && !empty($pbo['bgUName']) && empty($pbo['APIKey'])){ ?><b style="color: #800000"><?php  _e('Attention requred. "ClientLogin" authentication method is no longer supported by Blogger', 'social-networks-auto-poster-facebook-twitter-g'); ?> ==&gt;</b><?php } ?> <a id="do<?php echo $ntInfo['code'].$indx; ?>AG" href="#" onclick="doGetHideNTBlock('<?php echo $ntInfo['code'];?>' , '<?php echo $indx; ?>');return false;">[<?php  _e('Show Settings', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>&nbsp;&nbsp;
-          <a href="#" onclick="doDelAcct('<?php echo $ntInfo['lcode']; ?>', '<?php echo $indx; ?>', '<?php if (isset($pbo['bgBlogID'])) echo $pbo['nName']; ?>');return false;">[<?php  _e('Remove Account', 'social-networks-auto-poster-facebook-twitter-g'); ?>]</a>
-          </p><div id="nxsNTSetDiv<?php echo $ntInfo['code'].$indx; ?>"></div><?php //$pbo['ntInfo'] = $ntInfo; $this->showNTSettings($indx, $pbo);             
-        }?>
-      </div>
-    </div> <?php 
+    $ntParams = array('ntInfo'=>$ntInfo, 'nxs_plurl'=>$nxs_plurl, 'ntOpts'=>$ntOpts, 'chkField'=>''); nxs_showListRow($ntParams);
   }  
   //#### Show NEW Settings Page
-  function showNewNTSettings($bo){ $po = array('nName'=>'', 'ulName'=>'', 'bgPass'=>'', 'grpID'=>'', 'uPage'=>'', 'doBG'=>'1', 'APIKey'=>'', 'bgBlogID'=>'', 'APISec'=>'', 'userInfo'=>'', 'OAuthToken'=>'', 'msgFormat'=>'New post has been published on %SITENAME%', 'msgFormatT'=>'New post - %TITLE%' ); $po['ntInfo']= array('lcode'=>'bg'); $this->showNTSettings($bo, $po, true);}
+  function showNewNTSettings($bo){ $po = array('nName'=>'', 'ulName'=>'', 'bgPass'=>'', 'grpID'=>'', 'uPage'=>'', 'doBG'=>'1', 'APIKey'=>'', 'APISec'=>'',  'bgBlogID'=>'', 'bgInclTags'=>'', 'bgMsgFormat'=>'%RAWTEXT%', 'bgMsgTFormat'=>'%TITLE%', 'bgUName'=>'',  'userInfo'=>'', 'OAuthToken'=>'', 'msgFormat'=>'New post has been published on %SITENAME%', 'msgFormatT'=>'New post - %TITLE%' ); $po['ntInfo']= array('lcode'=>'bg'); $this->showNTSettings($bo, $po, true);}
   //#### Show Unit  Settings
   function showNTSettings($ii, $options, $isNew=false){  global $nxs_plurl,$nxs_snapSetPgURL;  $nt = $options['ntInfo']['lcode']; $ntU = strtoupper($nt); if (!isset($options['bgOK'])) $options['bgOK'] = ''; 
   
-    if (!isset($options['nHrs'])) $options['nHrs'] = 0; if (!isset($options['nMin'])) $options['nMin'] = 0;  if (!isset($options['catSel'])) $options['catSel'] = 0;  if (!isset($options['catSelEd'])) $options['catSelEd'] = ''; 
+    if (!isset($options['nHrs'])) $options['nHrs'] = 0; if (!isset($options['nMin'])) $options['nMin'] = 0;
     if (!isset($options['nDays'])) $options['nDays'] = 0; if (!isset($options['qTLng'])) $options['qTLng'] = ''; if (!isset($options['msgAFrmt'])) $options['msgAFrmt'] = ''; 
+    if (!isset($options['bgInclTags'])) $options['bgInclTags'] = 0; if (!isset($options['bgMsgFormat'])) $options['bgMsgFormat'] = '%RAWTEXT%'; if (!isset($options['bgMsgTFormat'])) $options['bgMsgTFormat'] = '%TITLE%'; if (!isset($options['bgUName'])) $options['bgUName'] = '';
     if (empty($options['apiToUse'])) { if (!empty($options['APIKey'])) $options['apiToUse'] = 'bg'; if (!empty($options['bgUName']) && !empty($options['bgPass'])) $options['apiToUse'] = 'nx'; } ?>
     <div id="doBG<?php echo $ii; ?>Div" class="insOneDiv<?php if ($isNew) echo " clNewNTSets"; ?>">   <input type="hidden" name="apDoSBG<?php echo $ii; ?>" value="0" id="apDoSBG<?php echo $ii; ?>" />                                     
     <?php if ($isNew) { ?> <input type="hidden" name="bg[<?php echo $ii; ?>][apDoBG]" value="1" id="apDoNewBG<?php echo $ii; ?>" /> <?php } ?>
@@ -132,7 +109,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
                  
         <div class="subDiv" id="sub<?php echo $ii; ?>DivN" style="display: block;">            
           <div style="width:100%;"><strong>Your Blogger Username/Email:</strong> </div><input name="bg[<?php echo $ii; ?>][bgUName]" style="width: 70%;" value="<?php _e(apply_filters('format_to_edit', htmlentities($options['bgUName'], ENT_COMPAT, "UTF-8")), 'social-networks-auto-poster-facebook-twitter-g') ?>" /> 
-          <div style="width:100%;"><strong>Your Blogger Password:</strong> </div><input autocomplete="false" readonly onfocus="this.removeAttribute('readonly');" type="password" name="bg[<?php echo $ii; ?>][bgPass]" style="width: 75%;" value="<?php _e(apply_filters('format_to_edit', htmlentities($options['bgPass'], ENT_COMPAT, "UTF-8")), 'social-networks-auto-poster-facebook-twitter-g') ?>" />
+          <div style="width:100%;"><strong>Your Blogger Password:</strong> </div><input autocomplete="false" readonly onfocus="this.removeAttribute('readonly');" type="password" name="bg[<?php echo $ii; ?>][bgPass]" style="width: 75%;" value="<?php _e(apply_filters('format_to_edit', htmlentities(substr($options['bgPass'], 0, 5)=='b4d7s'?nsx_doDecode(substr($options['bgPass'], 5)):$options['bgPass'], ENT_COMPAT, "UTF-8")), 'social-networks-auto-poster-facebook-twitter-g') ?>" />
           
             </div>          
             <?php } else { nxs_show_noLibWrn('"NextScripts API Library for Blogger" is NOT installed'); } ?>           
@@ -168,7 +145,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
                 <?php /* ######################## Advanced Tab ####################### */ ?>
    <?php if (!$isNew) { ?>  <div id="nsx<?php echo $nt.$ii ?>_tab2" class="nsx_tab_content">
     
-    <?php nxs_showCatTagsCTFilters($nt, $ii, $options); 
+    <?php $options = nxs_FltrsV3toV4($options); nxs_showNTFilters($nt, $ii, $options); echo "<hr/>";
       nxs_addPostingDelaySelV3($nt, $ii, $options['nHrs'], $options['nMin'], $options['nDays']); 
       nxs_showRepostSettings($nt, $ii, $options); ?>
             
@@ -191,9 +168,6 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
         
                 if (isset($pval['apDoBG']))   $options[$ii]['doBG'] = $pval['apDoBG']; else $options[$ii]['doBG'] = 0;
                 
-                if (isset($pval['catSel'])) $options[$ii]['catSel'] = trim($pval['catSel']); else $options[$ii]['catSel'] = 0;
-                if ($options[$ii]['catSel']=='1' && trim($pval['catSelEd'])!='') $options[$ii]['catSelEd'] = trim($pval['catSelEd']); else $options[$ii]['catSelEd'] = '';
-                
                 if (isset($pval['nName']))       $options[$ii]['nName'] = trim($pval['nName']);
                 if (isset($pval['bgUName']))   $options[$ii]['bgUName'] = trim($pval['bgUName']);
                 if (isset($pval['bgPass']))    $options[$ii]['bgPass'] = 'b4d7s'.nsx_doEncode($pval['bgPass']); else $options[$ii]['bgPass'] = '';
@@ -206,7 +180,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
                 if (isset($pval['apBGMsgTFrmt'])) $options[$ii]['bgMsgTFormat'] = trim($pval['apBGMsgTFrmt']);         
                 if (isset($pval['bgInclTags']))   $options[$ii]['bgInclTags'] = $pval['bgInclTags'];  else $options[$ii]['bgInclTags'] = 0;        
                 
-                $options[$ii] = nxs_adjRpst($options[$ii], $pval);       
+                $options[$ii] = nxs_adjRpst($options[$ii], $pval);   $options[$ii] = nxs_adjFilters($pval, $options[$ii]);
         
                 if (isset($pval['delayDays'])) $options[$ii]['nDays'] = trim($pval['delayDays']);
                 if (isset($pval['delayHrs'])) $options[$ii]['nHrs'] = trim($pval['delayHrs']); if (isset($pval['delayMin'])) $options[$ii]['nMin'] = trim($pval['delayMin']); 
@@ -218,18 +192,22 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
   //#### Show Post->Edit Meta Box Settings
   function showEdPostNTSettings($ntOpts, $post){ global $nxs_plurl; $post_id = $post->ID;  $nt = 'bg'; $ntU = 'BG';
     foreach($ntOpts as $ii=>$ntOpt){ $pMeta = maybe_unserialize(get_post_meta($post_id, 'snapBG', true)); if (is_array($pMeta)) $ntOpt = $this->adjMetaOpt($ntOpt, $pMeta[$ii]); 
-       if (empty($ntOpt['imgToUse'])) $ntOpt['imgToUse'] = '';
-       $doBG = $ntOpt['doBG'] && (is_array($pMeta) || $ntOpt['catSel']!='1'); $imgToUse = $ntOpt['imgToUse']; $isAvailBG =  (!empty($ntOpt['bgUName']) && !empty($ntOpt['bgPass'])) || !empty($ntOpt['AccessToken']);  
+       if (empty($ntOpt['imgToUse'])) $ntOpt['imgToUse'] = ''; $imgToUse = $ntOpt['imgToUse']; $isAvailBG =  (!empty($ntOpt['bgUName']) && !empty($ntOpt['bgPass'])) || !empty($ntOpt['AccessToken']);
        $bgMsgFormat = htmlentities($ntOpt['bgMsgFormat'], ENT_COMPAT, "UTF-8");  $bgMsgTFormat = htmlentities($ntOpt['bgMsgTFormat'], ENT_COMPAT, "UTF-8");
       ?>  
       
    <tr><th style="text-align:left;" colspan="2">
-      <?php if ($ntOpt['catSel']=='1' && trim($ntOpt['catSelEd'])!='')  { ?> <input type="hidden" class="nxs_SC" id="nxs_SC_<?php echo $ntU; ?><?php echo $ii; ?>" value="<?php echo $ntOpt['catSelEd']; ?>" /> <?php } ?>
-      <?php if (!empty($ntOpt['tagsSel'])) { ?>  <input type="hidden" class="nxs_TG" id="nxs_TG_<?php echo $ntU; ?><?php echo $ii; ?>" value="<?php echo $ntOpt['tagsSel']; ?>" /> <?php } ?>
-      <?php if ($isAvailBG) { ?><input class="nxsGrpDoChb" value="1" id="doBG<?php echo $ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="bg[<?php echo $ii; ?>][doBG]" <?php if ((int)$doBG == 1) echo 'checked="checked" title="def"';  ?> /> <?php if ($post->post_status == "publish") { ?> <input type="hidden" name="bg[<?php echo $ii; ?>][doBG]" value="<?php echo $doBG;?>"> <?php } ?> <?php } ?>
+      <?php if ($isAvailBG) { $ntOpt = nxs_FltrsV3toV4($ntOpt); if (!isset($ntOpt['do'])) $ntOpt['do'] = $ntOpt['do'.$ntU];?>
+      <?php if ($post->post_status != "publish" && ((empty($pMeta) && $ntOpt['fltrsOn']=='1')||($ntOpt['do']=='2'))){ ?>
+       <input type="radio" id="rbtn<?php echo $ntU.$ii; ?>" value="2" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" checked="checked" class="nxsGrpDoChb" /> <?php }
+      else { ?>
+         <input class="nxsGrpDoChb" value="1" id="do<?php echo $ntU.$ii; ?>" <?php if ($post->post_status == "publish") echo 'disabled="disabled"';?> type="checkbox" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" <?php if ((int)$ntOpt['do'] > 0) echo 'checked="checked" title="def"';  ?> />
+      <?php }
+      if ($post->post_status == "publish") { ?> <input type="hidden" name="<?php echo $nt; ?>[<?php echo $ii; ?>][do]" value="<?php echo $ntOpt['do'];?>"> <?php } ?>
+    <?php } ?>
       <div class="nsx_iconedTitle" style="display: inline; font-size: 13px; background-image: url(<?php echo $nxs_plurl; ?>img/bg16.png);">Blogger - <?php _e('publish to', 'social-networks-auto-poster-facebook-twitter-g') ?> (<i style="color: #005800;"><?php echo $ntOpt['nName']; ?></i>)</div></th> <td style="min-width: 180px; width: 350px;" ><?php //## Only show RePost button if the post is "published"
-                    if ($post->post_status == "publish" && $isAvailBG) { ?>
-                    <input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" type="button" class="button" name="rePostToBG_repostButton" id="rePostToBG_button" value="<?php _e('Repost to Blogger', 'social-networks-auto-poster-facebook-twitter-g') ?>" />                    
+                    if ($post->post_status == "publish" && $isAvailBG) { ?><?php $ntName = $this->ntInfo['name']; ?>
+                    <input alt="<?php echo $ii; ?>" style="float: right;" onmouseout="hidePopShAtt('SV');" onmouseover="showPopShAtt('SV', event);" onclick="return false;" data-ntname="<?php echo $ntName; ?>" type="button" class="button manualPostBtn" name="<?php echo $nt."-".$post->ID; ?>" value="<?php _e('Post to ', 'social-networks-auto-poster-facebook-twitter-g'); echo $ntName; ?>" />
                     <?php } ?>
                     
                     <?php  if (is_array($pMeta) && !empty($pMeta[$ii]) && is_array($pMeta[$ii]) && isset($pMeta[$ii]['pgID']) ) {                         
@@ -250,10 +228,10 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
                 </td></tr> <?php } ?>
                 
                  <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Title Format:', 'NS_SPAP') ?></th>
-                <td><input value="<?php echo $bgMsgTFormat ?>" type="text" name="bg[<?php echo $ii; ?>][SNAPTformat]" style="width:60%;max-width: 610px;" onfocus="jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGTMsgFrmt<?php echo $ii; ?>');"/><?php nxs_doShowHint("apBGTMsgFrmt".$ii, '', '58'); ?></td></tr>
+                <td><input class="nxs_postEditCtrl" value="<?php echo $bgMsgTFormat ?>" type="text" name="bg[<?php echo $ii; ?>][SNAPTformat]" style="width:60%;max-width: 610px;" onfocus="jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGTMsgFrmt<?php echo $ii; ?>');" onchange="nxs_svPostStAjax(this)"/><?php nxs_doShowHint("apBGTMsgFrmt".$ii, '', '58'); ?></td></tr>
                 <tr id="altFormat1" style=""><th scope="row" style="vertical-align:top; padding-top: 6px; text-align:right; width:60px; padding-right:10px;"><?php _e('Message Format:', 'NS_SPAP') ?></th>
                 <td>
-                <textarea cols="150" rows="1" id="bg<?php echo $ii; ?>SNAPformat" name="bg[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#bg<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGMsgFrmt<?php echo $ii; ?>');"><?php echo $bgMsgFormat; ?></textarea>                
+                <textarea class="nxs_postEditCtrl"  cols="150" rows="1" id="bg<?php echo $ii; ?>SNAPformat" name="bg[<?php echo $ii; ?>][SNAPformat]"  style="width:60%;max-width: 610px;" onfocus="jQuery('#bg<?php echo $ii; ?>SNAPformat').attr('rows', 4); jQuery('.nxs_FRMTHint').hide();mxs_showFrmtInfo('apBGMsgFrmt<?php echo $ii; ?>');"><?php echo $bgMsgFormat; ?></textarea>
                 <?php nxs_doShowHint("apBGMsgFrmt".$ii, '', '58'); ?></td></tr>                
                 <?php }
     }      
@@ -263,7 +241,7 @@ if (!class_exists("nxs_snapClassBG")) { class nxs_snapClassBG { var $ntInfo = ar
      if (isset($pMeta['SNAPformat'])) $optMt['bgMsgFormat'] = $pMeta['SNAPformat'];  if (isset($pMeta['imgToUse'])) $optMt['imgToUse'] = $pMeta['imgToUse'];      
      if (isset($pMeta['timeToRun']))  $optMt['timeToRun'] = $pMeta['timeToRun'];  if (isset($pMeta['rpstPostIncl']))  $optMt['rpstPostIncl'] = $pMeta['rpstPostIncl'];    
      if (isset($pMeta['SNAPTformat'])) $optMt['bgMsgTFormat'] = $pMeta['SNAPTformat'];      
-     if (isset($pMeta['doBG'])) $optMt['doBG'] = $pMeta['doBG'] == 1?1:0; else { if (isset($pMeta['SNAPformat']))  $optMt['doBG'] = 0; } 
+     if (isset($pMeta['do'])) $optMt['do'] = $pMeta['do']; else $optMt['do'] = 0; if (isset($pMeta['doBG'])) $optMt['doBG'] = $pMeta['doBG']; else { if (isset($pMeta['SNAPformat']))  $optMt['doBG'] = 0; }
      if (isset($pMeta['SNAPincludeBG']) && $pMeta['SNAPincludeBG'] == '1' ) $optMt['doBG'] = 1;  
      return $optMt;
   }
@@ -316,7 +294,7 @@ if (!function_exists("nxs_doPublishToBG")) { //## Second Function to Post to BG
         $extInfo .= ' | <a href="'.$ret['postURL'].'" target="_blank">Post Link</a>'; nxs_addToLogN('S', 'Posted', $logNT, 'OK - Message Posted ', $extInfo); }
     }
     //## Return Result
-    if ($ret['isPosted']=='1') return 200; else return print_r($ret, true); 
+    if (!empty($ret['isPosted']) && $ret['isPosted']=='1') return 200; else return print_r($ret, true);
   }
 }
 

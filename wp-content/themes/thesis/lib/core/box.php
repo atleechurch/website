@@ -12,31 +12,31 @@ class thesis_box {
 	public $name = false;					// (string) For multi-instance boxes, supply a name; must be defined in translate() for translation
 	public $root = false;					// (bool) Currently, only <head> and <body> should be considered roots
 	public $head = false;					// (bool) True = box goes in the <head>; false = <body>.
-	public $dependents = false;				// (array) class names of dependent boxes
-	public $children = false;				// (array) class names of dependent boxes that are active when the parent is added
-	public $switch = false;					// (bool) Set to true if the box contents should be visible on admin page load (rotators only).
-	public $templates = array(				// (array) Top-level, core templates for which this box is valid
+	public $dependents = false;				// (array) class names of dependent Boxes
+	public $children = false;				// (array) class names of dependent Boxes that are active when the parent is added
+	public $switch = false;					// (bool) Set to true if the Box contents should be visible on admin page load (rotators only).
+	public $templates = array(				// (array) Top-level, core templates for which this Box is valid
 		'home',
 		'single',
 		'page',
 		'archive');
-	protected $filters = array();			// (array) API for certain box overrides
-	// critical reserved properties set by the box constructor
-	public $_class;							// (string) quick reference for this box's class name
-	public $_id;							// (string) unique identifier for this box
-	// reserved properties set by the box constructor and NOT intended for use by box extensions
-	public $_parent = false;				// (string) unique ID of parent box
-	public $_lineage = false;				// (string) breadcrumb-style ID showing parent/child box relationships
+	protected $filters = array();			// (array) API for certain Box overrides
+	// critical reserved properties set by the Box constructor
+	public $_class;							// (string) quick reference for this Box's class name
+	public $_id;							// (string) unique identifier for this Box
+	// reserved properties set by the Box constructor and NOT intended for use by Box extensions
+	public $_parent = false;				// (string) unique ID of parent Box
+	public $_lineage = false;				// (string) breadcrumb-style ID showing parent/child Box relationships
 	public $_switch = false;				// (bool) toggle the rotator by default on the template editor?
 	public $_uploader = array();			// (array) contains uploader options
 	public $_menu = false;					// (array) admin menu properties, if applicable
-	public $_link = false;					// (array) skin admin link to instance-based options page
-	// reserved properties set by the constructor and intended for use in box extensions
+	public $_link = false;					// (array) Skin admin link to instance-based options page
+	// reserved properties set by the constructor and intended for use in Box extensions
 	public $options = array();				// (array) options for this instance (in the context of the current Skin)
-	public $class_options = array();		// (array) class-specific options for this box
-	public $post_meta = array();			// (array) this box's post meta data for the current page, if it exists
-	public $term_options = array();			// (array) this box's term options data for the current term, if it exists
-	public $template_options = array();		// (array) this box's template options data for the current template, if it exists
+	public $class_options = array();		// (array) class-specific options for this Box
+	public $post_meta = array();			// (array) this Box's post meta data for the current page, if it exists
+	public $term_options = array();			// (array) this Box's term options data for the current term, if it exists
+	public $template_options = array();		// (array) this Box's template options data for the current template, if it exists
 
 	public function __construct($box = array()) {
 		global $thesis;
@@ -72,15 +72,20 @@ class thesis_box {
 			add_action('thesis_init_template', array($this, '_get_template_options'));
 			add_action('thesis_init_custom_template', array($this, '_get_template_options'));
 		}
-		if (method_exists($this, 'preload'))
+		if (method_exists($this, 'preload') && $this->_display())
 			add_filter('thesis_template_preload', array($this, '_preload'));
 		$this->construct();
 		if ($thesis->environment == 'admin' || $thesis->environment == 'thesis')
 			$this->_box_admin();
 		if ($thesis->environment == 'ajax' && method_exists($this, 'admin_ajax'))
 			$this->admin_ajax();
-		if (in_array($thesis->environment, array('canvas', 'ajax', 'admin')) && method_exists($this, 'filter_css'))
-			add_filter('thesis_css', array($this, 'filter_css'), 10, 3);
+		if (in_array($thesis->environment, array('canvas', 'ajax', 'admin')) && method_exists($this, 'filter_css')) {
+			static $done = array();
+			if (!in_array($this->_class, $done)) {
+				add_filter('thesis_css', array($this, 'filter_css'), 10, 3);
+				$done[] = $this->_class;
+			}
+		}
 	}
 
 	protected function _display() {
@@ -191,10 +196,12 @@ class thesis_box {
 			'type' => 'text',
 			'width' => 'medium',
 			'code' => true), $this->type == 'rotator' ? array(
-			'label' => __('Hook Name', 'thesis'),
-			'tooltip' => sprintf(__('Specify a hook name here, and you&#8217;ll be able to target this Box in your %s. Use this to add additional flexibility to your Skin.', 'thesis'), $thesis->api->base['php'])) : array(
-			'label' => __('Programmatic ID', 'thesis'),
-			'tooltip' => sprintf(__('Specify a programmatic ID here, and you&#8217;ll be able to control this Box with <a href="%s">Skin display options</a>. Use this to add additional flexibility to your Skin.', 'thesis'), 'http://diythemes.com/thesis/rtfm/api/skin/#section-display'))) : false;
+			'label' => __('Display ID (and Hook Name)', 'thesis'),
+			'tooltip' => sprintf(__('Specify a Display ID here, and you&#8217;ll be able to target this Box via <a href="%1$s">Skin Display Options</a> and also <a href="%2$s">hooks in your custom %3$s</a>.', 'thesis'), 'http://diythemes.com/thesis/rtfm/api/skin/display-options/', 'http://diythemes.com/thesis/rtfm/tutorials/hooks/', $thesis->api->base['php']),
+			'description' => sprintf(__('Display ID syntax: %s_{ID}', 'thesis'), $this->_class)) : array(
+			'label' => __('Display ID', 'thesis'),
+			'tooltip' => sprintf(__('Specify a Display ID here, and you&#8217;ll be able to control this Box with <a href="%s">Skin Display Options</a>.', 'thesis'), 'http://diythemes.com/thesis/rtfm/api/skin/display-options/'),
+			'description' => sprintf(__('Display ID syntax: %s_{ID}', 'thesis'), $this->_class))) : false;
 		return array_filter($html);
 	}
 
@@ -204,6 +211,8 @@ class thesis_box {
 		$this->_menu[$this->_class] = array(
 			'text' => !empty($this->filters['text']) ? $this->filters['text'] : $this->title,
 			'url' => !empty($this->filters['url']) ? esc_url($this->filters['url']) : admin_url("admin.php?page=thesis&canvas=$this->_class"));
+		if (!empty($this->filters['description']))
+			$this->_menu[$this->_class]['description'] = $thesis->api->allow_html($this->filters['description']);
 		add_filter(!empty($this->filters['menu']) ? ($this->filters['menu'] == 'site' ?
 			'thesis_site_menu' : ($this->filters['menu'] == 'skin' || $this->filters['menu'] == 'skins' ?
 			'thesis_skin_menu' : 'thesis_boxes_menu')) :
@@ -235,11 +244,15 @@ class thesis_box {
 			sprintf(__('%s saved!', 'thesis'), $this->title) :
 			sprintf(__('%s not saved. Please try again.', 'thesis'), $this->title)), 'options_saved', true, false, 2) : ''),
 			"\t\t<h3>", wptexturize($this->title), "</h3>\n",
+            $thesis->api->hook("admin_hook_before_{$this->_class}"),
 			"\t\t<form class=\"thesis_options_form", (!empty($this->filters['canvas_left']) ? ' t_canvas_left' : ''), "\" method=\"post\" action=\"", admin_url("admin-post.php?action=$this->_class"), "\" enctype=\"multipart/form-data\">\n",
-			$options['output'],
+			$thesis->api->hook("admin_hook_top_{$this->_class}"),
+            $options['output'],
 			"\t\t\t<input type=\"submit\" data-style=\"button save\" class=\"t_save\" id=\"save_options\" value=\"", esc_attr(wptexturize(strip_tags(sprintf(__('Save %s', 'thesis'), $this->title)))), "\" />\n",
 			"\t\t\t", wp_nonce_field($this->_class, "_wpnonce-$this->_class", true, false), "\n",
-			"\t\t</form>\n";
+			$thesis->api->hook("admin_hook_bottom_{$this->_class}"),
+            "\t\t</form>\n",
+            $thesis->api->hook("admin_hook_after_{$this->_class}");
 	}
 
 	public function _save_admin() {
@@ -269,6 +282,7 @@ class thesis_box {
 		global $thesis;
 		$options = $thesis->api->form->fields($this->_options(), $this->options, '', "{$this->_class}[$this->_id]", 3, 10);
 		echo
+			"\t\t<a class=\"back_link\" href=\"admin.php?page=thesis&canvas={$thesis->skin->_class}__content\" data-style=\"button\" title=\"", sprintf(__('Back to %s Skin Content options page', 'thesis'), $thesis->skin->_name), "\">&larr; ", sprintf(__('Back to %s Skin Content options', 'thesis'), $thesis->skin->_name), "</a>\n",
 			"\t\t<h3>", (!empty($this->_lineage) ? $this->_lineage : ''), (!empty($this->name) ? $this->name : $this->title), " ", __('Options', 'thesis'), "</h3>\n",
 			"\t\t<form id=\"box_options_$this->_id\" class=\"thesis_options_form", (!empty($this->filters['instance_canvas_left']) ? ' t_canvas_left' : ''), "\" method=\"post\" action=\"\" enctype=\"multipart/form-data\">\n",
 			$options['output'],

@@ -49,15 +49,28 @@ if (!class_exists("nxs_class_SNAP_LI")) { class nxs_class_SNAP_LI {
       }        
       $msg  = strip_tags($msg); $msg = nxs_html_to_utf8($msg);  $msgT = nxs_html_to_utf8($msgT); $urlToGo = $message['url'];
     
-      if (function_exists("doConnectToLinkedIn") && $options['ulName']!='' && $options['uPass']!='') {
-        $dusername = $options['ulName']; $pass = (substr($options['uPass'], 0, 5)=='n5g9a'?nsx_doDecode(substr($options['uPass'], 5)):$options['uPass']); // ??? Do we need that??????
-        $auth = doConnectToLinkedIn($options['ulName'], $options['uPass'], $options['ii']); if ($auth!=false) { $badOut['Error'] .= "|Auth Error - ".$auth;  return $badOut; }
-        $to = $options['uPage']!=''?$options['uPage']:'https://www.linkedin.com/home'; $lnk = array(); $msg = str_ireplace('&nbsp;',' ',$msg);  $msg = nsTrnc(strip_tags($msg), 700);
-        if ($options['postType'] == 'A'){ $lnk['title']=$message['urlTitle']; $lnk['postTitle'] = $msgT; $lnk['desc'] =  $message['urlDescr']; $lnk['url'] = $urlToGo; $lnk['img'] = $imgURL; $lnk['postType'] = 'A';}
-        if ($options['postType'] == 'I'){ $lnk['title'] = ''; $lnk['postTitle'] = ''; $lnk['desc'] =  ''; $lnk['url'] = $imgURL; $lnk['img'] = $imgURL; $lnk['postType'] = 'I'; $lnk['postTitle'] = $msgT;}              
-        if ($options['postType'] == 'T'){ $lnk['postTitle'] = $msgT;  $lnk['postType'] = 'T'; }
-        global $nxs_gCookiesArr; $li = new nxsAPI_LI(); $li->debug = false; if (!empty($nxs_gCookiesArr)) $li->ck = $nxs_gCookiesArr; $ret = $li->post($msg, $lnk, $to); 
-        if (is_array($ret) && !empty($ret['isPosted'])) return $ret; $liPostID = $options['uPage'];
+      if (class_exists('nxsAPI_LI') && $options['ulName']!='' && $options['uPass']!='') {
+        $uname = $options['ulName']; $pass = (substr($options['uPass'], 0, 5)=='n5g9a'?nsx_doDecode(substr($options['uPass'], 5)):$options['uPass']);  $ck = !empty($options['ck'])?maybe_unserialize($options['ck']):'';
+        $nt = new nxsAPI_LI(); $nt->debug = false; if (!empty($ck)) $nt->ck = $ck; if (!empty($options['proxy'])&&!empty($options['proxyOn'])){ $nt->proxy['proxy'] = $options['proxy']['proxy']; if (!empty($options['proxy']['up'])) $nt->proxy['up'] = $options['proxy']['up'];};
+        $loginErr = $nt->connect($uname, $pass);
+        //## LinkedIn Email Code Verification.
+        if (is_array($loginErr) && !empty($loginErr['out']) ) { if (function_exists('update_option')) update_option('nxs_li_ctp_save', $loginErr['ser']); $text = $loginErr['out'];
+          echo "LinkedIn asked you to enter verification code. Please check your email or phone, enter the code and click \"Continue\""; $text = str_ireplace('This login attempt seems suspicious. ', '', $text);  echo $text;
+          echo '<br/><input type="hidden" id="nxsLiNum" name="nxsLiNum" value="'.$iidb.'" /><input type="button" value="Continue" onclick="doCtpSave(); return false;" id="results_ok_button" name="nxs_go" class="button" /><br/><br/>';
+          ?><script type="text/javascript"> function doCtpSave(){ var u = jQuery('#verification-code').val(); var ii = jQuery('#nxsLiNum').val(); //alert(ii);
+            var style = "position: fixed; display: none; z-index: 1000; top: 50%; left: 50%; background-color: #E8E8E8; border: 1px solid #555; padding: 15px; width: 350px; min-height: 80px; margin-left: -175px; margin-top: -40px; text-align: center; vertical-align: middle;";
+            jQuery('body').append("<div id='test_results' style='" + style + "'></div>");
+            jQuery.post(ajaxurl,{s:u, i:ii, action: 'nxsCptCheck', id: 0, _wpnonce: jQuery('input#getBoards_wpnonce').val()}, function(j){
+              jQuery('#test_results').html('<p> ' + j + '</p>' +'<input type="button" class="button" onclick="jQuery(\'#test_results\').hide();" name="results_ok_button" id="results_ok_button" value="OK" />'); jQuery('#test_results').show();
+            }, "html")
+          }</script> <?php return '<br/>LinkedIn asked you to enter verification code<br/>';
+        }
+        if ($loginErr) { $badOut['Error'] .= 'Can\'t Connect - '.print_r($loginErr, true); return $badOut; } $options['ck'] = $nt->ck; if (function_exists('nxs_save_glbNtwrks')) nxs_save_glbNtwrks('li', $options['ii'], $nt->ck, 'ck');
+        $to = $options['uPage']!=''?$options['uPage']:'https://www.linkedin.com/home'; $lnk = array(); $msg = str_ireplace('&nbsp;',' ',$msg);  $msg = nsTrnc(strip_tags($msg), 700); $lnk['postTitle'] = $msgT;
+        if ($options['postType'] == 'A'){ $lnk['title']=$message['urlTitle']; $lnk['desc'] =  $message['urlDescr']; $lnk['url'] = $urlToGo; $lnk['img'] = $imgURL; $lnk['postType'] = 'A';}
+        if ($options['postType'] == 'I'){ $lnk['title'] = '';  $lnk['desc']=''; $lnk['url'] = $imgURL; $lnk['img'] = $imgURL; $lnk['postType'] = 'I'; $lnk['postTitle'] = $msgT;}
+        if ($options['postType'] == 'T'){ $lnk['postType'] = 'T'; }
+        $ret = $nt->post($msg, $lnk, $to); if (is_array($ret) && !empty($ret['isPosted'])) return $ret; $liPostID = $options['uPage'];
       } else {
         if (!empty($options['isV2'])) { //## V2
           if ($options['grpID']!=''){

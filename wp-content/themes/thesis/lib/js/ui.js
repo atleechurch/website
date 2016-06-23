@@ -66,6 +66,7 @@ thesis_ui = {
 			if (add)
 				$('#box_id').append('<option value="'+id+'">'+name+'</option>');
 			$('#popup_'+id).remove();
+			$('#delete_box_'+id).remove();
 			if ($(box).hasClass('rotator'))
 				$(box).children('.sortable').children().each(function() {
 					if (!$(this).hasClass('t_popup') && !$(this).hasClass('child'))

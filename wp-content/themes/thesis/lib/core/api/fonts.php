@@ -77,7 +77,7 @@ class thesis_fonts {
 				'family' => 'Candara, Verdana, sans-serif'),
 			'consolas' => array(
 				'name' => 'Consolas',
-				'family' => 'Consolas, Monaco, Menlo, Courier, Verdana, sans-serif',
+				'family' => 'Consolas, Menlo, Monaco, Courier, Verdana, sans-serif',
 				'monospace' => true),
 			'constantia' => array(
 				'name' => 'Constantia',
@@ -103,7 +103,7 @@ class thesis_fonts {
 				'mu' => 2.05),
 			'menlo' => array(
 				'name' => 'Menlo',
-				'family' => 'Menlo, "Andale Mono", Consolas, Monaco, Menlo, Courier, Verdana, sans-serif',
+				'family' => 'Menlo, Consolas, Monaco, "Andale Mono", Courier, Verdana, sans-serif',
 				'mu' => 1.66,
 				'monospace' => true),
 			'monaco' => array(
@@ -119,6 +119,7 @@ class thesis_fonts {
 				'name' => 'Tahoma',
 				'family' => 'Tahoma, Geneva, Verdana, sans-serif',
 				'mu' => 2.25)));
+		uksort($this->list, 'strnatcasecmp');
 		foreach ($this->list as $id => $font)
 			$this->select[$id] = $font['name'];
 	}

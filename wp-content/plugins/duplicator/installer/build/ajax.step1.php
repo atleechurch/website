@@ -40,29 +40,76 @@ error_reporting(E_ERROR);
 //===============================
 //DATABASE TEST CONNECTION
 //===============================
-if (isset($_GET['dbtest'])) {
-
+if (isset($_GET['dbtest']))
+{
 	$html     = "";
 	$baseport =  parse_url($_POST['dbhost'], PHP_URL_PORT);
 	$dbConn   = DupUtil::db_connect($_POST['dbhost'], $_POST['dbuser'], $_POST['dbpass'], null, $_POST['dbport']);
 	$dbErr	  = mysqli_connect_error();
+
 	$dbFound  = mysqli_select_db($dbConn, $_POST['dbname']);
 	$port_view = (is_int($baseport) || substr($_POST['dbhost'], -1) == ":") ? "Port=[Set in Host]" : "Port={$_POST['dbport']}";
 
 	$tstSrv   = ($dbConn)  ? "<div class='dup-pass'>Success</div>" : "<div class='dup-fail'>Fail</div>";
 	$tstDB    = ($dbFound) ? "<div class='dup-pass'>Success</div>" : "<div class='dup-fail'>Fail</div>";
-	$html	 .= "<div class='dup-db-test'>";
-	$html	 .= "<small style='display:block; padding:5px'>Using Connection String:<br/>Host={$_POST['dbhost']}; Database={$_POST['dbname']}; Uid={$_POST['dbuser']}; Pwd={$_POST['dbpass']}; {$port_view}</small>";
-	$html	 .= "<label>Server Connected:</label> {$tstSrv} <br/>";
-	$html	 .= "<label>Database Found:</label>   {$tstDB} <br/>";
 
+	$dbvar_version = DupUtil::mysql_version($dbConn);
+	$dbvar_version_fail = version_compare($dbvar_version, $GLOBALS['FW_VERSION_DB']) < 0;
+	$tstCompat = ($dbvar_version_fail)
+		? "<div class='dup-fail'>This Server: [{$dbvar_version}] -- Package Server: [{$GLOBALS['FW_VERSION_DB']}]</div>"
+		: "<div class='dup-pass'>This Server: [{$dbvar_version}] -- Package Server: [{$GLOBALS['FW_VERSION_DB']}]</div>";
 
-	if ($_POST['dbaction'] == 'create'){
+	$html	 .= <<<DATA
+	<div class='dup-db-test'>
+		<small>
+			Using Connection String:<br/>
+			Host={$_POST['dbhost']}; Database={$_POST['dbname']}; Uid={$_POST['dbuser']}; Pwd={$_POST['dbpass']}; {$port_view}
+		</small>
+		<table class='dup-db-test-dtls'>
+			<tr>
+				<td>Host:</td>
+				<td>{$tstSrv}</td>
+			</tr>
+			<tr>
+				<td>Database:</td>
+				<td>{$tstDB}</td>
+			</tr>
+			<tr>
+				<td>Version:</td>
+				<td>{$tstCompat}</td>
+			</tr>
+		</table>
+DATA;
+
+	//--------------------------------
+	//WARNING: DB has tables with create option
+	if ($_POST['dbaction'] == 'create')
+	{
 		$tblcount = DupUtil::dbtable_count($dbConn, $_POST['dbname']);
 		$html .= ($tblcount > 0)
-		? "<div class='dup-fail'><b>WARNING</b></div><br/>" . sprintf(ERR_DBEMPTY, $_POST['dbname'], $tblcount)
-		: "";
+			? "<div class='warn-msg'><b>WARNING:</b> " . sprintf(ERR_DBEMPTY, $_POST['dbname'], $tblcount) . "</div>"
+			: '';
 	}
+
+	//WARNNG: Input has utf8
+	$dbConnItems = array($_POST['dbhost'], $_POST['dbuser'], $_POST['dbname'],$_POST['dbpass']);
+	$dbUTF8_tst  = false;
+	foreach ($dbConnItems as $value)
+	{
+		if (DupUtil::is_non_ascii($value)) {
+			$dbUTF8_tst = true;
+			break;
+		}
+	}
+	$html .=  (! $dbConn && $dbUTF8_tst)
+		? "<div class='warn-msg'><b>WARNING:</b> " . ERR_TESTDB_UTF8 .  "</div>"
+		: '';
+
+	//WARNING Version Incompat
+	$html .=  ($dbvar_version_fail)
+		? "<div class='warn-msg'><b>NOTICE:</b> " . ERR_TESTDB_VERSION . "</div>"
+		: '';
+
 	$html .= "</div>";
 	die($html);
 }
@@ -227,9 +274,14 @@ if (! $_POST['cache_path']) {
 
 if (! is_writable("{$root_path}/wp-config.php") ) 
 {
-	chmod("{$root_path}/wp-config.php", 0644)
-		? DUPX_Log::Info('File Permission Update: wp-config.php set to 0644')
-		: DUPX_Log::Error('Unable to update file permissions and write to wp-config.php.  Please visit the online FAQ for setting file permissions and work with your hosting provider or server administrator to enable this installer.php script to write to the wp-config.php file.');
+	if (file_exists("{$root_path}/wp-config.php"))
+	{
+		chmod("{$root_path}/wp-config.php", 0644)
+			? DUPX_Log::Info('File Permission Update: wp-config.php set to 0644')
+			: DUPX_Log::Info('WARNING: Unable to update file permissions and write to wp-config.php.  Please visit the online FAQ for setting file permissions and work with your hosting provider or server administrator to enable this installer.php script to write to the wp-config.php file.');
+	} else {
+		DUPX_Log::Info('WARNING: Unable to locate wp-config.php file.  Be sure the file is present in your archive.');
+	}
 }
 
 
@@ -295,6 +347,7 @@ $dbvar_maxtime = DupUtil::mysql_variable_value($dbh, 'wait_timeout');
 $dbvar_maxpacks = DupUtil::mysql_variable_value($dbh, 'max_allowed_packet');
 $dbvar_maxtime = is_null($dbvar_maxtime) ? 300 : $dbvar_maxtime;
 $dbvar_maxpacks = is_null($dbvar_maxpacks) ? 1048576 : $dbvar_maxpacks;
+$dbvar_version = DupUtil::mysql_version($dbh);
 
 
 DUPX_Log::Info("{$GLOBALS['SEPERATOR1']}");
@@ -303,7 +356,7 @@ DUPX_Log::Info("{$GLOBALS['SEPERATOR1']}");
 DUPX_Log::Info("--------------------------------------");
 DUPX_Log::Info("SERVER ENVIROMENT");
 DUPX_Log::Info("--------------------------------------");
-DUPX_Log::Info("MYSQL VERSION:\t" . mysqli_get_server_info($dbh));
+DUPX_Log::Info("MYSQL VERSION:\tThis Server: {$dbvar_version} -- Build Server: {$GLOBALS['FW_VERSION_DB']}");
 DUPX_Log::Info("TIMEOUT:\t{$dbvar_maxtime}");
 DUPX_Log::Info("MAXPACK:\t{$dbvar_maxpacks}");
 

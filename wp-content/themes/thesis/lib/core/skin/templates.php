@@ -6,7 +6,7 @@ License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_templates {
-	private $core = array();			// (array) core templates for this skin
+	private $core = array();			// (array) core templates for this Skin
 	private $post_types = array();		// (array) WP custom post types
 	private $queries = array();			// (array) query modification data for active templates
 	public $active = array();			// (array) data for all active templates
@@ -37,7 +37,8 @@ class thesis_templates {
 		global $thesis;
 		$menu['head'] = array(
 			'text' => $thesis->api->strings['html_head'],
-			'url' => admin_url('admin.php?page=thesis&canvas=head'));
+			'url' => admin_url('admin.php?page=thesis&canvas=head'),
+			'description' => __('Manage the output of your site&#8217;s HTML <code>&lt;head&gt;</code>', 'thesis'));
 		return is_array($site) ? array_merge($site, $menu) : $menu;
 	}
 
@@ -187,7 +188,7 @@ class thesis_templates {
 		$this->custom = $this->get_custom();
 		$switch = !empty($this->options) || in_array($this->template['id'], $this->custom['ids']) ? ' <span id="switch_template_options" data-style="switch">&#9881;</span>' : '';
 		return
-			"$tab<h3><span id=\"template\" class=\"edit_templates\" title=\"". __('click to edit other templates or to add a new template', 'thesis'). "\">{$this->template['title']}</span>$switch</h3>\n".
+			"$tab<h3><span id=\"template\" data-style=\"button\" title=\"". __('click to edit other templates or to add a new template', 'thesis'). "\">{$this->template['title']}</span>$switch</h3>\n".
 			$this->manager($depth).
 			"$tab<form id=\"t_boxes\" method=\"post\" action=\"\" enctype=\"multipart/form-data\">\n".
 			"$tab\t<input type=\"hidden\" id=\"current_template\" name=\"template\" value=\"{$this->template['id']}\" />\n".

@@ -19,6 +19,9 @@ function powerpress_meta_box($object, $box)
 	$iTunesKeywords = '';
 	$iTunesSubtitle = '';
 	$iTunesSummary = '';
+	$GooglePlayDesc = '';
+	$GooglePlayExplicit = '';
+	$GooglePlayBlock = '';
 	$iTunesAuthor = '';
 	$iTunesExplicit = '';
 	$iTunesCC = false;
@@ -33,6 +36,7 @@ function powerpress_meta_box($object, $box)
 	$Height = false;
 	$WebMSrc = false;
 	$FeedTitle = '';
+	$PodcastCategory = '';
 	$GeneralSettings = get_option('powerpress_general');
 	if( !isset($GeneralSettings['set_size']) )
 		$GeneralSettings['set_size'] = 0;
@@ -90,6 +94,12 @@ function powerpress_meta_box($object, $box)
 					$iTunesSubtitle = $ExtraData['subtitle'];
 				if( isset($ExtraData['summary']) )
 					$iTunesSummary = $ExtraData['summary'];
+				if( isset($ExtraData['gp_desc']) )
+					$GooglePlayDesc = $ExtraData['gp_desc'];
+				if( isset($ExtraData['gp_explicit']) )
+					$GooglePlayExplicit = $ExtraData['gp_explicit'];
+				if( isset($ExtraData['gp_block']) )
+					$GooglePlayBlock = $ExtraData['gp_block'];
 				if( isset($ExtraData['author']) )
 					$iTunesAuthor = $ExtraData['author'];
 				if( isset($ExtraData['no_player']) )
@@ -182,7 +192,7 @@ function powerpress_meta_box($object, $box)
 	}
 ?>
 	<div id="powerpress_podcast_edit_<?php echo $FeedSlug; ?>">
-		<div class="error below-h2" id="powerpress_warning_<?php echo $FeedSlug; ?>" style="display:none;"></div>
+		<div class="warning error below-h2" id="powerpress_warning_<?php echo $FeedSlug; ?>" style="display:none;"></div>
 		<div class="success below-h2" id="powerpress_success_<?php echo $FeedSlug; ?>" style="display:none;"></div>
 		<div class="powerpress_row">
 			<label for="Powerpress[<?php echo $FeedSlug; ?>][url]"><?php echo __('Media URL', 'powerpress'); ?></label>
@@ -201,7 +211,7 @@ function powerpress_meta_box($object, $box)
 				
 				<div class="powerpress-hosting-buttons">
 					<a class="powerpress-hosting-button powerpress-button thickbox" href="<?php echo admin_url('admin.php'); ?>?action=powerpress-jquery-media&podcast-feed=<?php echo $FeedSlug; ?>&KeepThis=true&TB_iframe=true&modal=false" title="<?php echo esc_attr(__('Blubrry Podcast Hosting', 'powerpress')); ?>" class="thickbox">
-					<img src="<?php echo powerpress_get_root_url(); ?>/images/button_icon_blubrry.png" class="powerpress-button-icon" alt="" />
+					<img src="<?php echo powerpress_get_root_url(); ?>images/button_icon_blubrry.png" class="powerpress-button-icon" alt="" />
 					<?php echo __('Link to Media hosted on Blubrry.com', 'powerpress'); ?></a> 
 					<!--  <a href="<?php echo admin_url('admin.php'); ?>?action=powerpress-jquery-media&podcast-feed=<?php echo $FeedSlug; ?>&KeepThis=true&TB_iframe=true&modal=false" title="<?php echo __('Upload Media File to your Blubrry.com account', 'powerpress'); ?>" class="thickbox"><?php echo __('Upload Media File', 'powerpress'); ?></a> -->
 					<?php if( empty($GeneralSettings['blubrry_hosting']) || $GeneralSettings['blubrry_hosting']==='false' ) { ?>
@@ -259,7 +269,7 @@ function powerpress_meta_box($object, $box)
 			</div>
 			<?php if( !empty($GeneralSettings['seo_itunes']) ) { ?>
 			<div class="powerpress_row_content">
-				<em><?php echo __('SEO Suggestion: Use the blog post title for search engine optimization and use this title for iTunes search.', 'powerpress'); ?></em>
+				<em><?php echo __('Podcasting SEO Suggestion: Use the blog post title for search engine optimization and use this title for iTunes search.', 'powerpress'); ?></em>
 			</div>
 			<?php } ?>
 		</div>
@@ -354,7 +364,7 @@ function powerpress_meta_box($object, $box)
 		<div class="powerpress_row">
 			<label for="Powerpress[<?php echo $FeedSlug; ?>][embed]"><?php echo __('Media Embed', 'powerpress'); ?></label>
 			<div class="powerpress_row_content">
-				<textarea class="powerpress-embed" id="powerpress_embed_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][embed]" style="width: 90%; height: 80px; font-size: 90%;" onfocus="this.select();"><?php echo htmlspecialchars($Embed); ?></textarea>
+				<textarea class="powerpress-embed" id="powerpress_embed_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][embed]" style="width: 90%; height: 80px; font-size: 90%;" onfocus="this.select();"><?php echo esc_textarea($Embed); ?></textarea>
 			</div>
 		</div>
 <?php
@@ -388,7 +398,7 @@ function powerpress_meta_box($object, $box)
 			</div>
 			<?php if( !empty($GeneralSettings['seo_itunes']) ) { ?>
 			<div class="powerpress_row_content">
-				<em><?php echo __('SEO Suggestion: Write something concise and compelling that includes keywords not mentioned in the episode title.', 'powerpress'); ?></em>
+				<em><?php echo __('Podcasting SEO Suggestion: Write something concise and compelling that includes keywords not mentioned in the episode title.', 'powerpress'); ?></em>
 			</div>
 			<?php } ?>
 		</div>
@@ -401,10 +411,25 @@ function powerpress_meta_box($object, $box)
 		<div class="powerpress_row">
 			<label for="Powerpress[<?php echo $FeedSlug; ?>][summary]"><?php echo __('iTunes Summary', 'powerpress'); ?></label>
 			<div class="powerpress_row_content">
-				<textarea id="powerpress_summary_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][summary]" style="width: 90%; height: 80px; font-size: 90%;"><?php echo htmlspecialchars($iTunesSummary); ?></textarea>
+				<textarea id="powerpress_summary_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][summary]" style="width: 90%; height: 80px; font-size: 90%;"><?php echo esc_textarea($iTunesSummary); ?></textarea>
 			</div>	
 			<div class="powerpress_row_content">
-				<em><?php echo __('Your summary may not contain HTML and cannot exceed 4,000 characters in length. Leave blank to use your blog post.', 'powerpress'); ?></em>
+				<em><?php echo __('Your summary cannot exceed 4,000 characters in length and should not include HTML, except for hyperlinks. Leave blank to use your blog post.', 'powerpress'); ?></em>
+			</div>
+		</div>
+<?php
+		}
+
+		if( !empty($GeneralSettings['episode_box_gp_desc']) || $GooglePlayDesc )
+		{
+?>
+		<div class="powerpress_row">
+			<label for="Powerpress[<?php echo $FeedSlug; ?>][gp_desc]"><?php echo __('Google Play Description', 'powerpress'); ?></label>
+			<div class="powerpress_row_content">
+				<textarea id="powerpress_gp_desc_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][gp_desc]" style="width: 90%; height: 80px; font-size: 90%;"><?php echo esc_textarea($GooglePlayDesc); ?></textarea>
+			</div>
+			<div class="powerpress_row_content">
+				<em><?php echo __('Your summary cannot exceed 4,000 characters in length. Leave blank to use your blog post.', 'powerpress'); ?></em>
 			</div>
 		</div>
 <?php
@@ -423,7 +448,7 @@ function powerpress_meta_box($object, $box)
 			</div>
 			<?php if( !empty($GeneralSettings['seo_itunes']) ) { ?>
 			<div class="powerpress_row_content">
-				<em><?php echo __('SEO Suggestion: Include talent names and slogans not mentioned in the episode title.', 'powerpress'); ?></em>
+				<em><?php echo __('Podcasting SEO Suggestion: Include talent names and nicknames not mentioned in the episode title.', 'powerpress'); ?></em>
 			</div><?php } ?>
 		</div>
 <?php
@@ -449,6 +474,27 @@ while( list($value,$desc) = each($explicit_array) )
 <?php
 		}
 		
+		if( !empty($GeneralSettings['episode_box_gp_explicit']) || $GooglePlayExplicit )
+		{
+?>
+		<div class="powerpress_row">
+			<label for="Powerpress[<?php echo $FeedSlug; ?>][gp_explicit]"><?php echo __('Google Play Explicit', 'powerpress'); ?></label>
+			<div class="powerpress_row_content">
+				<select id="powerpress_explicit_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][gp_explicit]" style="width: 220px;">
+<?php
+$explicit_array = array(''=>__('Use feed\'s explicit setting', 'powerpress'), 0=>__('no - display nothing', 'powerpress'), 1=>__('yes - explicit content', 'powerpress') );
+
+while( list($value,$desc) = each($explicit_array) )
+	echo "\t<option value=\"$value\"". ($GooglePlayExplicit==$value?' selected':''). ">$desc</option>\n";
+
+?>
+					</select>
+			</div>
+		</div>
+<?php
+		}
+
+
 		if( !empty($GeneralSettings['episode_box_closed_captioned']) || $iTunesCC )
 		{
 ?>
@@ -520,6 +566,26 @@ unset($block_array);
 <?php
 		}
 		
+		if( !empty($GeneralSettings['episode_box_gp_block']) || $GooglePlayBlock )
+		{
+?>
+		<div class="powerpress_row">
+			<label for="Powerpress[<?php echo $FeedSlug; ?>][gp_block]"><?php echo __('Google Play Block', 'powerpress'); ?></label>
+			<div class="powerpress_row_content">
+				<select id="powerpress_block_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][gp_block]" style="width: 220px;">
+<?php
+$block_array = array(''=>__('No', 'powerpress'), 1=>__('Yes, Block episode from Google Play Music', 'powerpress') );
+
+while( list($value,$desc) = each($block_array) )
+	echo "\t<option value=\"$value\"". ($GooglePlayBlock==$value?' selected':''). ">$desc</option>\n";
+unset($block_array);
+?>
+					</select>
+			</div>
+		</div>
+<?php
+		}
+
 		if( !empty($GeneralSettings['episode_box_itunes_image']) || !empty($ExtraData['itunes_image']) )
 		{
 			if( empty($ExtraData['itunes_image']) )
@@ -535,6 +601,43 @@ unset($block_array);
 			</div>
 		</div>
 <?php
+		}
+
+		if( !empty($GeneralSettings['cat_casting_strict']) && !empty($GeneralSettings['custom_cat_feeds']) )
+		{
+			// Get Podcast Categories...
+			$cur_cat_id = intval(!empty($ExtraData['category'])?$ExtraData['category']:0);
+			if( count($GeneralSettings['custom_cat_feeds']) == 1 ) // Lets auto select the category
+			{
+
+				list($null, $cur_cat_id) = each($GeneralSettings['custom_cat_feeds']);
+				reset($GeneralSettings['custom_cat_feeds']);
+			}
+
+		?>
+		<div class="powerpress_row">
+			<label for="Powerpress[<?php echo $FeedSlug; ?>][category]"><?php echo __('Category', 'powerpress'); ?></label>
+			<div class="powerpress_row_content"><?php
+				echo '<select id="powerpress_category_'. $FeedSlug . '" name="Powerpress['. $FeedSlug .'][category]" style="width: 70%;">';
+				echo '<option value="0"';
+				echo '>' . esc_html( __('Select category', 'powerpress') ) . '</option>' . "\n";
+
+				while( list($null, $cat_id) = each($GeneralSettings['custom_cat_feeds']) ) {
+					$catObj = get_category( $cat_id );
+					if( empty($catObj->name ) )
+						continue; // Do not allow empty categories forward
+
+					$label = $catObj->name; // TODO: Get the category title
+					echo '<option value="' . esc_attr( $cat_id ) . '"';
+					if ( $cat_id == $cur_cat_id )
+						echo ' selected="selected"';
+					echo '>' . esc_html( $label ) . '</option>' . "\n";
+				}
+			echo '</select>';
+			?>
+				</div>
+		</div>
+		<?php
 		}
 		
 		// Added filter for other plugins to add fields on a per podcast feed slug basis

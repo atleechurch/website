@@ -22,7 +22,7 @@ License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 .t_meta .option_field .counter { width: 35px; text-align: center; }
 .t_meta .option_field .counter_label { vertical-align: middle; }
 .t_meta .option_field .upload_label { display: block; }
-.t_meta .option_field .toggle_tooltip { font-family: tf, sans-serif; font-weight: normal; padding: 4px; color: rgba(0,0,0,0.4); text-decoration: none; }
+.t_meta .option_field .toggle_tooltip { font-family: tf; font-weight: normal; padding: 4px; color: rgba(0,0,0,0.4); text-decoration: none; }
 .t_meta .option_field .toggle_tooltip:hover { color: rgba(0,0,0,0.75); }
 .t_meta .option_field label code { font-weight: normal; color: #666; }
 .t_meta .option_field .tooltip { display: none; position: absolute; top: 0; left: 0; width: 400px; margin-bottom: 0; padding: 12px; color: #fff; background: rgba(0,0,0,0.8); z-index: 100; box-shadow: 0 0 9px rgba(0,0,0,0.3); }
@@ -42,4 +42,4 @@ License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 #thesis_post_image .option_item, #thesis_post_thumbnail .option_item { display: none; }
 #thesis_post_image .option_item:first-child, #thesis_post_thumbnail .option_item:first-child { display: block; }
 #parent_id + p, #page_template { display: none; }
-#poststuff .t_meta:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+#poststuff .t_meta:after { display: table; clear: both; content: ''; }

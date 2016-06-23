@@ -13,7 +13,7 @@ thesis_colors = {
 				thesis_colors.get_complements($(this).siblings('.complements'), $(this).attr('id'), $(this).val());
 		});
 		$('.color_scale').on('click', function() {
-			$('.color_picker').css({ 'top': $(this).outerHeight()+14+'px' });
+			$('.color_picker').css({ 'top': $(this).outerHeight()+12+'px' });
 			$(this).toggleClass('active');
 			$(this).siblings('.color_picker').slideToggle(50);
 			return false;

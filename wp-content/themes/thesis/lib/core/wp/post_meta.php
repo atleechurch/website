@@ -12,7 +12,7 @@ class thesis_post_meta {
 	private $saved = false;
 
 	public function __construct($id, $options, $tabindex) {
-		if (!is_admin() || !is_array($options)) return;
+		if(!is_admin() || !is_array($options)) return;
 		$this->id = $id;
 		$this->post_meta = $options;
 		$this->post_meta['exclude'] = !empty($this->post_meta['exclude']) && is_array($this->post_meta['exclude']) ? $this->post_meta['exclude'] : array();
@@ -44,7 +44,7 @@ class thesis_post_meta {
 
 	public function save() {
 		global $thesis, $post; #wp
-		if ($this->saved || !wp_verify_nonce((!empty($_POST[$this->id . '_noncename']) ? $_POST[$this->id . '_noncename'] : false), plugin_basename(__FILE__))) return; #wp
+		if ($this->saved || !wp_verify_nonce((!empty($_POST[$this->id. '_noncename']) ? $_POST[$this->id. '_noncename'] : false), plugin_basename(__FILE__))) return; #wp
 		if ($_POST['post_type'] == 'page') {
 			if (!current_user_can('edit_page', $post->ID)) return; #wp
 		}

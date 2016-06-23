@@ -7,8 +7,8 @@ License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_skins {
 	public $skin = array();
-	public $installed = array();	// skins in wp-content/thesis/skins/ array('class' => array('name', 'author', 'desc', 'path', 'class', 'folder'))
-	public $updates = array();		// (array) Skin updates
+	public $installed = array();	// Skins in wp-content/thesis/skins/ array('class' => array('name', 'author', 'desc', 'path', 'class', 'folder'))
+	public $updates = array();		// (array) available Skin updates
 	public $active = false;
 	public $preview = false;
 	public static $headers = array(
@@ -22,9 +22,9 @@ class thesis_skins {
 		global $thesis;
 		if ($thesis->environment == 'thesis' || $thesis->environment == 'admin' || $thesis->wp_customize) {
 			$this->installed = $this->get_items();
-			add_action('thesis_updates', array($this, 'get_updates'));
+			add_action('wp_loaded', array($this, 'updates'));
 			if ($thesis->environment == 'admin' || $thesis->environment == 'thesis')
-				add_action('thesis_quicklaunch_menu', array($this, 'quicklaunch'), 30);
+				add_filter('thesis_quicklaunch_menu', array($this, 'quicklaunch'), 30);
 			if ($thesis->environment == 'admin') {
 				new thesis_upload(array(
 					'title' => __('Thesis Upload Skin', 'thesis'),
@@ -36,11 +36,11 @@ class thesis_skins {
 				add_action('admin_post_export_skin', array($this, 'export'));
 			}
 			if ($thesis->environment == 'thesis') {
-				add_action('thesis_skin_menu', array($this, 'menu'), 99);
+				add_action('thesis_skin_menu', array($this, 'menu'), 100);
 				if (!empty($_GET['canvas']) && $_GET['canvas'] == 'select_skin') {
 					add_action('thesis_admin_canvas', array($this, 'canvas')); #wp
 					add_action('admin_init', array($this, 'admin_init'));
-					// separate action for writing css in multisite
+					// separate action for writing CSS in multisite
 					add_action('admin_init', array($this, 'maybe_rewrite_css'));
 				}
 			}
@@ -57,7 +57,7 @@ class thesis_skins {
 		}
 	}
 
-	public function get_items() {
+	public static function get_items() {
 		$customize = !empty($GLOBALS['thesis']) && is_object($GLOBALS['thesis']) && $GLOBALS['thesis']->wp_customize ? true : false;
 		$dir = is_dir(THESIS_USER_SKINS) ? THESIS_USER_SKINS : ($customize ? THESIS_SKINS : false);
 		$skins = @scandir($dir);
@@ -74,9 +74,9 @@ class thesis_skins {
 		return $installed;
 	}
 
-	public function get_updates() {
-		$this->updates = ($updates = get_transient('thesis_skins_update')) & !empty($updates) ?
-			$updates : array();
+	public function updates() {
+		global $thesis;
+		$this->updates = !empty($thesis->admin->updates['skins']) ? $thesis->admin->updates['skins'] : $this->updates;
 	}
 
 	public function quicklaunch($menu) {
@@ -87,20 +87,25 @@ class thesis_skins {
 	}
 
 	public function menu($menu) {
-		$add['select_skin'] = array(
-			'text' => __('Manage Skins', 'thesis'). (!empty($this->updates) ? ' <span class="count" title="'. __('Skin updates are available', 'thesis'). '">'. count($this->updates). '</span>' : ''),
-			'url' => admin_url('admin.php?page=thesis&canvas=select_skin'));
+		$add = array(
+			'manage_break' => array(
+				'text' => '––––––––––––',
+				'url' => '#'),
+			'manage' => array(
+				'text' => __('Manage Skins', 'thesis'). (!empty($this->updates) ? ' <span class="count" title="'. __('Skin updates are available', 'thesis'). '">'. count($this->updates). '</span>' : ''),
+				'url' => admin_url('admin.php?page=thesis&canvas=select_skin'),
+				'description' => __('Change Skins, upload new Skins, or delete existing Skins', 'thesis')));
 		return is_array($menu) ? array_merge($menu, $add) : $add;
 	}
 
 	public function admin_init() {
 		global $thesis;
 		wp_enqueue_style('thesis-options'); #wp
-		wp_enqueue_style('thesis-popup'); #wp
-		wp_enqueue_style('thesis-skins', THESIS_CSS_URL. '/skins.css', array('thesis-options', 'thesis-popup'), $thesis->version); #wp
+		wp_enqueue_style('thesis-skins', THESIS_CSS_URL. '/skins.css', array('thesis-options'), $thesis->version); #wp
 		wp_enqueue_script('thesis-skins', THESIS_JS_URL. '/skins.js', array('thesis-menu'), $thesis->version, true); #wp
 	}
-	
+
+	// TODO: See if Manager and associated functionality should be part of the active Skin object instead
 	public function init() {
 		$this->manager = new thesis_skin_manager($this->skin);
 	}
@@ -108,11 +113,13 @@ class thesis_skins {
 	private function skin() {
 		global $thesis;
 		$this->active = apply_filters('_thesis_skin', $thesis->api->get_option('thesis_skin'));
-		// if installed AND active happen to be empty here, the logic goes to the else statement and then produces a useless Thesis installation
-		// because there is no active Skin and nothing is installed. We need a bailout that attempts to install the Classic Skin again if the
-		// /skins/classic directory still exists in the Thesis Core (which it does when this logic fails).
-		// Granted, this won't solve the problem if the issue is a server config, BUT when the user finally does fix the problem, this logic will
-		// force Thesis to work properly immediately and without further action from the user.
+		/*
+		If installed AND active happen to be empty here, the logic goes to the else statement and then produces a useless Thesis installation
+		because there is no active Skin and nothing is installed. We need a bailout that attempts to install the Classic Skin again if the
+		/skins/classic directory still exists in the Thesis Core (which it does when this logic fails).
+		Granted, this won't solve the problem if the issue is a server config, BUT when the user finally does fix the problem, this logic will
+		force Thesis to work properly immediately and without further action from the user.
+		*/
 		if (empty($this->active) && !empty($this->installed)) // first install
 			update_option('thesis_skin', ($skin = $this->installed['thesis_classic_r']));
 		else {
@@ -144,21 +151,20 @@ class thesis_skins {
 		global $thesis;
 		$tab = str_repeat("\t", $depth = 2);
 		$current = $preview = $installed = $current_updates = $installed_updates = '';
-		$updates = $this->updates;
 		if (is_array($this->installed) && !empty($this->installed))
 			foreach ($this->installed as $class => $skin)
 				if ($class == $this->active['class'])
-					$current = $this->item_info($skin, $depth + 1);
+					$current = $this->item_info($skin, true, false, $this->updates, $depth + 1);
 				elseif ($class == $this->preview['class'])
-					$preview = $this->item_info($skin, $depth + 1);
+					$preview = $this->item_info($skin, false, true, $this->updates, $depth + 1);
 				else
-					$installed .= $this->item_info($skin, $depth);
-		if (isset($updates[$this->skin['class']])) {
-			$current_updates =  ' <span class="t_updates" title="'. __('An update is available for your current Skin.', 'thesis'). '">1</span>';
-			unset($updates[$this->skin['class']]);
+					$installed .= $this->item_info($skin, false, false, $this->updates, $depth);
+		if (isset($this->updates[$this->skin['class']])) {
+			$current_updates = ' <span class="t_updates" title="'. __('An update is available for your current Skin.', 'thesis'). '">1</span>';
+			unset($this->updates[$this->skin['class']]);
 		}
-		if (!empty($updates))
-			$installed_updates = ' <span class="t_updates" title="'. __('Updates are available for your installed Skins.', 'thesis'). '">'. count($updates). '</span>';
+		if (!empty($this->updates))
+			$installed_updates = ' <span class="t_updates" title="'. __('Updates are available for your installed Skins.', 'thesis'). '">'. count($this->updates). '</span>';
 		echo
 			(!empty($_GET['changed']) && $_GET['changed'] == 'true' ?
 			$thesis->api->alert(__('Success! You just changed your Thesis Skin.', 'thesis'), false, false, $depth) :
@@ -170,17 +176,17 @@ class thesis_skins {
 			$thesis->api->alert(__('Skin deleted.', 'thesis'), false, false, $depth) :
 			(!empty($preview) ?
 			$thesis->api->alert(__('You are currently previewing a Skin in development mode. Visitors to your site will still see the Current Skin shown below, and you can develop the Preview Skin without fear of messing up your site for existing visitors!', 'thesis'), 'warning', false, $depth) : ''))))),
-			"$tab<span id=\"skin_upload\" data-style=\"button action\">", __('Upload Skin', 'thesis'), "</span>\n",
 			(!empty($preview) ?
-			"$tab<h3 id=\"preview_skin\">". __('Preview Skin', 'thesis'). "</h3>\n".
-			"$tab<div class=\"active_skin\">\n".
+			"$tab<div class=\"active_skin preview_skin\">\n".
+			"$tab\t<h3 id=\"preview_skin\">". __('Preview Skin', 'thesis'). "</h3>\n".
 			$preview.
 			"$tab</div>\n" : ''),
-			"$tab<h3 id=\"current_skin\">", __('Current Skin', 'thesis'), "$current_updates</h3>\n",
 			"$tab<div class=\"active_skin\">\n",
+			"$tab\t<h3 id=\"current_skin\">", __('Current Skin', 'thesis'), "$current_updates</h3>\n",
 			$current,
 			"$tab</div>\n",
-			"$tab<h3 id=\"installed_skins\">", __('Installed Skins', 'thesis'), "$installed_updates</h3>\n",
+			"$tab<span id=\"skin_upload\" data-style=\"button action\">", __('Upload a New Skin', 'thesis'), "</span>\n",
+			"$tab<h3 id=\"installed_skins\">", __('Inactive Skins', 'thesis'), "$installed_updates</h3>\n",
 			$installed,
 			$thesis->api->popup(array(
 				'id' => 'skin_uploader',
@@ -188,39 +194,42 @@ class thesis_skins {
 				'body' => $thesis->api->uploader('thesis_skin_uploader')));
 	}
 
-	public function item_info($skin, $depth = false) {
+	public static function item_info($skin, $active = false, $preview = false, $updates = array(), $depth = false) {
 		global $thesis;
 		if (!is_array($skin)) return;
 		extract($skin); # name, author, description, version, class, folder
 		if (empty($class) || empty($folder)) return;
 		$tab = str_repeat("\t", (is_numeric($depth) ? $depth : 2));
-		$preview = is_object($this) && !empty($this->preview) ? $this->preview : get_option('thesis_skin_preview');
-		$active = is_object($this) && !empty($this->active) ? $this->active : get_option('thesis_skin');
-		$zip = ((!empty($preview['class']) && $class === $preview['class']) || $class === $active['class']) && apply_filters('thesis_skin_create_zip', false) ?
-			"$tab\t\t\t<a data-style=\"button action\" href=\"" . wp_nonce_url(admin_url("update.php?action=thesis_generate_skin&skin=" . esc_attr($class)), 'thesis-generate-skin') ."\">" . __('Create Zip File', 'thesis') . "</a>\n" : false;
+		$screenshot = file_exists(trailingslashit(THESIS_USER_SKINS). "$folder/screenshot.png") ?
+			trailingslashit(THESIS_USER_SKINS_URL). "$folder/screenshot.png" : (file_exists(trailingslashit(THESIS_USER_SKINS). "$folder/screenshot.jpg") ?
+			trailingslashit(THESIS_USER_SKINS_URL). "$folder/screenshot.jpg" : false);
+		$zip = ($active || $preview) && apply_filters('thesis_skin_create_zip', false) ?
+			"$tab\t\t\t<a data-style=\"button action\" href=\"". wp_nonce_url(admin_url("update.php?action=thesis_generate_skin&skin=". esc_attr($class)), 'thesis-generate-skin'). "\">". __('Create Zip File', 'thesis'). "</a>\n" : false;
+		$update = !empty($updates[$class]) && version_compare($updates[$class]['version'], $version, '>') ?
+			" <a onclick=\"if(!thesis_update_message()) return false;\" data-style=\"button update\" href=\"". wp_nonce_url(admin_url('update.php?action=thesis_update_objects&type=skin&class='. esc_attr($class). '&name='. urlencode($thesis->api->escht($name))), 'thesis-update-objects'). '">'. sprintf(__('Update %s', 'thesis'), esc_attr($name)). '</a>' : '';
 		return
-			"$tab<div id=\"skin_" . esc_attr($class) . "\" class=\"skin_info\">\n".
-			"$tab\t<form method=\"post\" action=\"" . admin_url('admin-post.php?action=thesis_skins') . "\">\n".
-			(file_exists(trailingslashit(THESIS_USER_SKINS) . "$folder/screenshot.png") ?
-			"$tab\t\t<img class=\"skin_screenshot\" src=\"" . trailingslashit(THESIS_USER_SKINS_URL) . "$folder/screenshot.png\" alt=\"" . esc_attr($name) . " screenshot\" width=\"300\" height=\"225\" />\n" : '<div style="width:300px;height:225px;" class="skin_screenshot"></div>').
-			"$tab\t\t<h4>" . esc_html($name) . " <span class=\"skin_version\">v " . esc_html($version) . "</span> <span class=\"skin_by\">" . __('by', 'thesis') . "</span> <span class=\"skin_author\">" . esc_html($author) . "</span></h4>\n".
-			(!empty($this->updates[$class]) && version_compare($this->updates[$class]['version'], $version, '>') ?
-			"$tab\t\t<p><a onclick=\"if(!thesis_update_message()) return false;\" data-style=\"button save\" href=\"". wp_nonce_url(admin_url('update.php?action=thesis_update_objects&update_type=skin&class='. esc_attr($class)), 'thesis-update-objects') ."\">". sprintf(__('Update %s', 'thesis'), esc_attr($name)) . "</a></p>\n" : '').
-			"$tab\t\t<p>" . $thesis->api->escht($description) . "</p>\n".
-			((!empty($preview['class']) && $class === $preview['class']) || ($class === $active['class'] && !empty($zip)) || ($class !== $preview['class'] && $class !== $active['class']) ?
-			"$tab\t\t<p>\n" . ($class !== $preview['class'] && $class !== $active['class'] ?
-			"$tab\t\t\t<input type=\"submit\" data-style=\"button action\" name=\"preview_skin\" value=\"" . __('Preview Skin in Development Mode', 'thesis') . "\" />\n" : ($class === $preview['class'] ?
-			"$tab\t\t\t<input type=\"submit\" class=\"stop_preview\" data-style=\"button action\" name=\"stop_preview\" value=\"" . __('Stop Previewing Skin', 'thesis') . "\" />\n" : '')).
+			"$tab<div id=\"skin_". esc_attr($class). "\" class=\"skin_info\">\n".
+			"$tab\t<form method=\"post\" action=\"". admin_url('admin-post.php?action=thesis_skins'). "\">\n".
+			(!empty($screenshot) ?
+			"$tab\t\t<img class=\"skin_screenshot\" src=\"$screenshot\" alt=\"". esc_attr($name). " screenshot\" width=\"300\" height=\"225\" />\n" : '').
+			"$tab\t\t<h4>". $thesis->api->escht($name). " <span class=\"skin_version\">v ". esc_html($version). "</span> <span class=\"skin_by\">". __('by', 'thesis'). "</span> <span class=\"skin_author\">". esc_html($author). "</span></h4>\n".
+			(!empty($update) ?
+			"$tab\t\t<p>$update</p>\n" : '').
+			"$tab\t\t<p>". $thesis->api->escht($description). "</p>\n".
+			(($preview || ($active && !empty($zip)) || !($active || $preview)) ?
+			"$tab\t\t<p>\n". (!($active || $preview) ?
+			"$tab\t\t\t<input type=\"submit\" data-style=\"button action\" name=\"preview_skin\" value=\"". __('Preview Skin in Development Mode', 'thesis'). "\" />\n" : ($preview ?
+			"$tab\t\t\t<input type=\"submit\" class=\"stop_preview\" data-style=\"button action\" name=\"stop_preview\" value=\"". __('Stop Previewing Skin', 'thesis'). "\" />\n" : '')).
 			(!empty($zip) ? $zip : '').
 			"$tab\t\t</p>\n" : '').
-			($class !== $active['class'] ?
-			"$tab\t\t<p>\n" .
+			(!$active ?
+			"$tab\t\t<p>\n".
 			"$tab\t\t\t<input type=\"hidden\" name=\"skin\" value=\"". esc_attr($class). "\" />\n".
-			($class !== $preview['class'] ?
-			"$tab\t\t\t<button data-style=\"button delete\" class=\"skin_delete\" data-id=\"$class\">". __('Delete Skin', 'thesis'). "</button>\n" : '').
-			"$tab\t\t\t<input type=\"submit\" data-style=\"button save\" name=\"activate_skin\" value=\"" . __('Activate Skin', 'thesis') . "\" />\n".
+			(!$preview ?
+			"$tab\t\t\t<button data-style=\"button delete\" class=\"skin_delete\" data-class=\"$class\" data-name=\"". $thesis->api->escht($name). "\">". __('Delete Skin', 'thesis'). "</button>\n" : '').
+			"$tab\t\t\t<input type=\"submit\" data-style=\"button save\" name=\"activate_skin\" value=\"". __('Activate Skin', 'thesis'). "\" />\n".
 			"$tab\t\t</p>\n" : '').
-			"$tab\t\t" . wp_nonce_field('thesis-skins', '_wpnonce-thesis-skins', true, false) . "\n". #wp
+			"$tab\t\t". wp_nonce_field('thesis-skins', '_wpnonce-thesis-skins', true, false). "\n". #wp
 			"$tab\t</form>\n".
 			"$tab</div>\n";
 	}
@@ -238,7 +247,7 @@ class thesis_skins {
 			wp_redirect(admin_url('admin.php?page=thesis&canvas=select_skin&update=false')); #wp
 			exit;
 		}
-		if (@file_exists(THESIS_USER_SKINS . '/' . $this->installed[$class]['folder'] ."/skin.php")) {
+		if (@file_exists(THESIS_USER_SKINS. '/'. $this->installed[$class]['folder']. '/skin.php')) {
 			if (!empty($_POST['preview_skin'])) {
 				update_option('thesis_skin_preview', $this->installed[$class]); #wp
 				wp_cache_flush(); #wp
@@ -263,13 +272,12 @@ class thesis_skins {
 	public function delete() {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
-		if (empty($_POST['id'])) return;
-		$id = esc_attr($_POST['id']);
+		if (empty($_POST['class']) || empty($_POST['name'])) return;
 		echo $thesis->api->popup(array(
-			'id' => "delete_$id",
+			'id' => 'delete_'. esc_attr($_POST['class']),
 			'title' => __('Delete Skin', 'thesis'),
 			'body' =>
-				"<iframe style=\"width:100%; height:100%;\" frameborder=\"0\" src=\"". wp_nonce_url(admin_url("update.php?action=thesis_delete_object&thesis_object_type=skin&thesis_object_name=$id"), 'thesis-delete-object'). "\" id=\"thesis_delete_$id\"></iframe>\n"));
+				"<iframe style=\"width:100%; height:100%;\" frameborder=\"0\" src=\"". wp_nonce_url(admin_url("update.php?action=thesis_delete_object&thesis_object_type=skin&thesis_object_class=". esc_attr($_POST['class']). "&thesis_object_name=". urlencode($_POST['name'])), 'thesis-delete-object'). "\" id=\"thesis_delete_". esc_attr($_POST['class']). "\"></iframe>\n"));
 		if ($thesis->environment == 'ajax') die();
 	}
 
@@ -293,15 +301,8 @@ class thesis_skins {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
 		$thesis->wp->nonce($_POST['nonce'], 'thesis-skin-manager');
-		if (($restore = $this->manager->restore((int) $_POST['id'])) && !empty($restore)) {
-			$css = array();
-			$css['css'] = ($skin = get_option("{$this->skin['class']}_css")) ? stripslashes($skin) : '';
-			$css['custom'] = ($custom = get_option("{$this->skin['class']}_css_custom")) ? stripslashes($custom) : '';
-			$css['packages'] = is_array($packages = get_option("{$this->skin['class']}_packages")) ? $packages : array();
-			$css['vars'] = is_array($vars = get_option("{$this->skin['class']}_vars")) ? $vars : array();
-			$kew = new thesis_css($css);
-			$thesis->skin->_write_css();
-		}
+		if (!empty($_POST['id']) && $this->manager->restore((int) $_POST['id']))
+			$this->css();
 		if ($thesis->environment == 'ajax') die();
 	}
 
@@ -328,15 +329,8 @@ class thesis_skins {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
 		check_admin_referer($action, 'thesis_form_nonce');
-		if (($imported = $this->manager->import($files)) && !empty($imported)) {
-			require_once(THESIS_CORE . '/skin/css.php');
-			$css = array();
-			$css['css'] = ($skin = get_option("{$this->skin['class']}_css")) ? $skin : '';
-			$css['custom'] = ($custom = get_option("{$this->skin['class']}_css_custom")) ? $custom : '';
-			$css['packages'] = is_array($packages = get_option("{$this->skin['class']}_packages")) ? $packages : array();
-			$css['vars'] = is_array($vars = get_option("{$this->skin['class']}_vars")) ? $vars : array();
-			$kew = new thesis_css($css);
-			$thesis->skin->_write_css();
+		if ($this->manager->import($files)) {
+			$this->css();
 			return true;
 		}
 		return false;
@@ -354,11 +348,19 @@ class thesis_skins {
 			$thesis->api->alert(__('Skin default not restored.', 'thesis'), 'manager_saved', true);
 		if ($thesis->environment == 'ajax') die();
 	}
-	
+
+	public function css() {
+		global $thesis;
+		require_once(THESIS_CORE. '/skin/css.php');
+		$thesis->skin->_design_options();
+		if (is_object($thesis->skin) && method_exists($thesis->skin, 'css_variables') && is_array($map = $thesis->skin->css_variables()) && is_array($vars = $thesis->skin->_css->update_vars($map)))
+			update_option("{$this->skin['class']}_vars", $vars);
+		$thesis->skin->_write_css();
+	}
+
 	public function maybe_rewrite_css() {
 		global $thesis;
-		if (is_multisite() && isset($_GET['page']) && $_GET['page'] == 'thesis' && isset($_GET['t_rewrite_css'])) {
+		if (is_multisite() && isset($_GET['page']) && $_GET['page'] == 'thesis' && isset($_GET['t_rewrite_css']))
 			$thesis->skin->_write_css();
-		}
 	}
 }

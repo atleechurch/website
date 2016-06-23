@@ -2,14 +2,14 @@
 
 class Ithemes_Sync_Verb_ITSEC_Get_Everything extends Ithemes_Sync_Verb {
 
-	public static $name = 'itsec-get-everything';
+	public static $name        = 'itsec-get-everything';
 	public static $description = 'Retrieve iThemes Security Status and other information.';
 
 	private $default_arguments = array();
 
 	public function run( $arguments ) {
 
-		global $itsec_sync;
+		$itsec_sync = ITSEC_Core::get_itsec_sync();
 
 		$modules        = $itsec_sync->get_modules();
 		$module_results = array();
@@ -18,26 +18,48 @@ class Ithemes_Sync_Verb_ITSEC_Get_Everything extends Ithemes_Sync_Verb {
 
 		foreach ( $modules as $name => $module ) {
 
-			if ( isset( $module['verbs'] ) && isset( $module['path'] ) && isset( $module['everything'] ) && isset( $module['verbs'][$module['everything']] ) ) {
+			if ( isset( $module['verbs'] ) && isset( $module['path'] ) && isset( $module['everything'] ) ) {
 
-				$class = $module['verbs'][$module['everything']];
+				$everything = array();
 
-				if ( ! class_exists( $class ) ) {
+				if ( is_array( $module['everything'] ) ) {
 
-					require( trailingslashit( $module['path'] ) . 'class-ithemes-sync-verb-' . $module['everything'] . '.php' );
+					foreach ( $module['everything'] as $item ) {
+
+						if ( isset( $module['verbs'][ $item ] ) ) {
+							$everything[] = $item;
+						}
+
+					}
+
+				} elseif ( isset( $module['verbs'][ $module['everything'] ] ) ) {
+
+					$everything[] = $module['everything'];
 
 				}
 
-				$obj = new $class;
+				foreach ( $everything as $verb ) {
 
-				$module_results[$name] = $obj->run( array() );
+					$class = $module['verbs'][ $verb ];
+
+					if ( ! class_exists( $class ) ) {
+
+						require( trailingslashit( $module['path'] ) . 'class-ithemes-sync-verb-' . $verb . '.php' );
+
+					}
+
+					$obj = new $class;
+
+					$module_results[ $name ][ $verb ] = $obj->run( array() );
+
+				}
 
 			}
 
 		}
 
 		return array_merge( array(
-			                    'api' => '0',
+			                    'api' => '1',
 		                    ),
 		                    $module_results
 		);

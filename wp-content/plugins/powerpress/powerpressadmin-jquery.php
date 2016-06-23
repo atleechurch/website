@@ -136,9 +136,14 @@ function powerpress_admin_jquery_init()
 		case 'powerpress-jquery-hosting': {
 		
 				powerpress_admin_jquery_header( __('Blubrry Podcast Media Hosting', 'powerpress') );
+
+				// Congratulations you aleady have hosting!
 ?>
 <div style="line-height: 32px; height: 32px;">&nbsp;</div>
 <iframe src="//www.blubrry.com/pp/" frameborder="0" style="overflow:hidden; overflow-y: hidden;" width="100%" height="480" scrolling="no" seamless="seamless"></iframe>
+<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?>
+	<strong><a class="button-primary button-blubrry thickbox" title="<?php echo esc_attr(__('Blubrry Services Integration', 'powerpress')); ?>" href="<?php echo wp_nonce_url(admin_url('admin.php?action=powerpress-jquery-account'), 'powerpress-jquery-account'); ?>"><?php echo __('Click here to link Blubrry account', 'powerpress'); ?></a></strong>
+</p>
 <p style="text-align: center;"><a href="#" onclick="self.parent.tb_remove();"><?php echo __('Close', 'powerpress'); ?></a></p>
 <?php
 				powerpress_admin_jquery_footer();
@@ -167,6 +172,9 @@ function powerpress_admin_jquery_init()
 <h2><?php echo __('Select Media', 'powerpress'); ?></h2>
 <p><?php echo __('Wait a sec! This feature is only available to Blubrry Media Podcast Hosting customers.', 'powerpress'); ?></p>
 <iframe src="//www.blubrry.com/pp/" frameborder="0" style="overflow:hidden; overflow-y: hidden;" width="100%" height="480" scrolling="no" seamless="seamless"></iframe>
+<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?>
+	<strong><a class="button-primary button-blubrry thickbox" title="<?php echo esc_attr(__('Blubrry Services Integration', 'powerpress')); ?>" href="<?php echo wp_nonce_url(admin_url('admin.php?action=powerpress-jquery-account'), 'powerpress-jquery-account'); ?>"><?php echo __('Click here to link Blubrry account', 'powerpress'); ?></a></strong>
+</p>
 <p style="text-align: center;"><a href="#" onclick="self.parent.tb_remove();"><?php echo __('Close', 'powerpress'); ?></a></p>
 <?php
 				powerpress_admin_jquery_footer();
@@ -183,6 +191,9 @@ function powerpress_admin_jquery_init()
 					$req_url = sprintf('%s/media/%s/%s?format=json', rtrim($api_url, '/'), $Settings['blubrry_program_keyword'], $DeleteFile );
 					$req_url .= (defined('POWERPRESS_BLUBRRY_API_QSA')?'&'. POWERPRESS_BLUBRRY_API_QSA:'');
 					$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth'], array(), 10, 'DELETE');
+					if( !$json_data && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
+						$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth'], array(), 10, 'DELETE', true); // Only give this 2 seconds to return results
+					}
 					if( $json_data != false )
 						break;
 				}
@@ -203,6 +214,9 @@ function powerpress_admin_jquery_init()
 				$req_url = sprintf('%s/media/%s/index.json?quota=true&published=true', rtrim($api_url, '/'), $Settings['blubrry_program_keyword'] );
 				$req_url .= (defined('POWERPRESS_BLUBRRY_API_QSA')?'&'. POWERPRESS_BLUBRRY_API_QSA:'');
 				$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth']);
+				if( !$json_data && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
+					$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth'], array(), 15, false, true);
+				}
 				if( $json_data != false )
 					break;
 			}
@@ -212,6 +226,15 @@ function powerpress_admin_jquery_init()
 			$FeedSlug = sanitize_title($_GET['podcast-feed']);
 			powerpress_admin_jquery_header( __('Select Media', 'powerpress'), true );
 ?>
+<style>
+.error {
+	padding:  6px 10px;
+	border 1px solid #ffc599;
+	background-color: #ff9800;
+	color: #fff;
+	font-weight: bold;
+}
+</style>
 <script language="JavaScript" type="text/javascript"><!--
 
 function SelectMedia(File)
@@ -289,7 +312,8 @@ function DeleteMedia(File)
 		$QuotaData = false;
 		if( isset($results['error']) )
 		{
-			echo $results['error'];
+			echo '<p class="error">'.$results['error'].'</p>';
+			echo '<p><a href="https://publish.blubrry.com/services/" target="_blank">'. __('Manage your blubrry.com Account', 'powerpress') .'</a></p>';
 		}
 		else if( is_array($results) )
 		{
@@ -334,8 +358,8 @@ function DeleteMedia(File)
 			}
 		}
 ?>
-		</div>
-	</div>
+		</div><!-- end media-items -->
+	</div><!-- end media-items-container -->
 	<div id="media-footer">
 		<div class="media-upload-link"><a title="<?php echo esc_attr(__('Blubrry Podcast Hosting', 'powerpress')); ?>" href="<?php echo admin_url() . wp_nonce_url("admin.php?action=powerpress-jquery-upload", 'powerpress-jquery-upload'); ?>&podcast-feed=<?php echo $FeedSlug; ?>&keepThis=true&TB_iframe=true&height=350&width=530&modal=false" class="thickbox"><?php echo __('Upload Media File', 'powerpress'); ?></a></div>
 		<?php
@@ -467,6 +491,9 @@ function DeleteMedia(File)
 					$req_url = sprintf('%s/service/index.json', rtrim($api_url, '/') );
 					$req_url .= (defined('POWERPRESS_BLUBRRY_API_QSA')?'?'. POWERPRESS_BLUBRRY_API_QSA:'');
 					$json_data = powerpress_remote_fopen($req_url, $auth);
+					if( !$json_data && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
+						$json_data = powerpress_remote_fopen($req_url, $auth, array(), 15, false, true);
+					}
 					if( $json_data != false )
 						break;
 				}
@@ -728,6 +755,9 @@ while( list($value,$desc) = each($Programs) )
 					$req_url = sprintf('%s/media/%s/upload_session.json', rtrim($api_url, '/'), $Settings['blubrry_program_keyword'] );
 					$req_url .= (defined('POWERPRESS_BLUBRRY_API_QSA')?'?'. POWERPRESS_BLUBRRY_API_QSA:'');
 					$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth']);
+					if( !$json_data && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
+						$json_data = powerpress_remote_fopen($req_url, $Settings['blubrry_auth'], array(), 15, false, true);
+					}
 					if( $json_data != false )
 						break;
 				}

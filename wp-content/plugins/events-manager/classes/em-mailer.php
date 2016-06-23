@@ -59,12 +59,12 @@ class EM_Mailer {
 			$headers .= get_option('dbem_mail_sender_name') ? 'From: '.get_option('dbem_mail_sender_name').' <'.$from.'>':'From: '.$from;
 			$send = mail($receiver, $subject, $body, $headers);
 			if(!$send){
-				$this->errors[] = __('Could not send email.', 'dbem');
+				$this->errors[] = __('Could not send email.', 'events-manager');
 			}
 			return $send;
 		}elseif( $emails_ok ){
 			$this->load_phpmailer();
-			$mail = new EM_PHPMailer();
+			$mail = new PHPMailer();
 			//$mail->SMTPDebug = true;
 			if( get_option('dbem_smtp_html') ){
 				$mail->isHTML();
@@ -120,7 +120,7 @@ class EM_Mailer {
 			do_action('em_mailer_sent', $mail, $send); //$mail can still be modified
 			return $send;
 		}else{
-			$this->errors[] = __('Please supply a valid email format.', 'dbem');
+			$this->errors[] = __('Please supply a valid email format.', 'events-manager');
 			return false;
 		}
 	}
@@ -129,8 +129,8 @@ class EM_Mailer {
 	 * load phpmailer classes
 	 */
 	function load_phpmailer(){
-		require_once(dirname(__FILE__) . '/phpmailer/class.phpmailer.php');
-		require_once(dirname(__FILE__) . '/phpmailer/class.smtp.php');
+		require_once ABSPATH . WPINC . '/class-phpmailer.php';
+		require_once ABSPATH . WPINC . '/class-smtp.php';
 	}
 }
 ?>

@@ -11,15 +11,9 @@ body {
 	background-color: $color3;
 	padding-top: $x_single;
 }
-body.landing {
-	padding-top: 0;
-}
 .container {
 	width: $w_total;
 	margin: 0 auto;
-}
-.landing .container {
-	width: $w_content;
 }
 .columns, .columns > .content, .columns > .sidebar {
 	-webkit-box-sizing: border-box;
@@ -83,14 +77,13 @@ p a:hover {
 .menu a, .menu_control {
 	display: block;
 	$menu
-	line-height: 1em;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	color: $text1;
 	border-width: 1px 1px 1px 0;
 	border-style: solid;
 	background-color: $color2;
-	padding: 0.75em 1em;
+	padding: 0.5em 1em;
 }
 .menu a:hover {
 	background-color: $color1;
@@ -118,9 +111,6 @@ p a:hover {
 	border-bottom: 3px double $color1;
 	padding: $x_single;
 }
-.landing .header {
-	text-align: center;
-}
 #site_title {
 	$title
 	line-height: 1.32em;
@@ -146,10 +136,22 @@ p a:hover {
 	$headline
 	margin: 0;
 }
+.headline, .headline a {
+	color: $headline_color;
+}
+.headline a:hover {
+	color: $links;
+}
 .grt h2 {
 	$subhead
 	margin-top: $x_3over2;
 	margin-bottom: $x_half;
+}
+.grt h2, .grt h3 {
+	color: $subhead_color;
+}
+.grt h3 {
+	font-weight: bold;
 }
 .grt .small, .grt .caption {
 	font-size: $f_aux;
@@ -161,20 +163,20 @@ p a:hover {
 	margin-right: 0.15em;
 	float: left;
 }
-.grt p, .grt ul, .grt ol, .grt blockquote, .grt pre, .grt dl, .grt dd, .grt .center, .grt .block, .grt .caption, .post_box .aligncenter, .post_box .alignnone, .post_box .post_image, .post_box .post_image_box, .post_box .wp-caption, .post_box .wp-post-image, .post_box .alert, .post_box .note, .headline_area {
+.grt p, .grt ul, .grt ol, .grt blockquote, .grt pre, .grt dl, .grt dd, .grt .center, .grt .block, .grt .aligncenter, .grt .alignnone, .grt .post_image, .grt .post_image_box, .grt .wp-post-image, .grt .caption, .grt .wp-caption, .grt .alert, .grt .note, .grt .box, .grt .footnotes, .headline_area {
 	margin-bottom: $x_single;
 }
 .grt ul, .grt ol, .grt .stack {
 	margin-left: $x_single;
 }
-.grt ul ul, .grt ul ol, .grt ol ul, .grt ol ol, .wp-caption p, .post_box .alert p:last-child, .post_box .note p:last-child, .post_content blockquote.right p, .post_content blockquote.left p {
+.grt ul ul, .grt ul ol, .grt ol ul, .grt ol ol, .wp-caption p, .grt .alert p:last-child, .grt .note p:last-child, .grt .box p:last-child, .grt blockquote.right p, .grt blockquote.left p, .grt .footnotes p:last-child {
 	margin-bottom: 0;
 }
-.grt .left, .post_box .alignleft, .post_box .ad_left {
+.grt .left, .grt .alignleft, .grt .ad_left {
 	margin-bottom: $x_single;
 	margin-right: $x_single;
 }
-.grt .right, .post_box .alignright, .post_box .ad {
+.grt .right, .grt .alignright, .grt .ad {
 	margin-bottom: $x_single;
 	margin-left: $x_single;
 }
@@ -182,31 +184,85 @@ p a:hover {
 	margin-top: -$x_half;
 	color: $text2;
 }
-/*---:[ golden ratio pullquotes ]:---*/
-.grt blockquote.right, .grt blockquote.left {
-	$pullquote
-	width: 45%;
+.grt .footnotes p {
 	margin-bottom: $x_half;
 }
-.grt blockquote.right, .grt blockquote.left { 
-	padding-left: 0;
-	border: 0;
+/*---:[ custom text styles ]:---*/
+.grt ul {
+	list-style-type: square;
 }
-/*---:[ post box styles ]:---*/
-.post_box {
-	padding: $x_single $x_single 0 $x_single;
+.grt li a {
+	text-decoration: underline;
+}
+.grt li a:hover {
+	text-decoration: none;
+}
+.grt blockquote {
+	$blockquote
+	margin-left: $x_half;
+	padding-left: $x_half;
+	border-left: 1px solid $color1;
+}
+.grt code {
+	$code
+}
+.grt pre {
+	$pre
+	background-color: $color2;
+	padding: $x_half;
+	-webkit-tab-size: 4;
+	-moz-tab-size: 4;
+	tab-size: 4;
+}
+.grt .frame, .grt .post_image_box, .grt .wp-caption {
+	border: 1px solid $color1;
+	background-color: $color2;
+	padding: $x_half;
+}
+.grt .wp-caption img, .grt .post_image_box .post_image, .grt .thumb {
+	margin-bottom: $x_half;
+}
+.wp-caption.aligncenter img {
+	margin-right: auto;
+	margin-left: auto;
+}
+.wp-caption .wp-caption-text .wp-smiley {
+	display: inline;
+	margin-bottom: 0;
+}
+.grt .wp-caption p {
+	font-size: $f_aux;
+	line-height: $h_aux;
+}
+.grt .alert, .grt .note, .grt .box {
+	padding: $x_half;
+}
+.grt .alert {
+	background-color: #ff9;
+	border: 1px solid #e6e68a;
+}
+.grt .note {
+	background-color: $color2;
+	border: 1px solid $color1;
+}
+$_links = $links;
+.grt .box {
+	background-color: scale-color($_links, $lightness: 90%);
+	border: 1px solid scale-color($_links, $lightness: -10%);
+}
+.grt .footnotes {
+	font-size: $f_aux;
+	line-height: $h_aux;
 	border-top: 1px dotted $color1;
+	padding-top: $x_single;
 }
-.top {
-	border-top: 0;
+.grt .avatar {
+	$avatar
+	float: right;
+	clear: both;
+	margin-left: $x_half;
 }
-.post_box .headline, .headline a {
-	color: $headline_color;
-}
-.headline a:hover {
-	color: $links;
-}
-.byline, .byline a {
+.grt .footnotes, .grt sub, .grt sup, .grt .post_cats, .grt .post_tags, .byline, .byline a {
 	color: $text2;
 }
 .byline a {
@@ -228,93 +284,36 @@ p a:hover {
 .post_author_intro, .post_date_intro, .byline .post_cats_intro {
 	font-style: italic;
 }
-.post_box h2, .post_box h3 {
-	color: $subhead_color;
-}
-.post_box h3 {
-	font-weight: bold;
-}
-.post_box ul {
-	list-style-type: square;
-}
-.post_box blockquote {
-	$blockquote
-	margin-left: $x_half;
-	padding-left: $x_half;
-	border-left: 1px solid $color1;
-}
-.post_box code {
-	$code
-}
-.post_box pre {
-	$pre
-	background-color: $color2;
-	padding: $x_half;
-	-webkit-tab-size: 4;
-	-moz-tab-size: 4;
-	tab-size: 4;
-}
-.post_content li a {
-	text-decoration: underline;
-}
-.post_content li a:hover {
-	text-decoration: none;
-}
-.post_box .frame, .post_box .post_image_box, .post_box .wp-caption {
-	border: 1px solid $color1;
-	background-color: $color2;
-	padding: $x_half;
-}
-.post_box .wp-caption img, .post_box .post_image_box .post_image, .post_box .thumb {
-	margin-bottom: $x_half;
-}
-.wp-caption.aligncenter img {
-	margin-right: auto;
-	margin-left: auto;
-}
-.wp-caption .wp-caption-text .wp-smiley {
-	display: inline;
-	margin-bottom: 0;
-}
-.post_box .wp-caption p {
-	font-size: $f_aux;
-	line-height: $h_aux;
-}
-.post_box .author_description {
+.grt .author_description {
 	border-top: 1px dotted $color1;
 	padding-top: $x_single;
 }
-.post_box .author_description_intro {
+.grt .author_description_intro {
 	font-weight: bold;
 }
-.post_box .avatar {
-	$avatar
-	float: right;
-	clear: both;
-	margin-left: $x_half;
-}
-.post_box .author_description .avatar {
+.grt .author_description .avatar {
 	$bio_avatar
 	float: left;
 	margin-right: $x_half;
 	margin-left: 0;
 }
-.post_box .post_cats, .post_box .post_tags {
-	color: $text2;
+/*---:[ golden ratio pullquotes ]:---*/
+.grt blockquote.right, .grt blockquote.left {
+	$pullquote
+	width: 45%;
+	margin-bottom: $x_half;
 }
-.post_box .alert, .post_box .note {
-	padding: $x_half;
+.grt blockquote.right, .grt blockquote.left {
+	padding-left: 0;
+	border: 0;
 }
-.post_box .alert {
-	background-color: #ff9;
-	border: 1px solid #e6e68a;
+/*---:[ post box structural styles ]:---*/
+.post_box {
+	padding: $x_single $x_single 0 $x_single;
+	border-top: 1px dotted $color1;
 }
-.post_box .note {
-	background-color: $color2;
-	border: 1px solid $color1;
-}
-.landing .headline_area {
-	text-align: center;
+.top {
+	border-top: 0;
 }
 /*---:[ other post box styles ]:---*/
 .num_comments_link {
@@ -323,8 +322,10 @@ p a:hover {
 	text-decoration: none;
 	margin-bottom: $x_single;
 }
+$_color1 = $color1;
+$_c1l = lightness($_color1);
 .num_comments_link:hover {
-	text-decoration: underline;
+	background-color: change-color($_color1, $lightness: $_c1l + ((100 - $_c1l) / 2));
 }
 .bracket, .num_comments {
 	font-size: $x_single;
@@ -368,6 +369,9 @@ p a:hover {
 	color: $text2;
 	margin-bottom: $x_half;
 	padding: 0 $x_single;
+}
+.comments_intro a:hover {
+	text-decoration: underline;
 }
 .comments_closed {
 	font-size: $f_aux;
@@ -451,10 +455,10 @@ p a:hover {
 	float: right;
 }
 /*---:[ inputs ]:---*/
-.input_text {
+input[type=\\"text\\"], .input_text {
+	font-family: inherit;
 	font-size: inherit;
 	line-height: 1em;
-	font-family: inherit;
 	font-weight: inherit;
 	color: $text1;
 	border: 1px solid $color1;
@@ -464,23 +468,20 @@ p a:hover {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
-.input_text:focus {
+input[type=\\"text\\"]:focus, .input_text:focus {
 	border-color: $color2;
 	background-color: $color3;
 }
 textarea.input_text {
 	line-height: $h_text;
 }
-.input_submit {
-	font-size: $f_subhead;
-	line-height: 1em;
+input[type=\\"submit\\"], .input_submit {
 	font-family: inherit;
+	line-height: 1em;
 	font-weight: bold;
 	border: 3px double $color1;
 	background: $color2 url(\\\'images/bg-button.png\\\') repeat-x;
 	padding: 0.5em;
-	cursor: pointer;
-	overflow: visible;
 }
 /*---:[ comment form ]:---*/
 #commentform {
@@ -516,6 +517,9 @@ textarea.input_text {
 }
 #commentform textarea.input_text {
 	width: 100%;
+}
+#commentform .input_submit {
+	font-size: $f_subhead;
 }
 #cancel-comment-reply-link {
 	float: right;
@@ -572,7 +576,7 @@ textarea.input_text {
 .sidebar .query_box .post_author, .sidebar .query_box .post_date {
 	color: $text2;
 }
-.sidebar .post_content, .widget li ul, .widget li ol {
+.sidebar .post_content, .widget li ul, .widget li ol, .sidebar .search-form input[type=\\"submit\\"] {
 	margin-top: $s_x_half;
 }
 .widget ul {
@@ -596,8 +600,24 @@ textarea.input_text {
 .footer a:hover {
 	color: $text1;
 }
-.landing .footer {
+/*---:[ custom template styles ]:---*/
+body.landing {
+	padding-top: 0;
+}
+.landing .container {
+	width: $w_content;
+}
+.landing .header, .landing .headline_area, .landing .footer {
 	text-align: center;
+}
+.full_page .columns > .content {
+	width: $w_total;
+	float: none;
+	border-right: 0;
+}
+/*---:[ clearfix ]:---*/
+.columns:after, .menu:after, .post_box:after, .post_content:after, .author_description:after, .sidebar:after, .query_box:after, .prev_next:after, .comment_text:after, .comment_nav:after {
+	$z_clearfix
 }
 /*---:[ media queries ]:---*/
 @media all and (max-width: $w_total) {
@@ -618,6 +638,9 @@ textarea.input_text {
 		float: none;
 		width: 100%;
 		border: 0;
+	}
+	.full_page .columns > .content {
+		width: 100%;
 	}
 	.columns > .sidebar {
 		float: none;
@@ -684,7 +707,7 @@ textarea.input_text {
 	.menu > li > a {
 		border-left-width: 0;
 	}
-	.post_box .frame, .post_box .post_image_box, .post_box .wp-caption {
+	.grt .frame, .grt .post_image_box, .grt .wp-caption {
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
@@ -712,7 +735,7 @@ textarea.input_text {
 	.right, .alignright, img[align=\\"right\\"], .left, .alignleft, img[align=\\"left\\"] {
 		float: none;
 	}
-	.grt .right, .grt .left, .post_box .alignright, .post_box .alignleft, .grt blockquote.right, .grt blockquote.left {
+	.grt .right, .grt .left, .grt .alignright, .grt .alignleft, .grt blockquote.right, .grt blockquote.left {
 		margin-right: 0;
 		margin-left: 0;
 	}
@@ -725,16 +748,159 @@ textarea.input_text {
 	.grt blockquote.right, .grt blockquote.left, #commentform .input_text, .sidebar .search-form .input_text, .sidebar .thesis_email_form .input_text {
 		width: 100%;
 	}
-	.post_box blockquote {
+	.grt blockquote {
 		margin-left: 0;
 	}
 	.comment_date {
 		display: none;
 	}
+}',
+  'css_editor' => '.grt {
+	width: $w_content - 2 * $x_single - 1;
+	margin: 0 auto;
+	font-family: $font;
+	-webkit-font-smoothing: subpixel-antialiased !important;
 }
-/*---:[ clearfix ]:---*/
-.columns:after, .menu:after, .post_box:after, .post_content:after, .author_description:after, .sidebar:after, .query_box:after, .prev_next:after, .comment_text:after, .comment_nav:after {
-	$z_clearfix
+/*---:[ links ]:---*/
+.grt a {
+	color: $links;
+	text-decoration: none;
+}
+.grt p a {
+	text-decoration: underline;
+}
+.grt p a:hover {
+	text-decoration: none;
+}
+/*---:[ typography ]:---*/
+.grt, .grt h3 {
+	font-size: $f_text;
+	line-height: $h_text;
+}
+.grt h2 {
+	$subhead
+	margin-top: $x_3over2;
+	margin-bottom: $x_half;
+}
+.grt h2, .grt h3 {
+	color: $subhead_color;
+}
+.grt h3 {
+	font-weight: bold;
+}
+.grt .small, .grt .caption {
+	font-size: $f_aux;
+	line-height: $h_aux;
+}
+.grt .drop_cap {
+	font-size: $x_double;
+	line-height: 1em;
+	margin-right: 0.15em;
+	float: left;
+}
+.grt p, .grt ul, .grt ol, .grt blockquote, .grt pre, .grt dl, .grt dd, .grt .center, .grt .block, .grt .aligncenter, .grt .alignnone, .grt .post_image, .grt .post_image_box, .grt .wp-post-image, .grt .caption, .grt .wp-caption, .grt .alert, .grt .note, .grt .box, .grt .footnotes {
+	margin-bottom: $x_single;
+}
+.grt ul, .grt ol, .grt .stack {
+	margin-left: $x_single;
+}
+.grt ul ul, .grt ul ol, .grt ol ul, .grt ol ol, .wp-caption p, .grt .alert p:last-child, .grt .note p:last-child, .grt .box p:last-child, .grt blockquote.right p, .grt blockquote.left p, .grt .footnotes p:last-child {
+	margin-bottom: 0;
+}
+.grt .left, .grt .alignleft, .grt .ad_left {
+	margin-bottom: $x_single;
+	margin-right: $x_single;
+}
+.grt .right, .grt .alignright, .grt .ad {
+	margin-bottom: $x_single;
+	margin-left: $x_single;
+}
+.grt .caption {
+	margin-top: -$x_half;
+	color: $text2;
+}
+.grt .footnotes p {
+	margin-bottom: $x_half;
+}
+.grt ul {
+	list-style-type: square;
+}
+.grt li a {
+	text-decoration: underline;
+}
+.grt li a:hover {
+	text-decoration: none;
+}
+.grt blockquote {
+	$blockquote
+	margin-left: $x_half;
+	padding-left: $x_half;
+	border-left: 1px solid $color1;
+}
+.grt code {
+	$code
+}
+.grt pre {
+	$pre
+	background-color: $color2;
+	padding: $x_half;
+	-webkit-tab-size: 4;
+	-moz-tab-size: 4;
+	tab-size: 4;
+}
+.grt .frame, .grt .post_image_box, .grt .wp-caption {
+	border: 1px solid $color1;
+	background-color: $color2;
+	padding: $x_half;
+}
+.grt .wp-caption img, .grt .post_image_box .post_image, .grt .thumb {
+	margin-bottom: $x_half;
+}
+.wp-caption.aligncenter img {
+	margin-right: auto;
+	margin-left: auto;
+}
+.wp-caption .wp-caption-text .wp-smiley {
+	display: inline;
+	margin-bottom: 0;
+}
+.grt .wp-caption p {
+	font-size: $f_aux;
+	line-height: $h_aux;
+}
+.grt .alert, .grt .note, .grt .box {
+	padding: $x_half;
+}
+.grt .alert {
+	background-color: #ff9;
+	border: 1px solid #e6e68a;
+}
+.grt .note {
+	background-color: $color2;
+	border: 1px solid $color1;
+}
+$_links = $links;
+.grt .box {
+	background-color: scale-color($_links, $lightness: 90%);
+	border: 1px solid scale-color($_links, $lightness: -10%);
+}
+.grt .footnotes {
+	font-size: $f_aux;
+	line-height: $h_aux;
+	border-top: 1px dotted $color1;
+	padding-top: $x_single;
+}
+.grt .footnotes, .grt sub, .grt sup {
+	color: $text2;
+}
+.grt blockquote.right, .grt blockquote.left {
+	$pullquote
+	width: 45%;
+	margin-bottom: $x_half;
+}
+.grt blockquote.right, .grt blockquote.left {
+	padding-left: 0;
+	border: 0;
 }',
   'boxes' => 
   array (
@@ -792,11 +958,13 @@ textarea.input_text {
       'thesis_html_container_1348165494' => 
       array (
         'class' => 'byline small',
+        '_id' => 'byline',
         '_name' => 'Byline',
       ),
       'thesis_html_container_1348608649' => 
       array (
         'class' => 'archive_intro post_box grt top',
+        '_id' => 'archive_intro',
         '_name' => 'Archive Intro',
       ),
       'thesis_html_container_1348701154' => 
@@ -808,11 +976,13 @@ textarea.input_text {
       'thesis_html_container_1348841704' => 
       array (
         'class' => 'comment_head',
+        '_id' => 'comment_head',
         '_name' => 'Comment Head',
       ),
       'thesis_html_container_1348886177' => 
       array (
         'class' => 'headline_area',
+        '_id' => 'headline_area',
         '_name' => 'Headline Area',
       ),
       'thesis_html_container_1365640887' => 
@@ -830,6 +1000,7 @@ textarea.input_text {
       'thesis_html_container_1366209424' => 
       array (
         'class' => 'comment_footer',
+        '_id' => 'comment_footer',
         '_name' => 'Comment Footer',
       ),
     ),
@@ -837,6 +1008,7 @@ textarea.input_text {
     array (
       'thesis_wp_nav_menu_1348009742' => 
       array (
+        'menu' => '3',
         'control' => 
         array (
           'yes' => true,
@@ -849,22 +1021,24 @@ textarea.input_text {
       'thesis_post_box_1348010947' => 
       array (
         'class' => 'grt',
-        'schema' => 'article',
+        'schema' => 'blogposting',
         '_admin' => 
         array (
           'open' => true,
         ),
-        '_name' => 'Home Post Box',
+        '_id' => 'post_box_archive',
+        '_name' => 'Post Box (Archive)',
       ),
       'thesis_post_box_1348607689' => 
       array (
         'class' => 'grt',
-        'schema' => 'article',
+        'schema' => 'blogposting',
         '_admin' => 
         array (
           'open' => true,
         ),
-        '_name' => 'Post/Page Post Box',
+        '_id' => 'post_box_post_page',
+        '_name' => 'Post Box (Post/Page)',
       ),
     ),
     'thesis_post_headline' => 
@@ -883,6 +1057,7 @@ textarea.input_text {
     array (
       'thesis_wp_widgets_1348079687' => 
       array (
+        'div' => 'div',
         '_id' => 'sidebar',
         '_name' => 'Sidebar Widgets',
       ),
@@ -921,6 +1096,7 @@ textarea.input_text {
     array (
       'thesis_comments_1348716667' => 
       array (
+        '_id' => 'comments',
         '_name' => 'Comments',
       ),
     ),
@@ -928,6 +1104,7 @@ textarea.input_text {
     array (
       'thesis_comment_form_1348843091' => 
       array (
+        '_id' => 'comment_form',
         '_name' => 'Comment Form',
       ),
     ),
@@ -1140,43 +1317,45 @@ textarea.input_text {
     array (
       'name' => 'Links',
       'ref' => 'links',
-      'css' => '#d00',
+      'css' => '#DD0000',
     ),
     'var_1351010515' => 
     array (
       'name' => 'Clearfix',
       'ref' => 'z_clearfix',
-      'css' => 'content: \\".\\"; display: block; height: 0; clear: both; visibility: hidden;',
+      'css' => 'display: table;
+	clear: both;
+	content: \\\'\\\';',
     ),
     'var_1360768628' => 
     array (
       'name' => 'Primary Text Color',
       'ref' => 'text1',
-      'css' => '#111',
+      'css' => '#111111',
     ),
     'var_1360768650' => 
     array (
       'name' => 'Secondary Text Color',
       'ref' => 'text2',
-      'css' => '#888',
+      'css' => '#888888',
     ),
     'var_1360768659' => 
     array (
       'name' => 'Color 1',
       'ref' => 'color1',
-      'css' => '#ddd',
+      'css' => '#DDDDDD',
     ),
     'var_1360768669' => 
     array (
       'name' => 'Color 2',
       'ref' => 'color2',
-      'css' => '#eee',
+      'css' => '#EEEEEE',
     ),
     'var_1360768678' => 
     array (
       'name' => 'Color 3',
       'ref' => 'color3',
-      'css' => '#fff',
+      'css' => '#FFFFFF',
     ),
     'var_1362537256' => 
     array (
@@ -1266,7 +1445,7 @@ textarea.input_text {
     array (
       'name' => 'Site Title Color',
       'ref' => 'title_color',
-      'css' => '#111',
+      'css' => '#111111',
     ),
     'var_1363458877' => 
     array (
@@ -1279,13 +1458,14 @@ textarea.input_text {
       'name' => 'Tagline',
       'ref' => 'tagline',
       'css' => 'font-size: 16px;
-	color: #888;',
+	color: #888888;',
     ),
     'var_1363467168' => 
     array (
       'name' => 'Nav Menu',
       'ref' => 'menu',
-      'css' => 'font-size: 13px;',
+      'css' => 'font-size: 13px;
+	line-height: 19px;',
     ),
     'var_1363467273' => 
     array (
@@ -1312,38 +1492,38 @@ textarea.input_text {
     array (
       'name' => 'Blockquote',
       'ref' => 'blockquote',
-      'css' => 'color: #888;',
+      'css' => 'color: #888888;',
     ),
     'var_1363621659' => 
     array (
       'name' => 'Code',
       'ref' => 'code',
-      'css' => 'font-family: Consolas, Monaco, Menlo, Courier, Verdana, sans-serif;',
+      'css' => 'font-family: Consolas, Menlo, Monaco, Courier, Verdana, sans-serif;',
     ),
     'var_1363621686' => 
     array (
       'name' => 'Pre-formatted Code',
       'ref' => 'pre',
-      'css' => 'font-family: Consolas, Monaco, Menlo, Courier, Verdana, sans-serif;',
+      'css' => 'font-family: Consolas, Menlo, Monaco, Courier, Verdana, sans-serif;',
     ),
     'var_1363621701' => 
     array (
       'name' => 'Sidebar Heading',
       'ref' => 'sidebar_heading',
-      'css' => 'font-size: 17px;
-	line-height: 24px;',
+      'css' => 'font-size: 21px;
+	line-height: 30px;',
     ),
     'var_1363633021' => 
     array (
       'name' => 'Headline Color',
       'ref' => 'headline_color',
-      'css' => '#111',
+      'css' => '#111111',
     ),
     'var_1363633037' => 
     array (
       'name' => 'Sub-headline Color',
       'ref' => 'subhead_color',
-      'css' => '#111',
+      'css' => '#111111',
     ),
     'var_1363989059' => 
     array (
@@ -1377,7 +1557,7 @@ textarea.input_text {
     array (
       'name' => 'Navigation Submenu',
       'ref' => 'submenu',
-      'css' => '10.5625em',
+      'css' => '182px',
     ),
     'var_1367605257' => 
     array (
@@ -1597,7 +1777,6 @@ textarea.input_text {
         'thesis_html_container_1348009575' => 
         array (
           0 => 'thesis_attribution',
-          1 => 'thesis_wp_admin',
         ),
       ),
     ),
@@ -1806,6 +1985,237 @@ textarea.input_text {
           1 => 'thesis_wp_widgets_1348079687',
         ),
         'thesis_html_container_1348009575' => 
+        array (
+          0 => 'thesis_attribution',
+          1 => 'thesis_wp_admin',
+        ),
+      ),
+    ),
+    'custom_1399394331' =>
+    array (
+      'title' => 'Full Page',
+      'options' =>
+      array (
+        'thesis_html_body' =>
+        array (
+          'class' => 'full_page',
+        ),
+      ),
+      'boxes' =>
+      array (
+        'thesis_html_body' =>
+        array (
+          0 => 'thesis_html_container_1348093642',
+        ),
+        'thesis_html_container_1348093642' =>
+        array (
+          0 => 'thesis_wp_nav_menu_1348009742',
+          1 => 'thesis_html_container_1348009564',
+          2 => 'thesis_html_container_1348009571',
+          3 => 'thesis_html_container_1348009575',
+        ),
+        'thesis_html_container_1348009564' =>
+        array (
+          0 => 'thesis_site_title',
+          1 => 'thesis_site_tagline',
+        ),
+        'thesis_html_container_1348009571' =>
+        array (
+          0 => 'thesis_html_container_1348010954',
+        ),
+        'thesis_html_container_1348010954' =>
+        array (
+          0 => 'thesis_wp_loop',
+        ),
+        'thesis_wp_loop' =>
+        array (
+          0 => 'thesis_post_box_1348607689',
+          1 => 'thesis_html_container_1365640949',
+        ),
+        'thesis_post_box_1348607689' =>
+        array (
+          0 => 'thesis_html_container_1348886177',
+          1 => 'thesis_post_box_1348607689_thesis_wp_featured_image',
+          2 => 'thesis_post_box_1348607689_thesis_post_image',
+          3 => 'thesis_post_box_1348607689_thesis_post_content',
+        ),
+        'thesis_html_container_1348886177' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author_avatar',
+          1 => 'thesis_post_box_1348607689_thesis_post_headline',
+          2 => 'thesis_html_container_1348165494',
+        ),
+        'thesis_html_container_1348165494' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author',
+          1 => 'thesis_post_box_1348607689_thesis_post_date',
+          2 => 'thesis_post_box_1348607689_thesis_post_edit',
+        ),
+        'thesis_html_container_1365640949' =>
+        array (
+          0 => 'thesis_comments_intro',
+          1 => 'thesis_comments_nav_1366218263',
+          2 => 'thesis_comments_1348716667',
+          3 => 'thesis_comments_nav_1366218280',
+          4 => 'thesis_comment_form_1348843091',
+        ),
+        'thesis_comments_1348716667' =>
+        array (
+          0 => 'thesis_html_container_1348841704',
+          1 => 'thesis_comments_1348716667_thesis_comment_text',
+          2 => 'thesis_html_container_1366209424',
+        ),
+        'thesis_html_container_1348841704' =>
+        array (
+          0 => 'thesis_comments_1348716667_thesis_comment_avatar',
+          1 => 'thesis_comments_1348716667_thesis_comment_author',
+          2 => 'thesis_comments_1348716667_thesis_comment_date',
+        ),
+        'thesis_html_container_1366209424' =>
+        array (
+          0 => 'thesis_comments_1348716667_thesis_comment_reply',
+          1 => 'thesis_comments_1348716667_thesis_comment_permalink',
+          2 => 'thesis_comments_1348716667_thesis_comment_edit',
+        ),
+        'thesis_comment_form_1348843091' =>
+        array (
+          0 => 'thesis_comment_form_1348843091_thesis_comment_form_cancel',
+          1 => 'thesis_comment_form_1348843091_thesis_comment_form_title',
+          2 => 'thesis_comment_form_1348843091_thesis_comment_form_name',
+          3 => 'thesis_comment_form_1348843091_thesis_comment_form_email',
+          4 => 'thesis_comment_form_1348843091_thesis_comment_form_url',
+          5 => 'thesis_comment_form_1348843091_thesis_comment_form_comment',
+          6 => 'thesis_comment_form_1348843091_thesis_comment_form_submit',
+        ),
+        'thesis_html_container_1348009575' =>
+        array (
+          0 => 'thesis_attribution',
+          1 => 'thesis_wp_admin',
+        ),
+      ),
+    ),
+    'front' =>
+    array (
+      'boxes' =>
+      array (
+        'thesis_html_body' =>
+        array (
+          0 => 'thesis_html_container_1348093642',
+        ),
+        'thesis_html_container_1348093642' =>
+        array (
+          0 => 'thesis_wp_nav_menu_1348009742',
+          1 => 'thesis_html_container_1348009564',
+          2 => 'thesis_html_container_1348009571',
+          3 => 'thesis_html_container_1348009575',
+        ),
+        'thesis_html_container_1348009564' =>
+        array (
+          0 => 'thesis_site_title',
+          1 => 'thesis_site_tagline',
+        ),
+        'thesis_html_container_1348009571' =>
+        array (
+          0 => 'thesis_html_container_1348010954',
+          1 => 'thesis_html_container_1348010964',
+        ),
+        'thesis_html_container_1348010954' =>
+        array (
+          0 => 'thesis_wp_loop',
+        ),
+        'thesis_wp_loop' =>
+        array (
+          0 => 'thesis_post_box_1348607689',
+        ),
+        'thesis_post_box_1348607689' =>
+        array (
+          0 => 'thesis_html_container_1348886177',
+          1 => 'thesis_post_box_1348607689_thesis_wp_featured_image',
+          2 => 'thesis_post_box_1348607689_thesis_post_image',
+          3 => 'thesis_post_box_1348607689_thesis_post_content',
+        ),
+        'thesis_html_container_1348886177' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author_avatar',
+          1 => 'thesis_post_box_1348607689_thesis_post_headline',
+          2 => 'thesis_html_container_1348165494',
+        ),
+        'thesis_html_container_1348165494' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author',
+          1 => 'thesis_post_box_1348607689_thesis_post_date',
+          2 => 'thesis_post_box_1348607689_thesis_post_edit',
+        ),
+        'thesis_html_container_1348010964' =>
+        array (
+          0 => 'thesis_text_box_1350230891',
+          1 => 'thesis_wp_widgets_1348079687',
+        ),
+        'thesis_html_container_1348009575' =>
+        array (
+          0 => 'thesis_attribution',
+          1 => 'thesis_wp_admin',
+        ),
+      ),
+    ),
+    'fourohfour' =>
+    array (
+      'boxes' =>
+      array (
+        'thesis_html_body' =>
+        array (
+          0 => 'thesis_html_container_1348093642',
+        ),
+        'thesis_html_container_1348093642' =>
+        array (
+          0 => 'thesis_wp_nav_menu_1348009742',
+          1 => 'thesis_html_container_1348009564',
+          2 => 'thesis_html_container_1348009571',
+          3 => 'thesis_html_container_1348009575',
+        ),
+        'thesis_html_container_1348009564' =>
+        array (
+          0 => 'thesis_site_title',
+          1 => 'thesis_site_tagline',
+        ),
+        'thesis_html_container_1348009571' =>
+        array (
+          0 => 'thesis_html_container_1348010954',
+          1 => 'thesis_html_container_1348010964',
+        ),
+        'thesis_html_container_1348010954' =>
+        array (
+          0 => 'thesis_wp_loop',
+        ),
+        'thesis_wp_loop' =>
+        array (
+          0 => 'thesis_post_box_1348607689',
+        ),
+        'thesis_post_box_1348607689' =>
+        array (
+          0 => 'thesis_html_container_1348886177',
+          1 => 'thesis_post_box_1348607689_thesis_wp_featured_image',
+          2 => 'thesis_post_box_1348607689_thesis_post_image',
+          3 => 'thesis_post_box_1348607689_thesis_post_content',
+        ),
+        'thesis_html_container_1348886177' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author_avatar',
+          1 => 'thesis_post_box_1348607689_thesis_post_headline',
+          2 => 'thesis_html_container_1348165494',
+        ),
+        'thesis_html_container_1348165494' =>
+        array (
+          0 => 'thesis_post_box_1348607689_thesis_post_author',
+          1 => 'thesis_post_box_1348607689_thesis_post_date',
+          2 => 'thesis_post_box_1348607689_thesis_post_edit',
+        ),
+        'thesis_html_container_1348010964' =>
+        array (
+          0 => 'thesis_text_box_1350230891',
+          1 => 'thesis_wp_widgets_1348079687',
+        ),
+        'thesis_html_container_1348009575' =>
         array (
           0 => 'thesis_attribution',
           1 => 'thesis_wp_admin',

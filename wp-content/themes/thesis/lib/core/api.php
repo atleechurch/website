@@ -6,13 +6,11 @@ License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_api {
-	private $boxes = array(
-		'thesis_feed_link',
-		'thesis_pingback_link',
-		'thesis_google_analytics',
-		'thesis_google_authorship',
-		'thesis_meta_verify',
+	public $boxes = array(
 		'thesis_tracking_scripts',
+		'thesis_meta_verify',
+		'thesis_google_analytics',
+		'thesis_google_publisher',
 		'thesis_404');
 
 	public function __construct() {
@@ -34,96 +32,105 @@ class thesis_api {
 		$this->typography = new thesis_typography;
 		$this->css = new thesis_css_api;
 		$this->deprecated_hooks();
-		add_action('init', array($this, 'boxes'));
+		add_action('widgets_init', array($this, 'boxes'));
+		if (is_multisite() && is_admin() && !empty($_GET['action']) && $_GET['action'] == 'thesis_do_css')
+			add_action('init', array($this, 'ms_css'));
 	}
 
+	/*
+	The following two methods add Boxes that accommodate Third Party functionality (and thus cannot be considered "core").
+	*/
 	public function boxes() {
+		// TODO: Remove thesis_google_publisher if WPSEO Plugin is detected
 		require_once(THESIS_API. '/boxes.php');
 		foreach ($this->boxes as $box)
 			new $box;
+		// Activate thesis_home_seo as an accessible API element
 		$this->home_seo = new thesis_home_seo;
+		// Include Twitter Profile Box
+		foreach (array('thesis_post_box', 'thesis_post_list', 'thesis_query_box') as $box)
+			add_action("{$box}_dependents", array($this, 'add_thesis_twitter_profile'));
 	}
 
-	public function get_option($option) {
-		return isset($this->options[$option]) ? maybe_unserialize($this->options[$option]) : false;
+	public function add_thesis_twitter_profile($dependents) {
+		$dependents[] = 'thesis_twitter_profile';
+		return $dependents;
 	}
 
+/*---:[ Begin Thesis API methods ]:---*/
+
+/*---:[ Custom hook system ]:---*/
+
+	/*
+	Custom hook gateway system that allows for easy hook-sniffing. Wherever you wish to include a hook in your code,
+	reference $thesis->api->hook() and provide one or both of the following:
+	— $hook: (required) the unique name of the hook
+	— $args: (optional) arguments to pass to hooked functions
+
+	Usage example: $thesis->api->hook('my_special_hook');
+	*/
+	public function hook($hook, $args = '') {
+		if (empty($hook)) return;
+		$this->hooks[] = $hook;
+		return do_action($hook, $args);
+	}
+
+/*---:[ Text escaping methods ]:---*/
+
+	/*
+	$thesis->api->esc() should be used when escaping a value for output inside an HTML attribute (such as in a form)
+	— $value: the value to be escaped
+	*/
 	public function esc($value) {
 		return esc_attr(stripslashes($value));
 	}
 
+	/*
+	$thesis->api->esch() should be used when escaping HTML that appears between tags
+	— $value: the text to be escaped
+	*/
 	public function esch($value) {
 		return esc_html(stripslashes($value));
 	}
-	
+
+	/*
+	$thesis->api->escht() should be used when escaping HTML that must convert certain characters into equivalent HTML entities
+	— $value: the text to be escaped
+	— $strip: whether or not to perform stripslashes() on the $value (typically not desirable for this sort of escaping)
+	*/
 	public function escht($value, $strip = false) {
 		return esc_html(wptexturize($strip ? stripslashes($value) : $value));
 	}
 
-	public function alert($message, $id = false, $ajax = false, $status = false, $depth = false) {
-		if (empty($message)) return;
-		$id = $id ? " id=\"$id\"" : '';
-		$ajax = $ajax ? '_ajax' : '';
-		$status = $status == 'good' ? ' t_good' : ($status == 'bad' ? ' t_bad' : ($status == 'warning' ? ' t_warning' : ''));
-		$tab = str_repeat("\t", (is_numeric($depth) ? $depth : 2));
-		return
-			"$tab<div$id class=\"t{$ajax}_alert$status\">\n".
-			"$tab\t<div class=\"t_message\">\n".
-			"$tab\t\t<p>$message</p>\n".
-			"$tab\t</div>\n".
-			"$tab</div>\n";
+	/*
+	Check which Thesis template is currently running.
+	Note: This method uses the proper template name (such as "Landing Page")
+	*/
+	public function is_template($name = '') {
+		global $thesis;
+		if (!empty($name) && !empty($thesis->skin->_template['title']) && $thesis->skin->_template['title'] === $name)
+			return true;
 	}
 
-	public function popup($args = array()) {
-		$id = $title = $body = $type = '';
-		$name = $menu = $panes = array();
-		$depth = 0;
-		extract($args); // array('id' (string), 'title' (string), 'name' (array), 'menu' (array), 'panes' (array), 'body' (string), 'depth' (int))
-		$tab = str_repeat("\t", $depth);
-		$li = false;
-		$type = $type ? " type_$type" : '';
-		$title = trim($title);
-		$name = !empty($name) && is_array($name) ?
-			": <input type=\"text\" data-style=\"input\" id=\"{$name['id']}\" data-id=\"$id\" class=\"t_popup_name\" name=\"{$name['name']}\" value=\"" . esc_attr($name['value']) . '"' . (is_numeric($name['tabindex']) ? " tabindex=\"{$name['tabindex']}\"" : '') . " />" : (!empty($name) ? ": $name" : '');
-		if (is_array($menu))
-			foreach ($menu as $pane => $text)
-				$li[$pane] = "<li data-pane=\"$pane\">$text</li>";
-		if (is_array($panes))
-			foreach ($panes as $pane => $options)
-				$body .=
-					"$tab\t\t\t<div class=\"pane pane_$pane\">\n".
-					$options.
-					"$tab\t\t\t</div>\n";
-		return
-			"$tab<div id=\"popup_$id\" class=\"t_popup\">\n".
-			"$tab\t<div class=\"t_popup_html$type\">\n".
-			"$tab\t\t<div class=\"t_popup_head\" data-style=\"box\">\n".
-			"$tab\t\t\t<span class=\"t_popup_close\" data-style=\"button action\" title=\"". __('click to close', 'thesis'). "\">OK</span>\n".
-			"$tab\t\t\t<h4>$title$name</h4>\n".
-			(is_array($li) ?
-			"$tab\t\t\t<ul class=\"t_popup_menu\">\n".
-			"$tab\t\t\t\t" . implode("\n$tab\t\t\t\t", $li) . "\n".
-			"$tab\t\t\t</ul>\n" : '').
-			"$tab\t\t</div>\n".
-			"$tab\t\t<div class=\"t_popup_body\">\n".
-			$body.
-			"$tab\t\t</div>\n".
-			"$tab\t</div>\n".
-			"$tab</div>\n";
+/*---:[ Data handling methods ]:---*/
+
+	/*
+	Using $thesis->api->get_option() to access your options (instead of the native WP method)
+	reduces the total number of database calls required in any given page load.
+	— $option: the name of the option to retrieve (this can be any option stored in the wp_options table)
+	*/
+	public function get_option($option) {
+		return isset($this->options[$option]) ? maybe_unserialize($this->options[$option]) : false;
 	}
 
-	public function uploader($name, $depth = false) {
-		$tab = str_repeat("\t", is_numeric($depth) ? $depth : 0);
-		return
-			"$tab<iframe style=\"width:90%;height:100%;". (stripos($_SERVER['HTTP_USER_AGENT'], 'mozilla') >= 0 && $name == 'thesis_images' ? "position:absolute;" : '') ."\" frameborder=\"0\" src=\"" . admin_url("admin-post.php?action={$name}_window&window_nonce=" . wp_create_nonce('thesis_upload_iframe')) . "\" id=\"thesis_upload_iframe_$name\">\n".
-			"$tab</iframe>\n";
-	}
-
-	public function get_box_form() {
-		require_once(THESIS_API . '/box_form.php');
-		return new thesis_box_form;
-	}
-
+	/*
+	The set_options method takes data from a form and returns an array of vaules ready to be stored in a database.
+	— $fields: an array of options in Thesis Options API Array Format (http://diythemes.com/thesis/rtfm/api/options/array-format/)
+	— $values: an array of values from a form
+	— $reference: the 'image' field requires a reference parameter to locate relevant data
+	— $upload_type: the 'image' field may require an upload type parameter to function properly
+	— $post_id: the 'image' field may require a post ID parameter to function properly
+	*/
 	public function set_options($fields, $values, $reference = '', $upload_type = 'default', $post_id = 0) {
 		if (!is_array($fields)) return false;
 		$save = array();
@@ -157,7 +164,7 @@ class thesis_api {
 							$diff = array_diff(array('url', 'width', 'height', 'id'), array_keys(array_filter($new_image)));
 							if ((in_array($upload_type, array('default', 'box')) && empty($diff))
 								|| ($upload_type == 'skin' && count($diff) === 3)) {
-								$value['url'] = esc_url_raw($new_image['url']);
+								$value['url'] = esc_url_raw($this->url_relative($new_image['url']));
 								$value['width'] = absint($new_image['width']);
 								$value['height'] = absint($new_image['height']);
 								if (isset($new_image['id']))
@@ -183,13 +190,14 @@ class thesis_api {
 						elseif ((!empty($field['type']) && $field['type'] == 'text' || $field['type'] == 'color' || $field['type'] == 'textarea' || $field['type'] == 'radio' || ($field['type'] == 'select' && empty($field['multiple']))) && (isset($field['default']) && $value == $field['default']))
 							unset($value);
 						elseif (!empty($field['type']) && $field['type'] == 'select' && !empty($field['multiple']) && !empty($field['options']) && is_array($field['options'])) {
-							
+							// Still need to add support for multi-select fields
 						}
-						elseif ($field['type'] == 'image_upload')
-							$value = array_filter(array(
-							 	'url' => !empty($value['url']) ? esc_url_raw($value['url']) : false,
+						elseif (in_array($field['type'], array('image_upload', 'add_media')) ) {
+							$value = !empty($value['url']) ? array_filter(array(
+								'url' => esc_url_raw($this->url_relative($value['url'])),
 								'width' => !empty($value['width']) ? (int) $value['width'] : false,
-								'height' => !empty($value['height']) ? (int) $value['height'] : false));
+								'height' => !empty($value['height']) ? (int) $value['height'] : false)) : array();
+						}
 					}
 					if (!empty($value))
 						$save[$id] = $value;
@@ -199,68 +207,11 @@ class thesis_api {
 		return !empty($save) ? $save : false;
 	}
 
-	// $location is the location in $_FILES
-	// $type = default means handle like normak upload
-	// $type = skin means send to active skin's images folder
-	public function save_image($location, $type = 'default', $post_id = 0) {
-		if (empty($_FILES[$location]) || $_FILES[$location]['error'] === 4 || !current_user_can('upload_files'))
-			return false;
-		$url = $width = $height = $id = false;
-		// plain old upload
-		if ($type === 'default' || $type === 'box') {
-			$post_id = (int) abs($post_id);
-			// returns the attachment id.
-			$id = media_handle_upload($location, $post_id);
-			$id = (int) $id;
-			$post = get_post($id);
-			if (empty($post->guid))
-				return false;
-			$url = $post->guid;
-			if (empty($url)) return false;
-			$metadata = wp_get_attachment_metadata($id);
-			if (empty($metadata)) {
-				$wp_upload = wp_upload_dir(); // path
-				$image_data = @getimagesize("{$wp_upload['path']}/". basename($post->guid));
-			}
-			$height = !empty($metadata['height']) ? $metadata['height'] : (!empty($image_data[1]) ? $image_data[1] : false);
-			$width = !empty($metadata['width']) ? $metadata['width'] : (!empty($image_data[0]) ? $image_data[0] : false);
-		}
-		elseif ($type === 'skin') {
-			$upload = $_FILES[$location];
-			if (! @is_uploaded_file($upload['tmp_name']) || ! ($upload_data = @getimagesize($upload['tmp_name'])) || $upload['error'] > 0 ||
-				! defined('THESIS_USER_SKIN_IMAGES'))
-				return false;
-			if (! @is_dir(THESIS_USER_SKIN_IMAGES) && get_filesystem_method() === 'direct') {
-				include_once(ABSPATH . 'wp-admin/includes/file.php');
-				WP_Filesystem();
-				if (!$GLOBALS['wp_filesystem']->mkdir(THESIS_USER_SKIN_IMAGES))
-					return false;
-			}
-			$ext = explode('/', $upload_data['mime']);
-			$ext = strtolower($ext[1]) == 'jpeg' ? 'jpg' : (strtolower($ext[1]) == 'tiff' ? 'tif' : strtolower($ext[1]));
-			if (! stristr($upload['name'], ".$ext")) {
-				$a = explode('.', $upload['name']);
-				array_pop($a);
-				array_push($a, $ext);
-				$upload['name'] = implode('.', $a);
-			}
-			// make a unique file name
-			$upload['name'] = wp_unique_filename(THESIS_USER_SKIN_IMAGES, $upload['name']);
-			$path = untrailingslashit(THESIS_USER_SKIN_IMAGES) . "/{$upload['name']}";
-			if (@move_uploaded_file($upload['tmp_name'], $path) === false)
-				return false;
-			$url = untrailingslashit(THESIS_USER_SKIN_IMAGES_URL) . "/{$upload['name']}";
-			$height = $upload_data[0];
-			$width = $upload_data[1];
-		}
-		$return = array_filter(array(
-			'url' => esc_url_raw($url),
-			'width' => !empty($width) ? (int) $width : false,
-			'height' => !empty($height) ? (int) $height : false,
-			'id' => !empty($id) ? $id : false));
-		return !empty($return) ? $return : false;
-	}
-
+	/*
+	The get_options method takes saved option data and combines it with default option data to determine the current state of options.
+	— $fields: an array of options in Thesis Options API Array Format (http://diythemes.com/thesis/rtfm/api/options/array-format/)
+	— $values: an array of values retrieved from a database
+	*/
 	public function get_options($fields, $values) { // Returns options + defaults (defaults are not saved to the db)
 		if (!is_array($fields)) return array();
 		$values = is_array($values) ? $values : array();
@@ -303,40 +254,84 @@ class thesis_api {
 		return $options;
 	}
 
-	public function verify_class_name($class) {
-		return preg_match('/\A[a-zA-Z_]\w*\Z/', $class) ? $class : false;
+	/*
+	Handle uplaoded image data and return a value suitable for saving.
+	— $location: the location of the uploaded file in the $_FILES array
+	— $type: determines where to store the uploaded image; 'default' and 'box' use the WP upload system, 'skin' uses the active Skin's /images folder.
+	— $post_id: provide a post ID if one is associated with the image
+	*/
+	public function save_image($location, $type = 'default', $post_id = 0) {
+		if (empty($_FILES[$location]) || $_FILES[$location]['error'] === 4 || !current_user_can('upload_files'))
+			return false;
+		$url = $width = $height = $id = false;
+		// plain old upload
+		if ($type === 'default' || $type === 'box') {
+			$post_id = (int) abs($post_id);
+			// returns the attachment id
+			$id = media_handle_upload($location, $post_id);
+			$id = (int) $id;
+			$post = get_post($id);
+			if (empty($post->guid))
+				return false;
+			$url = $post->guid;
+			if (empty($url)) return false;
+			$metadata = wp_get_attachment_metadata($id);
+			if (empty($metadata)) {
+				$wp_upload = wp_upload_dir(); // path
+				$image_data = @getimagesize("{$wp_upload['path']}/". basename($post->guid));
+			}
+			$height = !empty($metadata['height']) ? $metadata['height'] : (!empty($image_data[1]) ? $image_data[1] : false);
+			$width = !empty($metadata['width']) ? $metadata['width'] : (!empty($image_data[0]) ? $image_data[0] : false);
+		}
+		elseif ($type === 'skin') {
+			$upload = $_FILES[$location];
+			if (! @is_uploaded_file($upload['tmp_name']) || ! ($upload_data = @getimagesize($upload['tmp_name'])) || $upload['error'] > 0 ||
+				! defined('THESIS_USER_SKIN_IMAGES'))
+				return false;
+			if (! @is_dir(THESIS_USER_SKIN_IMAGES) && get_filesystem_method() === 'direct') {
+				include_once(ABSPATH. 'wp-admin/includes/file.php');
+				WP_Filesystem();
+				if (!$GLOBALS['wp_filesystem']->mkdir(THESIS_USER_SKIN_IMAGES))
+					return false;
+			}
+			$ext = explode('/', $upload_data['mime']);
+			$ext = strtolower($ext[1]) == 'jpeg' ? 'jpg' : (strtolower($ext[1]) == 'tiff' ? 'tif' : strtolower($ext[1]));
+			if (!stristr($upload['name'], ".$ext")) {
+				$a = explode('.', $upload['name']);
+				array_pop($a);
+				array_push($a, $ext);
+				$upload['name'] = implode('.', $a);
+			}
+			// make a unique file name
+			$upload['name'] = wp_unique_filename(THESIS_USER_SKIN_IMAGES, $upload['name']);
+			$path = untrailingslashit(THESIS_USER_SKIN_IMAGES). "/{$upload['name']}";
+			if (@move_uploaded_file($upload['tmp_name'], $path) === false)
+				return false;
+			$url = untrailingslashit(THESIS_USER_SKIN_IMAGES_URL). "/{$upload['name']}";
+			$height = $upload_data[0];
+			$width = $upload_data[1];
+		}
+		$return = array_filter(array(
+			'url' => esc_url_raw($this->url_relative($url)),
+			'width' => !empty($width) ? (int) $width : false,
+			'height' => !empty($height) ? (int) $height : false,
+			'id' => !empty($id) ? $id : false));
+		return !empty($return) ? $return : false;
 	}
 
-	public function verify_data_file($file, $class, $type = 'skin') {
-		$string = is_string($file);
-		$array = is_array($file);
-		if (($array && !file_exists($file['tmp_name'])) || ($string && !file_exists($file)) || empty($class))
-			return false;
-		$name = $string ? basename($file) : ($array ? $file['name'] : false);
-		$location = $string ? $file : ($array ? $file['tmp_name'] : false);
-		if (!$name || !$location)
-			return false;
-		if (!(preg_match('/^[a-z0-9-]+\.txt$/', strtolower($name)))		// first, read the file and check the checksum
-		|| !($contents = file_get_contents($location))
-		|| !is_serialized($contents)
-		|| !($unserialize = unserialize($contents))
-		|| empty($unserialize['checksum']) || empty($unserialize['data'])
-		|| $unserialize['checksum'] !== md5(serialize($unserialize['data']))
-		|| empty($unserialize['data']['class'])
-		|| $unserialize['data']['class'] !== $class)
-			return false;
-		$options = $type == 'skin' ? array('boxes', 'templates', 'packages', 'vars', 'css', 'css_custom') : array();
-		$real = array_intersect($options, array_keys($unserialize['data']));
-		foreach ($real as $send)
-			$data[$send] = $type == 'skin' && in_array($send, array('css', 'css_custom')) ? strip_tags($unserialize['data'][$send]) : stripslashes_deep($unserialize['data'][$send]);
-		return $data;
-	}
+/*---:[ Thesis Options helpers ]:---*/
 
-	public function html_options($tags = false, $default = false, $group = false) {
-		global $thesis;
+	/*
+	Shortcut method to add standard HTML options to a Box.
+	— $tags: to add an HTML tag option, provide an array of potential tags here
+	— $default: indicate a default HTML tag value here
+	— $attributes: set to true to add an HTML attributes option
+	— $group: to make these HTML options a group, set this to true
+	*/
+	public function html_options($tags = false, $default = false, $attributes = false, $group = false) {
 		$options['html'] = !empty($tags) && is_array($tags) ? array_filter(array(
 			'type' => 'select',
-			'label' => $thesis->api->strings['html_tag'],
+			'label' => $this->strings['html_tag'],
 			'options' => $tags,
 			'default' => $default)) : false;
 		$options = array_filter(array_merge($options, array(
@@ -344,21 +339,32 @@ class thesis_api {
 				'type' => 'text',
 				'width' => 'medium',
 				'code' => true,
-				'label' => $thesis->api->strings['html_id'],
-				'tooltip' => $thesis->api->strings['id_tooltip']),
+				'label' => $this->strings['html_id'],
+				'tooltip' => $this->strings['id_tooltip']),
 			'class' => array(
 				'type' => 'text',
 				'width' => 'medium',
 				'code' => true,
-				'label' => $thesis->api->strings['html_class'],
-				'tooltip' => $thesis->api->strings['class_tooltip'] . $thesis->api->strings['class_note']))));
+				'label' => $this->strings['html_class'],
+				'tooltip' => $this->strings['class_tooltip']. $this->strings['class_note']),
+			'attributes' => !empty($attributes) ? array(
+				'type' => 'text',
+				'width' => 'medium',
+				'label' => sprintf(__('%s Attributes', 'thesis'), $this->base['html']),
+				'tooltip' => __($this->strings['attr_name'], 'thesis')) : false)));
 		return !empty($group) ? array(
 			'html' => array(
 				'type' => 'group',
-				'label' => sprintf(__('%s Options', 'thesis'), $thesis->api->base['html']),
+				'label' => sprintf(__('%s Options', 'thesis'), $this->base['html']),
 				'fields' => $options)) : $options;
 	}
 
+	/*
+	Shortcut method for any output that must allow for traditional HTML text formatting.
+	Note: This method really belongs in the Thesis WP API.
+	— $text: the text to scrub for allowed tags
+	— $allowed: an array of allowed tags in wp_kses array format
+	*/
 	public function allow_html($text, $allowed = false) {
 		$allowed = !empty($allowed) && is_array($allowed) ? $allowed : array( // wp_kses allowed tags array format
 			'a' => array(
@@ -387,8 +393,176 @@ class thesis_api {
 		return trim(wptexturize(wp_kses($text, $allowed))); 
 	}
 
-	private function strings() {
+/*---:[ Miscellaenous helpers ]:---*/
+
+	/*
+	Parse URL and return only the relative path. This is useful for "futureproofing" URLs
+	against domain changes in the future.
+	— $url: the URL to parse
+	*/
+	public function url_relative($url) {
+		if (empty($url)) return;
+		return str_replace(get_site_url(), '', $url);
+	}
+
+	/*
+	Parse URLs and return a relative URL with the current site URL preprended.
+	This method is useful for outputting saved URL data in a way that adapts the URL to the current domain.
+	— $url: the saved URL to be 'currentized'
+	*/
+	public function url_current($url) {
+		if (empty($url)) return;
+		return esc_url(parse_url($url, PHP_URL_SCHEME) == NULL ?
+			get_site_url(). $url :
+			$url);
+	}
+
+	/*
+	Operational method to sort a multi-dimensional associative array by a provided index.
+	— $array: the multi-dimensional array to sort
+	— $index: the array which will determine the sort order
+	— $order: sort ordering, 'false' is a reverse sort (largest value comes first)
+	*/
+	public function sort_by($array = array(), $index = '', $order = false) {
+		if (empty($array) || !is_array($array) || empty($index) || !is_string($index)) return false;
+		$sort_by = $sorted = array();
+		foreach ($array as $i => $item)
+			if (isset($item[$index]))
+				$sort_by[$i] = $item[$index];
+		if (count($sort_by) !== count($array))
+			return false;
+		if (empty($order))
+			arsort($sort_by);
+		else
+			asort($sort_by);
+		foreach ($sort_by as $i => $item)
+			$sorted[$i] = $array[$i];
+		return $sorted;
+	}
+
+	/*
+	Operational method to cleanly trim text for the WP excerpt.
+	Note: This is dumb; instead of a meta_description parameter, a filterable excerpt length parameter makes way more sense.
+	— $text: the text to trim
+	— $meta_description: is the text being trimmed for a meta description?
+	— $first_paragraph: grab the text from only the first paragraph (assuming $text is composed of HTML)
+	*/
+	public function trim_excerpt($text = '', $meta_description = false, $first_paragraph = false) {
+		global $post;
+		if (empty($text) && !in_the_loop())
+			return '';
+		$text = !empty($text) ? $text : (!empty($post->post_excerpt) ? $post->post_excerpt : $post->post_content);
+		$text = preg_replace('/<(h[1-4]{1})>.*<\/\1>/', '', $text);
+		$text = strip_shortcodes($text);
+		if ($first_paragraph) {
+			$text = wp_kses($text, array(
+				'a' => array('href' => true, 'title' => true),
+				'abbr' => array('title' => true),
+				'acronym' => array('title' => true),
+				'code' => true,
+				'em' => true,
+				'strong' => true));
+			preg_match('/\<p\>(.*)\<\/p\>/i', wpautop($text), $results);
+			$return = '<p>'. (!empty($results[1]) ? $results[1] : $text). '</p>';
+		}
+		else {
+			$text = wp_trim_words(strip_tags($text), apply_filters('excerpt_length', 55), apply_filters('excerpt_more', ' ' . '[...]'));
+			$return = apply_filters('thesis_trim_excerpt', (bool) $meta_description && strlen($text) > 155 ? substr($text, 0, 155) : $text);
+		}
+		return $return;
+	}
+
+	/*
+	Returns an array containing a Skin's current CSS Variable values.
+	This method's existence is dubious, as access to CSS Variable values likely should not need to be accessed outside normally-defined areas.
+	*/
+	public function get_css_variables() {
 		global $thesis;
+		if (!is_array($css_variables = $this->get_option("{$thesis->skins->skin['class']}_vars"))) return false;
+		$items = array();
+		foreach ($css_variables as $var)
+			if (!empty($var['ref']) && !empty($var['css']))
+				$items[$var['ref']] = $var['css'];
+		return $items;
+	}
+
+/*---:[ Thesis UI methods ]:---*/
+
+	/*
+	Easily output custom alert messages within the Thesis UI.
+	*/
+	public function alert($message, $id = false, $ajax = false, $status = false, $depth = false) {
+		if (empty($message)) return;
+		$id = $id ? " id=\"$id\"" : '';
+		$ajax = $ajax ? '_ajax' : '';
+		$status = $status == 'good' ? ' t_good' : ($status == 'bad' ? ' t_bad' : ($status == 'warning' ? ' t_warning' : ''));
+		$tab = str_repeat("\t", (is_numeric($depth) ? $depth : 2));
+		return
+			"$tab<div$id class=\"t{$ajax}_alert$status\">\n".
+			"$tab\t<div class=\"t_message\">\n".
+			"$tab\t\t<p>$message</p>\n".
+			"$tab\t</div>\n".
+			"$tab</div>\n";
+	}
+
+	/*
+	Easily output a popup box within the Thesis UI.
+	*/
+	public function popup($args = array()) {
+		$id = $title = $body = $type = '';
+		$name = $menu = $panes = array();
+		$depth = 0;
+		extract($args); // array('id' (string), 'title' (string), 'name' (array), 'menu' (array), 'panes' (array), 'body' (string), 'depth' (int))
+		$tab = str_repeat("\t", $depth);
+		$li = false;
+		$type = $type ? " type_$type" : '';
+		$title = trim($title);
+		$name = !empty($name) && is_array($name) ?
+			": <input type=\"text\" data-style=\"input\" id=\"{$name['id']}\" data-id=\"$id\" class=\"t_popup_name\" name=\"{$name['name']}\" value=\"". esc_attr($name['value']). '"'. (is_numeric($name['tabindex']) ? " tabindex=\"{$name['tabindex']}\"" : ''). " />" : (!empty($name) ? ": $name" : '');
+		if (is_array($menu))
+			foreach ($menu as $pane => $text)
+				$li[$pane] = "<li data-pane=\"$pane\">$text</li>";
+		if (is_array($panes))
+			foreach ($panes as $pane => $options)
+				$body .=
+					"$tab\t\t\t<div class=\"pane pane_$pane\">\n".
+					$options.
+					"$tab\t\t\t</div>\n";
+		return
+			"$tab<div id=\"popup_$id\" data-id=\"$id\" class=\"t_popup\">\n".
+			"$tab\t<div class=\"t_popup_html$type\">\n".
+			"$tab\t\t<div class=\"t_popup_head\" data-style=\"box\">\n".
+			"$tab\t\t\t<span class=\"t_popup_close\" data-style=\"close\" title=\"". __('click to close', 'thesis'). "\">&times;</span>\n".
+			"$tab\t\t\t<h4>$title$name</h4>\n".
+			(is_array($li) ?
+			"$tab\t\t\t<ul class=\"t_popup_menu\">\n".
+			"$tab\t\t\t\t". implode("\n$tab\t\t\t\t", $li). "\n".
+			"$tab\t\t\t</ul>\n" : '').
+			"$tab\t\t</div>\n".
+			"$tab\t\t<div class=\"t_popup_body\">\n".
+			$body.
+			"$tab\t\t</div>\n".
+			"$tab\t</div>\n".
+			"$tab</div>\n";
+	}
+
+	/*
+	Easily add a file uploader to the Thesis UI.
+	*/
+	public function uploader($name, $depth = false) {
+		$tab = str_repeat("\t", is_numeric($depth) ? $depth : 0);
+		return
+			"$tab<iframe style=\"width:100%;height:100%;". (stripos($_SERVER['HTTP_USER_AGENT'], 'mozilla') >= 0 && $name == 'thesis_images' ? "position:absolute;" : ''). "\" frameborder=\"0\" src=\"". admin_url("admin-post.php?action={$name}_window&window_nonce=". wp_create_nonce('thesis_upload_iframe')). "\" id=\"thesis_upload_iframe_$name\">\n".
+			"$tab</iframe>\n";
+	}
+
+	/*
+	Common strings used in the Thesis UI are accessible here.
+	Note: When building new software, do not introduce complication and break up references like this.
+	— $thesis->api->base: contains common acronyms and shorthand references for annoying HTML
+	— $thesis->api->strings: contains longer strings
+	*/
+	private function strings() {
 		$this->base = array(
 			'html' => '<abbr title="HyperText Markup Language">HTML</abbr>',
 			'css' => '<abbr title="Cascading Style Sheet">CSS</abbr>',
@@ -402,94 +576,105 @@ class thesis_api {
 			'id' => '<code>id</code>',
 			'class' => '<code>class</code>');
 	 	return array(
-			'page' => __('Page', 'thesis'),
-			'pages' => __('Pages', 'thesis'),
-			'search' => __('Search', 'thesis'),
-			'edit' => __('Edit', 'thesis'),
-			'name' => __('Name', 'thesis'),
-			'email' => __('Email', 'thesis'),
-			'website' => __('Website', 'thesis'),
-			'required' => __('Required', 'thesis'),
-			'comment' => __('Comment', 'thesis'),
-			'submit' => __('Submit', 'thesis'),
-			'click_to_edit' => __('click to edit', 'thesis'),
-			'click_to_read' => __('click to read', 'thesis'),
-			'comment_singular' => __('comment', 'thesis'),
-			'comment_plural' => __('comments', 'thesis'),
-			'comment_permalink' => __('permalink to this comment', 'thesis'), // End front-end strings
-			'save' => __('Save', 'thesis'),
-			'cancel' => __('Cancel', 'thesis'),
-			'delete' => __('Delete', 'thesis'),
-			'create' => __('Create', 'thesis'),
-			'select' => __('Select', 'thesis'),
-			'site' => __('Site', 'thesis'),
-			'skin' => __('Skin', 'thesis'),
-			'custom' => __('Custom', 'thesis'),
-			'editor' => __('Editor', 'thesis'),
-			'package' => __('Package', 'thesis'),
-			'packages' => __('Packages', 'thesis'),
-			'variable' => __('Variable', 'thesis'),
-			'variables' => __('Variables', 'thesis'),
-			'override' => __('Override', 'thesis'),
-			'reference' => __('Reference', 'thesis'),
-			'comments' => __('Comments', 'thesis'),
-			'title_tag' => __('Title Tag', 'thesis'),
-			'meta_description' => __('Meta Description', 'thesis'),
-			'meta_keywords' => __('Meta Keywords', 'thesis'),
-			'meta_robots' => __('Meta Robots', 'thesis'),
-			'custom_template' => __('Custom Template', 'thesis'),
-			'html_head' => sprintf(__('%s Head', 'thesis'), $this->base['html']),
-			'title_counter' => __('Search engines allow a maximum of 70 characters for the title.', 'thesis'),
-			'description_counter' => __('Search engines allow a maximum of roughly 150 characters for the description.', 'thesis'),
-			'html_tag' => sprintf(__('%s Tag', 'thesis'), $this->base['html']),
-			'html_id' => sprintf(__('%1$s %2$s', 'thesis'), $this->base['html'], $this->base['id']),
-			'html_class' => sprintf(__('%1$s %2$s', 'thesis'), $this->base['html'], $this->base['class']),
-			'id_tooltip' => sprintf(__('If you need to target this box individually with %1$s or JavaScript, you can enter an %2$s here.<br /><br /><strong>Note:</strong> %2$ss cannot begin with numbers, and only one %2$s is valid per box!', 'thesis'), $this->base['css'], $this->base['id']),
-			'class_tooltip' => sprintf(__('If you want to target this box with %1$s or JavaScript, you should enter a %2$s name here.', 'thesis'), $this->base['css'], $this->base['class']),
-			'class_note' => sprintf(__('<br /><br /><strong>Note:</strong> %1$s names cannot begin with numbers! Separate multiple %1$ses with spaces.', 'thesis'), $this->base['class']),
-			'hook_label' => __('Unique Hook Name', 'thesis'),
-			'hook_tooltip_1' => __('If you want to access this box programmatically, you should supply a unique hook name here. Your hook references will then become:', 'thesis'),
-			'hook_tooltip_2' => __('&hellip;where <code>{name}</code> is equal to the value you enter here.', 'thesis'),
-			'posts_to_show' => __('Number of Posts to Show', 'thesis'),
-			'avatar_size' => __('Avatar Size', 'thesis'),
-			'avatar_tooltip' => sprintf(__('Your author avatars will display at the size you enter here. If you enter nothing, your avatars will be 96px square, and we recommend doing this so you can instead control the sizing with %s. Please note that avatars will always be returned as square images (eg. 96&times;96 pixels).', 'thesis'), $this->base['css']),
-			'comment_term_singular' => __('Comment Term Singular', 'thesis'),
-			'comment_term_plural' => __('Comment Term Plural', 'thesis'),
-			'character_separator' => __('Character Separator', 'thesis'),
-			'alt_tooltip' => sprintf(__('Adding <code>alt</code> text will help you derive the maximum %s benefit from your image. Be concise and descriptive!', 'thesis'), $this->base['seo']),
-			'caption_tooltip' => __('After headlines, sub-headings and image captions are the most commonly read items on web pages. Don&#8217;t miss this opportunity to engage your readers&#8212;add a caption to your image!', 'thesis'),
-			'frame_label' => __('Frame This Image?', 'thesis'),
-			'frame_tooltip' => sprintf(__('If you set this option to true, then an %s class of <code>frame</code> will be added to your image. Please note that your active skin may not support image framing.', 'thesis'), $this->base['html']),
-			'frame_option' => __('add a frame to this image', 'thesis'),
-			'alignment' => __('Default Alignment', 'thesis'),
-			'alignment_tooltip' => sprintf(__('If you select an alignment, a corresponding %1$s %2$s will be added to your image. Please note that your active skin may not support image alignment.', 'thesis'), $this->base['html'], $this->base['class']),
-			'alignleft' => __('left with text wrap', 'thesis'),
-			'alignright' => __('right with text wrap', 'thesis'),
-			'aligncenter' => __('centered (no wrap)', 'thesis'),
-			'alignnone' => __('left with no text wrap', 'thesis'),
-			'skin_default' => __('use skin default (recommended)', 'thesis'),
-			'display_options' => __('Display Options', 'thesis'),
-			'date_tooltip' => sprintf(__('This field accepts a <a href="%1$s" target="_blank">%2$s date format</a>.', 'thesis'), esc_url('http://php.net/manual/en/function.date.php'), $this->base['php']),
-			'show_label' => __('show input label', 'thesis'),
-			'placeholder' => __('Placeholder Text', 'thesis'),
-			'placeholder_tooltip' => sprintf(__('By providing %s5 placeholder text, you can give users an example of the info they should enter into this form field.', 'thesis'), $this->base['html']),
-			'submit_button_text' => __('Submit Button Text', 'thesis'),
-			'intro_text' => __('Intro Text', 'thesis'),
-			'link_text' => __('Link Text', 'thesis'),
-			'use_post_title' => __('use post title (recommended)', 'thesis'),
-			'use_custom_text' => __('use custom text', 'thesis'),
-			'custom_link_text' => __('Custom Link Text', 'thesis'),
-			'no_html' => sprintf(__('no %s tags allowed', 'thesis'), $this->base['html']),
-			'include_http' => __('(including <code>http://</code> or <code>https://</code>)', 'thesis'),
-			'this_page' => __('this page', 'thesis'),
-			'not_recommended' => __('(not recommended)', 'thesis'),
-			'tracking_scripts' => __('Tracking Scripts', 'thesis'),
-			'saved' => __('saved', 'thesis'),
-			'not_saved' => __('not saved', 'thesis'),
-			'auto_wp_label' => __('Automatic WordPress Post Classes', 'thesis'),
-			'auto_wp_tooltip' => __('WordPress can output post classes that allow you to target specific types of posts more easily. Target by post type, category, tag, taxonomy, author, and more.', 'thesis'),
-			'auto_wp_option' => __('Use automatically-generated WordPress post classes', 'thesis'));
+			'page' => 'Page',
+			'pages' => 'Pages',
+			'search' => 'Search',
+			'edit' => 'Edit',
+			'name' => 'Name',
+			'email' => 'Email',
+			'website' => 'Website',
+			'required' => 'Required',
+			'comment' => 'Comment',
+			'submit' => 'Submit',
+			'click_to_edit' => 'click to edit',
+			'click_to_read' => 'click to read',
+			'comment_singular' => 'comment',
+			'comment_plural' => 'comments',
+			'comment_permalink' => 'permalink to this comment', // End front-end strings
+			'save' => 'Save',
+			'cancel' => 'Cancel',
+			'delete' => 'Delete',
+			'create' => 'Create',
+			'select' => 'Select',
+			'site' => 'Site',
+			'skin' => 'Skin',
+			'custom' => 'Custom',
+			'editor' => 'Editor',
+			'package' => 'Package',
+			'packages' => 'Packages',
+			'variable' => 'Variable',
+			'variables' => 'Variables',
+			'override' => 'Override',
+			'reference' => 'Reference',
+			'comments' => 'Comments',
+			'title_tag' => 'Title Tag',
+			'meta_description' => 'Meta Description',
+			'meta_keywords' => 'Meta Keywords',
+			'meta_robots' => 'Meta Robots',
+			'custom_template' => 'Custom Template',
+			'html_head' => sprintf('%s Head', $this->base['html']),
+			'title_counter' => 'Search engines allow a maximum of 70 characters for the title.',
+			'description_counter' => 'Search engines allow a maximum of roughly 150 characters for the description.',
+			'html_tag' => sprintf('%s Tag', $this->base['html']),
+			'html_id' => sprintf('%1$s %2$s', $this->base['html'], $this->base['id']),
+			'html_class' => sprintf('%1$s %2$s', $this->base['html'], $this->base['class']),
+			'id_tooltip' => sprintf('If you need to target this box individually with %1$s or JavaScript, you can enter an %2$s here.<br /><br /><strong>Note:</strong> %2$ss cannot begin with numbers, and only one %2$s is valid per box!', $this->base['css'], $this->base['id']),
+			'class_tooltip' => sprintf('If you want to target this box with %1$s or JavaScript, you should enter a %2$s name here.', $this->base['css'], $this->base['class']),
+			'class_note' => sprintf('<br /><br /><strong>Note:</strong> %1$s names cannot begin with numbers! Separate multiple %1$ses with spaces.', $this->base['class']),
+			'hook_label' => 'Unique Hook Name',
+			'hook_tooltip_1' => 'If you want to access this box programmatically, you should supply a unique hook name here. Your hook references will then become:',
+			'hook_tooltip_2' => '&hellip;where <code>{name}</code> is equal to the value you enter here.',
+			'posts_to_show' => 'Number of Posts to Show',
+			'avatar_size' => 'Avatar Size',
+			'avatar_tooltip' => sprintf('Your author avatars will display at the size you enter here. If you enter nothing, your avatars will be 96px square, and we recommend doing this so you can instead control the sizing with %s. Please note that avatars will always be returned as square images (eg. 96&times;96 pixels).', $this->base['css']),
+			'comment_term_singular' => 'Comment Term Singular',
+			'comment_term_plural' => 'Comment Term Plural',
+			'character_separator' => 'Character Separator',
+			'alt_tooltip' => sprintf('Adding <code>alt</code> text will help you derive the maximum %s benefit from your image. Be concise and descriptive!', $this->base['seo']),
+			'caption_tooltip' => 'After headlines, sub-headings and image captions are the most commonly read items on web pages. Don&#8217;t miss this opportunity to engage your readers&#8212;add a caption to your image!',
+			'frame_label' => 'Frame This Image?',
+			'frame_tooltip' => sprintf('If you set this option to true, then an %s class of <code>frame</code> will be added to your image. Please note that your active Skin may not support image framing.', $this->base['html']),
+			'frame_option' => 'add a frame to this image',
+			'alignment' => 'Default Alignment',
+			'alignment_tooltip' => sprintf('If you select an alignment, a corresponding %1$s %2$s will be added to your image. Please note that your active Skin may not support image alignment.', $this->base['html'], $this->base['class']),
+			'alignleft' => 'left with text wrap',
+			'alignright' => 'right with text wrap',
+			'aligncenter' => 'centered (no wrap)',
+			'alignnone' => 'left with no text wrap',
+			'skin_default' => 'use Skin default (recommended)',
+			'display_options' => 'Display Options',
+			'date_tooltip' => sprintf('This field accepts a <a href="%1$s" target="_blank">%2$s date format</a>.', esc_url('http://php.net/manual/en/function.date.php'), $this->base['php']),
+			'show_label' => 'show input label',
+			'placeholder' => 'Placeholder Text',
+			'placeholder_tooltip' => sprintf('By providing %s5 placeholder text, you can give users an example of the info they should enter into this form field.', $this->base['html']),
+			'submit_button_text' => 'Submit Button Text',
+			'intro_text' => 'Intro Text',
+			'link_text' => 'Link Text',
+			'use_post_title' => 'use post title (recommended)',
+			'use_custom_text' => 'use custom text',
+			'custom_link_text' => 'Custom Link Text',
+			'no_html' => sprintf('no %s tags allowed', $this->base['html']),
+			'include_http' => '(including <code>http://</code> or <code>https://</code>)',
+			'this_page' => 'this page',
+			'not_recommended' => '(not recommended)',
+			'tracking_scripts' => 'Tracking Scripts',
+			'saved' => 'saved',
+			'not_saved' => 'not saved',
+			'auto_wp_label' => 'Automatic WordPress Post Classes',
+			'auto_wp_tooltip' => 'WordPress can output post classes that allow you to target specific types of posts more easily. Target by post type, category, tag, taxonomy, author, and more.',
+			'auto_wp_option' => 'Use automatically-generated WordPress post classes',
+		    'attr_name' => sprintf('You can add attributes to your %s containers; for example, <code>data-type="post"</code>. You can even use this space for multiple attribute declarations.', $this->base['html']));
 	}
+
+	/*
+	Summon an object that can output and handle a Thesis-style Box Form (like the one in the Template HTML Editor).
+	*/
+	public function get_box_form() {
+		require_once(THESIS_API. '/box_form.php');
+		return new thesis_box_form;
+	}
+
+/*---:[ Backwards hook compatibility ]:---*/
 
 	private function deprecated_hooks() {
 		add_action('hook_head', array($this, 'hook_head'));
@@ -508,15 +693,16 @@ class thesis_api {
 	public function hook_after_html() {
 		do_action('thesis_hook_after_html');
 	}
-	
-	public function trim_excerpt($text = '', $meta_description = false) {
-		global $post;
-		if (empty($text) && !in_the_loop())
-			return '';
-		$text = !empty($text) ? $text : (!empty($post->post_excerpt) ? $post->post_excerpt : $post->post_content);
-		$text = preg_replace('/<(h[1-4]{1})>.*<\/\1>/', '', $text);
-		$text = strip_tags(strip_shortcodes($text));
-		$text = wp_trim_words($text, apply_filters('excerpt_length', 55), apply_filters('excerpt_more', ' ' . '[...]'));
-		return apply_filters('thesis_trim_excerpt', (bool) $meta_description && strlen($text) > 155 ? substr($text, 0, 155) : $text);
+
+/*---:[ WP multisite methods ]:---*/
+
+	/*
+	Outputs the CSS for sites using WP Multisite.
+	*/
+	public function ms_css() {
+		$css = get_option('thesis_raw_css') ? get_option('thesis_raw_css') : file_get_contents(THESIS_USER_SKIN. '/css.css');
+		header('Content-Type: text/css', true, 200);
+		printf('%s', strip_tags($css));
+		exit;
 	}
 }

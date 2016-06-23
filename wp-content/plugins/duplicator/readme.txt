@@ -1,17 +1,17 @@
 === Duplicator ===
 Contributors: corylamleorg, bobriley
 Donate link: www.lifeinthegrid.com/partner
-Tags: backup, restore, move, migrate, localhost, synchronize, duplicate, clone, automate, niche  
-Requires at least: 3.9
-Tested up to: 4.4.2
-Stable tag: 1.1.6
+Tags: backup, restore, move, migrate, localhost, synchronize, duplicate, clone, automate, niche
+Requires at least: 4.0
+Tested up to: 4.5.2
+Stable tag: 1.1.12
 License: GPLv2
 
-Duplicate, clone, backup, move and transfer an entire site from one location to another. 
+Duplicate, clone, backup, move and transfer an entire site from one location to another.
 
 == Description ==
 
-> The Duplicator gives WordPress administrators the ability to migrate, copy or clone a site from one location to another. The plugin also serves as a simple backup utility.    The Duplicator supports both serialized and base64 serialized string replacement.  If you need to move WordPress or backup WordPress this plugin can help simplify the process. For complete details visit [lifeinthegrid.com](http://lifeinthegrid.com/).  
+> The Duplicator gives WordPress administrators the ability to migrate, copy or clone a site from one location to another. The plugin also serves as a simple backup utility.    The Duplicator supports both serialized and base64 serialized string replacement.  If you need to move WordPress or backup WordPress this plugin can help simplify the process. For complete details visit [lifeinthegrid.com](http://lifeinthegrid.com/).
 
 = Quick Video Demo =
 http://www.youtube.com/watch?v=yZ7pHmR9JC8
@@ -78,13 +78,13 @@ No.  Hopefully in future versions we will support MU
 
 
 == Screenshots ==
- 
+
 1. Main Interface for all Packages
 2. Create Package Step 1
 3. Create Package Step 2
 4. Build Process
 5. Installer Screen
- 
+
 
 == Changelog ==
 
@@ -97,16 +97,3 @@ http://lifeinthegrid.com/duplicator-log
 == Upgrade Notice ==
 
 Please use our ticketing system when submitting your logs.  Please do not post to the forums.
-
-
-
-
-
-
-
-
-
-
-
-
-

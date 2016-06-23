@@ -21,6 +21,9 @@ thesis_options = {
 			thesis_options.save($(this).attr('data-type'), form);
 			return false;
 		});
+		$('body').keydown(function(e){
+			return thesis_options.maybe_save(e);
+		});
 	},
 	objects: {
 		init: function(form) {
@@ -45,13 +48,13 @@ thesis_options = {
 		},
 		popup: function(id) {
 			if (!id) return;
-			var popup = '#popup_'+id;
+			var popup = '#object_popup_'+id;
 			$('body').addClass('no-scroll');
 			$(popup).show();
 			$(popup).find('input, select').keypress(function(event) { return event.keyCode != 13; });
 			if ($(popup).hasClass('triggered') && !$(popup).hasClass('force_trigger')) return;
 			$(popup).addClass('triggered');
-			$(popup+' .popup_ok').on('click', function() {
+			$(popup+' .object_popup_close').on('click', function() {
 				thesis_options.objects.set(id);
 				$(popup).hide();
 				$('body').removeClass('no-scroll');
@@ -59,8 +62,8 @@ thesis_options = {
 			});
 		},
 		set: function(id) {
-			var	popup = '#popup_'+id,
-				name = $(popup).children().children('.popup_name').html(),
+			var	popup = '#object_popup_'+id,
+				name = $(popup+' .object_popup_name').html(),
 				select = $(popup).siblings('.option_field').is('*') ?
 					$(popup).siblings('.option_field').children('p').children('.object_select') :
 					false,
@@ -99,7 +102,7 @@ thesis_options = {
 					$('#object_'+id).data({ tooltip: tooltip });
 				else if (select) {
 					$(popup).siblings('.object_list').append(
-						'\t\t<li class="option_object" id="object_'+id+'" data-id="'+id+'" data-tooltip="'+tooltip+'" title="click to edit">'+name+'</li>\n');
+						'\t\t<li class="option_object" data-style="button object" id="object_'+id+'" data-id="'+id+'" data-tooltip="'+tooltip+'" title="click to edit">'+name+'</li>\n');
 					thesis_options.objects.editable('#object_'+id);
 					$(select).children('option').each(function() {
 						if ($(this).val() == id)
@@ -148,7 +151,7 @@ thesis_options = {
 			$(this).parents('.control_group').siblings('.dependent_'+$(this).parents('.radio').data('id')).hide();
 			$(this).parents('.radio').children('li').each(function() {
 				if ($(this).children('.control').is(':checked'))
-					$(this).parents('.control_group').siblings('.dependent_'+$(this).children('.control').attr('title')).show();
+					$(this).parents('.control_group').siblings('.dependent_'+$(this).children('.control').data('id')).show();
 			});
 		});
 		$(form+' .control_group select').on('change', function() {
@@ -192,7 +195,16 @@ thesis_options = {
 				$('#options_saved').fadeOut(3000, function() { $(this).remove(); });
 			});
 		}
+	},
+	maybe_save: function(e) {
+		// check and see if the correct sequence was pressed and if we're on the admin side (editor already has key saves)
+		if (e.keyCode == 83 && ((/Mac/i.test(navigator.userAgent) && e.metaKey) || (/Win/i.test(navigator.userAgent) && e.ctrlKey)) && typeof wp == 'object' && $('#save_options').length > 0) {
+			$('#save_options').click();
+			return false;
+		}
+		return true;
 	}
+
 };
 $(document).ready(function($){ thesis_options.form(); });
 })(jQuery);

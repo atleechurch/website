@@ -6,7 +6,7 @@ License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_packages {
-	private $packages = array();		// array of saved package data relative to the current skin
+	private $packages = array();		// array of saved package data relative to the current Skin
 	private $active = array();			// all active package objects
 	private $available = array();		// all available package objects
 	private $core = array(				// core package classes

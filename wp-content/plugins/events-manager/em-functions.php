@@ -94,7 +94,7 @@ function em_admin_paginate($total, $limit, $page=1, $vars=false, $base = false, 
 		'current' => $page,
 		'add_args' => $vars
 	));
-	$return .= sprintf( '<span class="displaying-num">' . __( 'Displaying %s&#8211;%s of %s', 'dbem') . ' </span>%s',
+	$return .= sprintf( '<span class="displaying-num">' . __( 'Displaying %1$s&#8211;%2$s of %3$s', 'events-manager') . ' </span>%4$s',
 		number_format_i18n( ( $page - 1 ) * $limit + 1 ),
 		number_format_i18n( min( $page * $limit, $total ) ),
 		number_format_i18n( $total ),
@@ -202,18 +202,18 @@ function em_get_countries($add_blank = false, $sort = true){
  */
 function em_get_scopes(){
 	$scopes = array(
-		'all' => __('All events','dbem'),
-		'future' => __('Future events','dbem'),
-		'past' => __('Past events','dbem'),
-		'today' => __('Today\'s events','dbem'),
-		'tomorrow' => __('Tomorrow\'s events','dbem'),
-		'month' => __('Events this month','dbem'),
-		'next-month' => __('Events next month','dbem'),
-		'1-months'  => __('Events current and next month','dbem'),
-		'2-months'  => __('Events within 2 months','dbem'),
-		'3-months'  => __('Events within 3 months','dbem'),
-		'6-months'  => __('Events within 6 months','dbem'),
-		'12-months' => __('Events within 12 months','dbem')
+		'all' => __('All events','events-manager'),
+		'future' => __('Future events','events-manager'),
+		'past' => __('Past events','events-manager'),
+		'today' => __('Today\'s events','events-manager'),
+		'tomorrow' => __('Tomorrow\'s events','events-manager'),
+		'month' => __('Events this month','events-manager'),
+		'next-month' => __('Events next month','events-manager'),
+		'1-months'  => __('Events current and next month','events-manager'),
+		'2-months'  => __('Events within 2 months','events-manager'),
+		'3-months'  => __('Events within 3 months','events-manager'),
+		'6-months'  => __('Events within 6 months','events-manager'),
+		'12-months' => __('Events within 12 months','events-manager')
 	);
 	return apply_filters('em_get_scopes',$scopes);
 }
@@ -264,7 +264,21 @@ function em_verify_nonce($action, $nonce_name='_wpnonce'){
 	if( is_admin() ){
 		if( !wp_verify_nonce($_REQUEST[$nonce_name], $action) ) check_admin_referer('trigger_error');
 	}else{
-		if( !wp_verify_nonce($_REQUEST[$nonce_name], $action) ) exit( __('Trying to perform an illegal action.','dbem') );
+		if( !wp_verify_nonce($_REQUEST[$nonce_name], $action) ) exit( __('Trying to perform an illegal action.','events-manager') );
+	}
+}
+
+/**
+ * Since WP 4.5 em_wp_get_referer() returns false if URL is the same. We use it to get a safe referrer url, so we use the new wp_get_raw_referer() argument instead.
+ * @since 5.6.3
+ * @return string
+ */
+function em_wp_get_referer(){
+	if( function_exists('wp_get_raw_referer') ){
+		//do essentially what em_wp_get_referer does, but potentially returning the same url as before
+		return wp_validate_redirect(wp_get_raw_referer(), false );
+	}else{
+		return wp_get_referer();
 	}
 }
 
@@ -340,14 +354,15 @@ function em_booking_add_registration( $EM_Booking ){
     $registration = true;
     if( ((!is_user_logged_in() && get_option('dbem_bookings_anonymous')) || EM_Bookings::is_registration_forced()) && !get_option('dbem_bookings_registration_disable') ){
     	//find random username - less options for user, less things go wrong
-    	$username_root = explode('@', wp_kses_data($_REQUEST['user_email']));
+	$user_email = stripslashes($_REQUEST['user_email']); //otherwise may fail validation
+	$username_root = explode('@', wp_kses_data($user_email));
     	$username_root = $username_rand = sanitize_user($username_root[0], true);
     	while( username_exists($username_rand) ) {
     		$username_rand = $username_root.rand(1,1000);
     	}
     	$_REQUEST['dbem_phone'] = (!empty($_REQUEST['dbem_phone'])) ? wp_kses_data($_REQUEST['dbem_phone']):''; //fix to prevent warnings
     	$_REQUEST['user_name'] = (!empty($_REQUEST['user_name'])) ? wp_kses_data($_REQUEST['user_name']):''; //fix to prevent warnings
-    	$user_data = array('user_login' => $username_rand, 'user_email'=> $_REQUEST['user_email'], 'user_name'=> $_REQUEST['user_name'], 'dbem_phone'=> $_REQUEST['dbem_phone']);
+	$user_data = array('user_login' => $username_rand, 'user_email'=> $user_email, 'user_name'=> $_REQUEST['user_name'], 'dbem_phone'=> $_REQUEST['dbem_phone']);
     	$id = em_register_new_user($user_data);
     	if( is_numeric($id) ){
     		$EM_Person = new EM_Person($id);
@@ -406,22 +421,22 @@ function em_register_new_user( $user_data ) {
 
 	// Check the username
 	if ( $sanitized_user_login == '' ) {
-		$errors->add( 'empty_username', __( '<strong>ERROR</strong>: Please enter a username.', 'dbem') );
+		$errors->add( 'empty_username', __( '<strong>ERROR</strong>: Please enter a username.', 'events-manager') );
 	} elseif ( ! validate_username( $user_data['user_login'] ) ) {
-		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.', 'dbem') );
+		$errors->add( 'invalid_username', __( '<strong>ERROR</strong>: This username is invalid because it uses illegal characters. Please enter a valid username.', 'events-manager') );
 		$sanitized_user_login = '';
 	} elseif ( username_exists( $sanitized_user_login ) ) {
-		$errors->add( 'username_exists', __( '<strong>ERROR</strong>: This username is already registered, please choose another one.', 'dbem' ) );
+		$errors->add( 'username_exists', __( '<strong>ERROR</strong>: This username is already registered, please choose another one.', 'events-manager') );
 	}
 
 	// Check the e-mail address
 	if ( $user_email == '' ) {
-		$errors->add( 'empty_email', __( '<strong>ERROR</strong>: Please type your e-mail address.', 'dbem') );
+		$errors->add( 'empty_email', __( '<strong>ERROR</strong>: Please type your e-mail address.', 'events-manager') );
 	} elseif ( ! is_email( $user_email ) ) {
-		$errors->add( 'invalid_email', __( '<strong>ERROR</strong>: The email address isn&#8217;t correct.', 'dbem') );
+		$errors->add( 'invalid_email', __( '<strong>ERROR</strong>: The email address isn&#8217;t correct.', 'events-manager') );
 		$user_email = '';
 	} elseif ( email_exists( $user_email ) ) {
-		$errors->add( 'email_exists', __( '<strong>ERROR</strong>: This email is already registered, please choose another one.', 'dbem' ) );
+		$errors->add( 'email_exists', __( '<strong>ERROR</strong>: This email is already registered, please choose another one.', 'events-manager') );
 	}
 
 	do_action( 'register_post', $sanitized_user_login, $user_email, $errors );
@@ -441,7 +456,7 @@ function em_register_new_user( $user_data ) {
 	}
 
 	if ( ! $user_id ) {
-		$errors->add( 'registerfail', sprintf( __( '<strong>ERROR</strong>: Couldn&#8217;t register you... please contact the <a href="mailto:%s">webmaster</a> !', 'dbem'), get_option( 'admin_email' ) ) );
+		$errors->add( 'registerfail', sprintf( __( '<strong>ERROR</strong>: Couldn&#8217;t register you... please contact the <a href="mailto:%s">webmaster</a> !', 'events-manager'), get_option( 'admin_email' ) ) );
 		return $errors;
 	}
 
@@ -477,10 +492,10 @@ function em_new_user_notification() {
 	// we want to reverse this for the plain text arena of emails.
 	$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
 
-	$message  = sprintf(__('New user registration on your blog %s:', 'dbem'), $blogname) . "\r\n\r\n";
-	$message .= sprintf(__('Username: %s', 'dbem'), $user_login) . "\r\n\r\n";
-	$message .= sprintf(__('E-mail: %s', 'dbem'), $user_email) . "\r\n";
-	@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration', 'dbem'), $blogname), $message);
+	$message  = sprintf(__('New user registration on your blog %s:', 'events-manager'), $blogname) . "\r\n\r\n";
+	$message .= sprintf(__('Username: %s', 'events-manager'), $user_login) . "\r\n\r\n";
+	$message .= sprintf(__('E-mail: %s', 'events-manager'), $user_email) . "\r\n";
+	@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration', 'events-manager'), $blogname), $message);
 
 	if ( empty($plaintext_pass) )
 		return;
@@ -492,7 +507,13 @@ function em_new_user_notification() {
 		em_locate_template('emails/new-user.php', true);
 		$message = ob_get_clean();
 	}
-    $message  = str_replace(array('%password%','%username%'), array($plaintext_pass, $user_login), $message);
+	//for WP 4.4, regenerate password link can be used
+	$set_password_url = '';
+	if( function_exists('get_password_reset_key')){
+	    $key = get_password_reset_key( $user );
+	    $set_password_url = network_site_url("wp-login.php?action=rp&key=$key&login=" . rawurlencode($user_login), 'login');
+	}
+    $message  = str_replace(array('%password%','%username%','%passwordurl%'), array($plaintext_pass, $user_login, $set_password_url), $message);
 	global $EM_Mailer;
 	return $EM_Mailer->send(get_option('dbem_bookings_email_registration_subject'), $message, $user_email);
 }
@@ -637,7 +658,7 @@ function em_options_input_text($title, $name, $description ='', $default='') {
 						}
 					}
 					echo '</table>';
-					echo '<em>'.__('If translations are left blank, the default value will be used.','dbem').'</em>';
+					echo '<em>'.__('If translations are left blank, the default value will be used.','events-manager').'</em>';
 					echo $default_lang.'</div>';
 				}
 			?>
@@ -684,7 +705,7 @@ function em_options_textarea($title, $name, $description ='') {
 							}
 						}
 						echo '</table>';
-						echo '<em>'.__('If left blank, the default value will be used.','dbem').'</em>';
+						echo '<em>'.__('If left blank, the default value will be used.','events-manager').'</em>';
 						echo $default_lang.'</div>';
 					}
 				?>
@@ -718,7 +739,7 @@ function em_options_radio($name, $options, $title='') {
 }
 
 function em_options_radio_binary($title, $name, $description='', $option_names = '', $trigger='') {
-	if( empty($option_names) ) $option_names = array(0 => __('No','dbem'), 1 => __('Yes','dbem'));
+	if( empty($option_names) ) $option_names = array(0 => __('No','events-manager'), 1 => __('Yes','events-manager'));
 	if( substr($name, 0, 7) == 'dbem_ms' ){
 		$list_events_page = get_site_option($name);
 	}else{
@@ -790,7 +811,7 @@ if( !function_exists( 'is_main_query' ) ){
 }
 
 /**
- * Depreciated
+ * deprecated
  * @return unknown
  */
 function em_get_date_format(){

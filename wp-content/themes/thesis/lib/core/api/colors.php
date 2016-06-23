@@ -148,7 +148,7 @@ class thesis_colors {
 		if (!empty($scheme['scale']) && !empty($scheme['default']))
 			$scale =
 				"\t<div class=\"scheme_color_scale\">\n".
-				"\t\t<button data-style=\"flat_button\" class=\"color_scale\">". __('Thesis ColorScale', 'thesis'). " <span data-style=\"icon\">&#59395;</span></button>\n".
+				"\t\t<button data-style=\"button\" class=\"color_scale\">". __('Thesis ColorScale', 'thesis'). " <span data-style=\"icon\">&#59395;</span></button>\n".
 				$this->scale_picker($scheme['id'], $scheme['scale'], $scheme['default']).
 				"\t</div>\n";
 		if (!empty($inputs))
@@ -163,13 +163,12 @@ class thesis_colors {
 		if (empty($scheme) || !is_array($colors) || !is_array($defaults)) return;
 		$tab = str_repeat("\t", !empty($depth) && is_numeric($depth) ? $depth : 0);
 		$scales = $swatches = array();
-		$grays = $default_colors = '';
+		$default_colors = $this->default_scale($scheme, $defaults);
+		$grays = '';
 		foreach ($colors as $id => $hex)
 			$scales[$id] = $this->transform($this->rgb($hex));
-		foreach ($scales as $id => $deltas) {
+		foreach ($scales as $id => $deltas)
 			$grays .= "<input type=\"hidden\" class=\"grayscale\" data-scheme=\"$scheme\" data-id=\"$id\" data-value=\"{$colors[$id]}\" />";
-			$default_colors .= "<input type=\"hidden\" class=\"defaults\" data-scheme=\"$scheme\" data-id=\"$id\" data-value=\"{$defaults[$id]}\" />";
-		}
 		$picker =
 			"$tab\t<div class=\"default_row\">\n".
 			(!empty($default_colors) ?
@@ -192,7 +191,7 @@ class thesis_colors {
 				if (!empty($swatches[$delta]["t{$combo[0]}"]["v{$combo[1]}"])) {
 					$variant = $this->hex($swatches[$delta]["t{$combo[0]}"]["v{$combo[1]}"]);
 					$row .=
-						"$tab\t\t<span class=\"control_swatch color_swatch\" style=\"background: #$variant;\" title=\"$variant\" data-value=\"d{$delta}t{$combo[0]}v{$combo[1]}\"></span>\n".
+						"$tab\t\t<span class=\"control_swatch color_swatch\" style=\"background: #{$variant};\" title=\"$variant\" data-value=\"d{$delta}t{$combo[0]}v{$combo[1]}\"></span>\n".
 						(!empty($inputs) ?
 						"$tab\t\t$inputs\n" : '');
 				}
@@ -204,6 +203,17 @@ class thesis_colors {
 				"$tab<div class=\"color_picker\">\n".
 				$picker.
 				"$tab</div>\n";
+	}
+
+	public function default_scale($scheme, $defaults) {
+		if (empty($defaults) || !is_array($defaults)) return;
+		$scales = $swatches = array();
+		$colors = '';
+		foreach ($defaults as $id => $hex)
+			$scales[$id] = $this->transform($this->rgb($hex));
+		foreach ($scales as $id => $deltas)
+			$colors .= "<input type=\"hidden\" class=\"defaults\" data-scheme=\"$scheme\" data-id=\"$id\" data-value=\"{$defaults[$id]}\" />";
+		return $colors;
 	}
 
 	public function transform($rgb) {

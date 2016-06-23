@@ -153,10 +153,12 @@ class wfIssues {
 			'new' => array(),
 			'ignored' => array()
 			);
+		$userIni = ini_get('user_ini.filename');
 		$q1 = $this->getDB()->querySelect("select * from " . $this->issuesTable . " order by time desc");
 		foreach($q1 as $i){
 			$i['data'] = unserialize($i['data']);
 			$i['timeAgo'] = wfUtils::makeTimeAgo(time() - $i['time']);
+			$i['longMsg'] = wp_kses($i['longMsg'], 'post');
 			if($i['status'] == 'new'){
 				$ret['new'][] = $i;
 			} else if($i['status'] == 'ignoreP' || $i['status'] == 'ignoreC'){
@@ -169,7 +171,14 @@ class wfIssues {
 		foreach($ret as $status => &$issueList){
 			for($i = 0; $i < sizeof($issueList); $i++){
 				if($issueList[$i]['type'] == 'file'){
-					$localFile = ABSPATH . '/' . preg_replace('/^[\.\/]+/', '', $issueList[$i]['data']['file']);
+					$localFile = $issueList[$i]['data']['file'];
+					if ($localFile != '.htaccess' && $localFile != $userIni) {
+						$localFile = ABSPATH . '/' . preg_replace('/^[\.\/]+/', '', $localFile);
+					}
+					else {
+						$localFile = ABSPATH . '/' . $localFile;
+					}
+
 					if(file_exists($localFile)){
 						$issueList[$i]['data']['fileExists'] = true;
 					} else {
@@ -177,8 +186,11 @@ class wfIssues {
 					}
 				}
 				if ($issueList[$i]['type'] == 'database') {
-					$prefix = $wpdb->get_blog_prefix($issueList[$i]['data']['site_id']);
-					$issueList[$i]['data']['optionExists'] = $wpdb->get_var($wpdb->prepare("SELECT count(*) FROM {$prefix}options WHERE option_name = %s", $issueList[$i]['data']['option_name'])) > 0;
+					$issueList[$i]['data']['optionExists'] = false;
+					if (!empty($issueList[$i]['data']['site_id'])) {
+						$prefix = $wpdb->get_blog_prefix($issueList[$i]['data']['site_id']);
+						$issueList[$i]['data']['optionExists'] = $wpdb->get_var($wpdb->prepare("SELECT count(*) FROM {$prefix}options WHERE option_name = %s", $issueList[$i]['data']['option_name'])) > 0;
+					}
 				}
 				$issueList[$i]['issueIDX'] = $i;
 			}

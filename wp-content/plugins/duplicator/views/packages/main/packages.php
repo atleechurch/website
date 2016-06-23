@@ -9,16 +9,16 @@
 
 <style>
 	div#dup-list-alert-nodata {padding:50px 20px;text-align:center; font-size:20px; line-height:26px}
-	div.dup-notice-msg {border:1px solid silver; padding: 10px; border-radius: 5px; width: 550px; 
+	div.dup-notice-msg {border:1px solid silver; padding: 10px; border-radius: 5px; width: 550px;
 		margin:40px auto 0px auto; font-size:12px; text-align: left; word-break:normal;
-		background: #fefcea; 
+		background: #fefcea;
 		background: -moz-linear-gradient(top,  #fefcea 0%, #efe5a2 100%);
 		background: -ms-linear-gradient(top,  #fefcea 0%,#efe5a2 100%);
 		background: linear-gradient(to bottom,  #fefcea 0%,#efe5a2 100%);
 	}
 	input#dup-bulk-action-all {margin:0px;padding:0px 0px 0px 5px;}
 	button.dup-button-selected {border:1px solid #000 !important; background-color:#dfdfdf !important;}
-	
+
 	/* Table package details */
 	table.dup-pack-table {word-break:break-all;}
 	table.dup-pack-table th {white-space:nowrap !important;}
@@ -40,7 +40,7 @@
 	<div style="font-size:13px; position: absolute; top:10px; right:20px">
 		<a href="admin.php?page=duplicator-about"  style="color:maroon"><i><i class="fa fa-check-circle"></i> <?php _e("Help Support Duplicator", 'duplicator') ?></i> </a>
 	</div>
-<?php endif; ?>	
+<?php endif; ?>
 
 <!-- ====================
 TOOL-BAR -->
@@ -64,7 +64,7 @@ TOOL-BAR -->
 			<a id="dup-pro-create-new"  href="?page=duplicator&tab=new1" class="add-new-h2"><?php _e("Create New", 'duplicator'); ?></a>
 		</td>
 	</tr>
-</table>	
+</table>
 
 
 <?php if($totalElements == 0)  :	?>
@@ -76,17 +76,17 @@ TOOL-BAR -->
 			<tr>
 				<td>
 				<div id='dup-list-alert-nodata'>
-					<i class="fa fa-archive"></i> 
+					<i class="fa fa-archive"></i>
 					<?php _e("No Packages Found.", 'duplicator'); ?><br/>
-					<?php _e("Click the 'Create New' button to build a package.", 'duplicator'); ?> <br/><br/>
-					<i>
+					<?php _e("Click the 'Create New' button to build a package.", 'duplicator'); ?>
+						<!--div style='font-style: italic'>
 						<?php
-							printf("%s <a href='admin.php?page=duplicator-help'>%s</a> %s",
-								__("Please visit the", 'duplicator'), 
-								__("help page", 'duplicator'),
-								__("for additional support", 'duplicator'));
+							/*printf("%s <a target='_blank' href='//www.bluehost.com/track/snapcreek/?page=wordpress'>%s</a> %s",
+								__("Duplicator recommends ", 'duplicator'),
+								__("Bluehost", 'duplicator'),
+								__("for a more optimized experience!", 'duplicator'));*/
 						?>
-					</i>
+						</div-->
 					<div style="height:75px">&nbsp;</div>
 				</div>
 				</td>
@@ -94,7 +94,7 @@ TOOL-BAR -->
 		</tbody>
 		<tfoot><tr><th>&nbsp;</th></tr></tfoot>
 	</table>
-<?php else : ?>	
+<?php else : ?>
 	<!-- ====================
 	LIST ALL PACKAGES -->
 	<table class="widefat dup-pack-table">
@@ -115,19 +115,19 @@ TOOL-BAR -->
 		$rows = $qryResult;
 		foreach ($rows as $row) {
 			$Package = unserialize($row['package']);
-			
+
 			if (is_object($Package)) {
 				 $pack_name			= $Package->Name;
 				 $pack_archive_size = $Package->Archive->Size;
 				 $pack_storeurl		= $Package->StoreURL;
-				 $pack_namehash	    = $Package->NameHash;		
+				 $pack_namehash	    = $Package->NameHash;
 			} else {
 				 $pack_archive_size = 0;
 				 $pack_storeurl		= 'unknown';
 				 $pack_name			= 'unknown';
-				 $pack_namehash	    = 'unknown';	
+				 $pack_namehash	    = 'unknown';
 			}
-			
+
 			//Links
 			$uniqueid  			= "{$row['name']}_{$row['hash']}";
 			$packagepath 		= $pack_storeurl . "{$uniqueid}_archive.zip";
@@ -146,19 +146,19 @@ TOOL-BAR -->
 					<td class="get-btns">
 						<button id="<?php echo "{$uniqueid}_installer.php" ?>" class="button no-select" onclick="Duplicator.Pack.DownloadFile('<?php echo $installfilelink; ?>', this); return false;">
 							<i class="fa fa-bolt"></i> <?php _e("Installer", 'duplicator') ?>
-						</button> 
+						</button>
 						<button id="<?php echo "{$uniqueid}_archive.zip" ?>" class="button no-select" onclick="Duplicator.Pack.DownloadFile('<?php echo $packagepath; ?>', this); return false;">
 							<i class="fa fa-file-archive-o"></i> <?php _e("Archive", 'duplicator') ?>
 						</button>
-						<button type="button" class="button no-select" title="<?php DUP_Util::_e("Package Details") ?>" onclick="Duplicator.Pack.OpenPackageDetails(<?php echo "{$row['id']}"; ?>);">
-							<i class="fa fa-archive" ></i> 
+						<button type="button" class="button no-select" title="<?php _e("Package Details", 'duplicator') ?>" onclick="Duplicator.Pack.OpenPackageDetails(<?php echo "{$row['id']}"; ?>);">
+							<i class="fa fa-archive" ></i>
 						</button>
 					</td>
 				</tr>
-				
-			<!-- NOT COMPLETE -->				
-			<?php else : ?>	
-			
+
+			<!-- NOT COMPLETE -->
+			<?php else : ?>
+
 				<?php
 					$size = 0;
 					$tmpSearch = glob(DUPLICATOR_SSDIR_PATH_TMP . "/{$pack_namehash}_*");
@@ -174,14 +174,14 @@ TOOL-BAR -->
 					<td><?php echo date( "m-d-y G:i", strtotime($row['created']));?></td>
 					<td><?php echo DUP_Util::ByteSize($size); ?></td>
 					<td class='pack-name'><?php echo $pack_name ;?></td>
-					<td class="get-btns error-msg" colspan="2">		
+					<td class="get-btns error-msg" colspan="2">
 						<span>
 							<i class="fa fa-exclamation-triangle"></i>
 							<a href="<?php echo $error_url; ?>"><?php _e("Error Processing", 'duplicator') ?></a>
-						</span>			
-						<a class="button no-select" title="<?php DUP_Util::_e("Package Details") ?>" href="<?php echo $error_url; ?>">
-							<i class="fa fa-archive"></i> 
-						</a>						
+						</span>
+						<a class="button no-select" title="<?php _e("Package Details", 'duplicator') ?>" href="<?php echo $error_url; ?>">
+							<i class="fa fa-archive"></i>
+						</a>
 					</td>
 				</tr>
 			<?php endif; ?>
@@ -192,26 +192,38 @@ TOOL-BAR -->
 	?>
 	<tfoot>
 		<tr>
-			<th colspan="8" style='text-align:right; font-size:12px'>						
+			<th colspan="4">
+				<i style="font-size:12px; cursor: pointer"
+				   data-tooltip-title="<?php _e("Host Recommendation:", 'duplicator'); ?>"
+				   data-tooltip="<?php _e('Duplicator recommends going with the high performance pro plan or better from Bluehost.com', 'duplicator'); ?>">
+				<i class="fa fa-lightbulb-o"></i>
+					<?php
+						printf("%s <a target='_blank' href='//www.bluehost.com/track/snapcreek/?page=wordpress'>%s</a>",
+						__("Duplicator Recommends ", 'duplicator'),
+						__("Bluehost", 'duplicator'));
+					?>
+				</i>
+			</th>
+			<th colspan="7" style='text-align:right; font-size:12px'>
 				<?php echo _e("Packages", 'duplicator') . ': ' . $totalElements; ?> |
-				<?php echo _e("Total Size", 'duplicator') . ': ' . DUP_Util::ByteSize($totalSize); ?> 
+				<?php echo _e("Total Size", 'duplicator') . ': ' . DUP_Util::ByteSize($totalSize); ?>
 			</th>
 		</tr>
 	</tfoot>
 	</table>
-<?php endif; ?>	
+<?php endif; ?>
 </form>
 
 <script type="text/javascript">
-jQuery(document).ready(function($) 
+jQuery(document).ready(function($)
 {
-	/*	Removes all selected package sets 
+	/*	Removes all selected package sets
 	 *	@param event	To prevent bubbling */
-	Duplicator.Pack.Delete = function (event) 
+	Duplicator.Pack.Delete = function (event)
 	{
 		var arr = new Array;
 		var count = 0;
-		
+
 		if ($("#dup-pack-bulk-actions").val() != "delete") {
 			alert("<?php _e('Please select an action from the bulk action drop down menu to perform a specific action.', 'duplicator') ?>");
 			return;
@@ -224,7 +236,7 @@ jQuery(document).ready(function($)
 			alert("<?php _e('Please select at least one package to delete.', 'duplicator') ?>");
 			return;
 		}
-		
+
 		if (confirm("<?php _e('Are you sure, you want to delete the selected package(s)?', 'duplicator') ?>"))
 		{
 			$.ajax({
@@ -232,26 +244,26 @@ jQuery(document).ready(function($)
 				url: ajaxurl,
 				dataType: "json",
 				data: {action : 'duplicator_package_delete', duplicator_delid : list, nonce: '<?php echo $ajax_nonce; ?>' },
-				success: function(data) { 
-					Duplicator.ReloadWindow(data); 
+				success: function(data) {
+					Duplicator.ReloadWindow(data);
 				}
 			});
-		} 
+		}
 		if (event)
-			event.preventDefault(); 
+			event.preventDefault();
 	};
-	
+
 	/*  METHOD: Toogles the Bulk Action Check boxes */
-	Duplicator.Pack.SetDeleteAll = function() 
+	Duplicator.Pack.SetDeleteAll = function()
 	{
 		var state = $('input#dup-bulk-action-all').is(':checked') ? 1 : 0;
 		$("input[name=delete_confirm]").each(function() {
 			 this.checked = (state) ? true : false;
 		});
 	}
-	
+
 	/*	METHOD: Opens detail screen */
-	Duplicator.Pack.OpenPackageDetails = function (package_id) 
+	Duplicator.Pack.OpenPackageDetails = function (package_id)
 	{
 		window.location.href = '?page=duplicator&action=detail&tab=detail&id=' + package_id;
 	}

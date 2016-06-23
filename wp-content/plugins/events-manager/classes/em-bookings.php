@@ -121,7 +121,7 @@ class EM_Bookings extends EM_Object implements Iterator{
 			if($result){
 				$result = $EM_Booking;
 			}
-			$this->feedback_message = sprintf(__('%s created.','dbem'),__('Booking','dbem'));
+			$this->feedback_message = sprintf(__('%s created.','events-manager'),__('Booking','events-manager'));
 		}else{
 			$this->errors = array_merge($this->errors, $EM_Booking->errors);
 		}
@@ -260,9 +260,10 @@ class EM_Bookings extends EM_Object implements Iterator{
 		if( count($booking_ids) > 0 ){
 			//Delete bookings and ticket bookings
 			$result_tickets = $wpdb->query("DELETE FROM ". EM_TICKETS_BOOKINGS_TABLE ." WHERE booking_id IN (".implode(',',$booking_ids).");");
-			$result = $wpdb->query("DELETE FROM ".EM_BOOKINGS_TABLE." WHERE event_id IN (".implode(',',$booking_ids).")");
+			$result = $wpdb->query("DELETE FROM ".EM_BOOKINGS_TABLE." WHERE booking_id IN (".implode(',',$booking_ids).")");
 		}
-		return ($result !== false && $result_tickets !== false);
+		do_action('em_bookings_deleted', $result, $booking_ids);
+		return apply_filters('em_bookings_delete', $result !== false && $result_tickets !== false, $booking_ids, $this);
 	}
 
 	
@@ -308,17 +309,17 @@ class EM_Bookings extends EM_Object implements Iterator{
 			foreach( $booking_ids as $booking_id ){
 				$EM_Booking = em_get_booking($booking_id);
 				if( !$EM_Booking->can_manage() ){
-					$this->feedback_message = __('Bookings %s. Mails Sent.', 'dbem');
+					$this->feedback_message = __('Bookings %s. Mails Sent.', 'events-manager');
 					return false;
 				}
 				$results[] = $EM_Booking->set_status($status);
 			}
 			if( !in_array('false',$results) ){
-				$this->feedback_message = __('Bookings %s. Mails Sent.', 'dbem');
+				$this->feedback_message = __('Bookings %s. Mails Sent.', 'events-manager');
 				return true;
 			}else{
 				//TODO Better error handling needed if some bookings fail approval/failure
-				$this->feedback_message = __('An error occurred.', 'dbem');
+				$this->feedback_message = __('An error occurred.', 'events-manager');
 				return false;
 			}
 		}elseif( is_numeric($booking_ids) || is_object($booking_ids) ){
@@ -572,6 +573,8 @@ class EM_Bookings extends EM_Object implements Iterator{
 	
 
 	//List of patients in the patient database, that a user can choose and go on to edit any previous treatment data, or add a new admission.
+	//Deprecated
+	//@todo remove in 6.0
 	function export_csv() {
 		global $EM_Event;
 		if($EM_Event->event_id != $this->event_id ){

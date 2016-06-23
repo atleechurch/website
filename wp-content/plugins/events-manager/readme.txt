@@ -1,10 +1,11 @@
 === Events Manager ===
 Contributors: netweblogic, nutsmuggler
 Donate link: http://wp-events-plugin.com
-Tags: events, event, event registration, event calendar, events calendar, event management, paypal, registration, ticket, tickets, ticketing, tickets, theme, widget, locations, maps, booking, attendance, attendee, buddypress, calendar, gigs, payment, payments, sports,
+Tags: bookings, buddypress, calendar, event, event management, events, google maps, maps, locations, registration, registration, tickets
+Text Domain: events-manager
 Requires at least: 3.5
-Tested up to: 4.3.1
-Stable tag: 5.6.1
+Tested up to: 4.5.1
+Stable tag: 5.6.4
 
 Fully featured event registration management including recurring events, locations management, calendar, Google map integration, booking management
 
@@ -98,6 +99,68 @@ See our [FAQ](http://wp-events-plugin.com/documentation/faq/) page, which is upd
 6. Manage attendees with various booking reports
 
 == Changelog ==
+= 5.6.4 =
+* fixed WP FullCalendar (versions using FC 2.x library) not showing events outside current month
+* fixed long events not showing on last day in WP FullCalendar
+* fixed event category and tag pages 404ing when slugs match taxonomy slugs and these pages aren't parents of events page
+* fixed image upload buttons not working properly on category add/edit pages
+
+= 5.6.3 =
+* fixed events disappearing from calendar with WP FullCalendar plugin
+* fixed PHP warning for delete booking when a user can't manage booking
+* removed our EM_PHPMailer class and started using the one shipped with WordPress
+* added %passwordurl% placeholder for new user registration email template
+* added check for whether categories are enabled in many areas of code potentially avoiding a array_map PHP notice
+* fixed preview mode duplicating tickets
+* fixed widget formats stripping certain HTML elements
+* fixed erratic date picker range behaviour when adjusting a start date later than the end date
+* fixed original image getting deleted when modifying duplicated event image
+* fixed orderby not including event_date_created and event_date_modified since 5.6.2
+* fixed PHP warning when calling #_ATT to a non-existent attribute
+* changed event debug meta box to display when WP_DEBUG_DISPLAY is also true rather than just WP_DEBUG
+* fixed front-end submission false validation errors when submitting events with bookings enabled
+* changed headers to new h1 standard on WP Dashboard pages
+* fixed bookings admin viewer table not showing specific ticket bookings on front-end
+* fixed ML hooking into em_event_save_meta and messing up the internal hook pointer by triggering it again
+* fixed translated options PHP fatal error in rare occasions/setups
+* fixed deprecated get_currentuserinfo notice in WP 4.5
+* fixed PHP 7 division by zero warning
+* fixed PHP 7 "array to string" notice
+* fixed PHP 7 issues with EM_Ticket validation
+* fixed grouped events list not showing long events on each group provided limit=0 is also supplied
+* fixed apostrophes not passing email validation
+* fixed buddypress fatal error when booking with notifications disabled,
+* fixed buddypress activity stream items being created twice for new bookings
+* fixed booking admin notes not being added in the front-end
+* updated google maps api version and removed deprecated sensor parameter
+* fixed searches not working for search terms containing apostrophes
+* fixed blank settings pages due to 4.5 code changes to wp_get_referer()
+* added em_bookings_deleted action which will execute when one or more bookings are deleted
+* added em_bookings_delete filter for when a group of bookings are deleted with event(s)
+* fixed EM_Bookings->delete() not deleting bookings properly
+* deprecated use of EM_Event->delete_bookings() and EM_Event->delete_tickets() in favor of EM_Event->EM_Bookings->delete()
+
+= 5.6.2 =
+* changed translation gettext domain from dbem to events-manager inline with new wordpress.org translation features
+* fixed EM_CSV_DELIMITER not being included in headers, added filter em_csv_delimiter to override EM_CSV_DELIMITER
+* added wpfc-more class to allow hiding of time on 'more' link for WP FullCalendar
+* fixed booking cut-off time not working if cut-off days is 0 or empty
+* fixed front-end event submission form permission issues for new recurring events when publish cap is enabled but not edit_others and delete_others
+* fixed Norwegian incorrectly translated placeholders
+* fixed custom decimal separator not used in tax rate display
+* minor js fix which fixes a grecaptcha related error notice
+* fixed recurrence_byday db value saving as null for weekly Sunday events (kudos @giventofly76)
+* removed _event_date_created and _event_date_modified from the postmeta table as these are inaccurate, use the records from the wp_em_meta table or directly via EM_Event->event_date_created or EM_Event->event_date_modified
+* changed settings/admin capability from list_users to manage_options
+* added EM_DISABLE_AUTO_BOOKINGSFORM which prevents booking form showing below post if format overriding disabled
+* fixed WP 4.4 error on front-end event submission form
+* fixed PHP notices in WP 4.4 when categories are disabled
+* fixed Multiple Booking Mode bug in Pro introduced by WP 4.4 allowing NULL db values
+* fixed like_escape debug warning on search form
+* fixed twenty fifteen/sixteen CSS conflict hiding confirmation messages
+* added bookings closed message
+* updated all languages included typo fixes and added Arabic, Australian and Canadian English
+
 = 5.6.1 =
 * fixed no arguments being passed onto em_get_post_meta_pre and em_get_post_pre
 * fixed minor PHP warning when viewing settings in paged tab mode

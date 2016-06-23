@@ -9,18 +9,18 @@ final class thesis_skin_manager {
 	public $table_suffix = 'thesis_backups';
 	public $table;
 	public $class;
-	public $options = array('boxes', 'templates', 'packages', 'vars', 'css', 'css_custom', '_design', '_display');
+	public $options = array('boxes', 'templates', 'packages', 'vars', 'css', 'css_editor', 'css_custom', '_design', '_display');
 
 	public function __construct($skin = array()) {
 		global $wpdb, $thesis;
 		if (empty($skin) || !$thesis->wp_customize && ($thesis->environment === false || !is_array($skin))) return;	// allow in all environments except the front end
 		extract($skin); // name, author, description, version, class, folder
-		$this->class = trim($thesis->api->verify_class_name($class));	// set class…
+		$this->class = trim($this->verify_class_name($class));	// set class…
 		$this->name = isset($name) ? $name : false;
 		if (!get_option("{$this->class}_templates"))
 			$this->defaults(array(), true);
-		$this->table = $wpdb->prefix . $this->table_suffix;				// set the table name
-		if (!$this->table())											// check if table exists
+		$this->table = $wpdb->prefix. $this->table_suffix;		// set the table name
+		if (!$this->table())									// check if table exists
 			return false;
 	}
 
@@ -37,6 +37,7 @@ final class thesis_skin_manager {
 					'templates' => __('Templates', 'thesis'),
 					'vars' => sprintf(__('%s Variables', 'thesis'), $thesis->api->base['css']),
 					'css' => sprintf(__('Skin %s', 'thesis'), $thesis->api->base['css']),
+					'css_editor' => sprintf(__('Editor %s', 'thesis'), $thesis->api->base['css']),
 					'css_custom' => sprintf(__('Custom %s', 'thesis'), $thesis->api->base['css']),
 					'_design' => __('Design Options', 'thesis'),
 					'_display' => __('Display Options', 'thesis'),
@@ -47,6 +48,7 @@ final class thesis_skin_manager {
 					'packages' => true,
 					'vars' => true,
 					'css' => true,
+					'css_editor' => true,
 					'css_custom' => true,
 					'_design' => true,
 					'_display' => true))), array(), 'thesis_export_', '', 900, 6);
@@ -60,6 +62,7 @@ final class thesis_skin_manager {
 					'templates' => __('Templates', 'thesis'),
 					'vars' => sprintf(__('%s Variables', 'thesis'), $thesis->api->base['css']),
 					'css' => sprintf(__('Skin %s', 'thesis'), $thesis->api->base['css']),
+					'css_editor' => sprintf(__('Editor %s', 'thesis'), $thesis->api->base['css']),
 					'css_custom' => sprintf(__('Custom %1$s (this will delete your custom %1$s)', 'thesis'), $thesis->api->base['css']),
 					'_design' => __('Design Options', 'thesis'),
 					'_display' => __('Display Options', 'thesis'),
@@ -70,11 +73,12 @@ final class thesis_skin_manager {
 					'packages' => true,
 					'vars' => true,
 					'css' => true,
+					'css_editor' => true,
 					'css_custom' => false,
 					'_design' => true,
 					'_display' => true))), array(), 'thesis_export_', '', 900, 6);
 		return
-			"$tab<h3 id=\"t_manager_head\"><span>". sprintf(__('Manage %s Skin', 'thesis'), $this->name). "</span></h3>\n".
+			"$tab<h3 id=\"t_manager_head\"><span>". sprintf(__('Manage %s Skin Data', 'thesis'), $this->name). "</span></h3>\n".
 			"$tab<div class=\"t_manager_box\" data-style=\"box\">\n".
 			"$tab\t<h4>". __('Backup Skin Data', 'thesis'). "</h4>\n".
 			"$tab\t<p>". __('Create a Skin backup that you can restore at any time.', 'thesis'). "</p>\n".
@@ -121,7 +125,7 @@ final class thesis_skin_manager {
 					(file_exists(THESIS_USER_SKIN. '/default.php') ?
 					$default['output'].
 					"$tab\t\t\t\t<button id=\"t_restore_default\" data-style=\"button save\">". __('Restore Selected Defaults', 'thesis'). "</button>\n" :
-					"$tab\t\t\t\t<p>". __('Your skin does not have the ability to restore individual data components. Please click the button below to restore <strong>all</strong> default settings.', 'thesis'). "</p>\n".
+					"$tab\t\t\t\t<p>". __('Your Skin does not have the ability to restore individual data components. Please click the button below to restore <strong>all</strong> default settings.', 'thesis'). "</p>\n".
 					"$tab\t\t\t\t<button id=\"t_restore_default\" data-style=\"button save\">". __('Restore Defaults', 'thesis'). "</button>\n").
 					"$tab\t\t\t\t". wp_nonce_field('thesis-restore-defaults', '_wpnonce-thesis-restore-defaults', true, false). "\n".
 					"$tab\t\t\t</form>\n")).
@@ -177,12 +181,13 @@ final class thesis_skin_manager {
 			$data['notes'] = sanitize_text_field($notes);
 		$data = array_map('maybe_serialize', $data); 					// returns an array of serialized data
 		$data['time'] = time(); 										// add timestamp
-		$data['class'] = esc_attr($this->class);						// add skin class
+		$data['class'] = esc_attr($this->class);						// add Skin class
 		return (bool) $wpdb->insert($this->table, $data); 				// return true on success, false on failure
 	}
 
 	public function defaults($form = array(), $new = false) {
 		global $thesis;
+		// TODO: Determine whether or not there is something special about the timing of this method that requires such idiosyncratic treatment
 		$restore = !empty($form['restore']) ? array_filter(array_map('intval', $form['restore'])) : ($new ? array_combine($this->options, array_fill(0, count($this->options), 1)) : array());
 		$directory = defined('THESIS_USER_SKIN') && file_exists(THESIS_USER_SKIN) ? THESIS_USER_SKIN : ($thesis->wp_customize === true && !file_exists(THESIS_USER_SKIN) ? THESIS_SKINS : false);
 		if (isset($restore['css_custom'])) {
@@ -190,6 +195,7 @@ final class thesis_skin_manager {
 			delete_option("{$thesis->skins->skin['class']}_css_custom");
 		}
 		$this->add(__('[Automatic backup: Restore defaults]', 'thesis'));	// create a backup in case they forgot to
+		// TODO: Drop support for a Thesis Blank default restoration (special treatment should never be necessary)
 		if ($this->class === 'thesis_blank')
 			foreach ($this->options as $option)
 				delete_option('thesis_blank_'. $option);
@@ -197,18 +203,18 @@ final class thesis_skin_manager {
 			include_once($directory. '/default.php');
 			if (function_exists($this->class. '_defaults')) {
 				$default_data = call_user_func($this->class. '_defaults');
-				foreach (array_keys($restore) as $option) {
+				foreach (array_keys($restore) as $option)
 					if (isset($default_data[$option]))
 						update_option("{$this->class}_$option", $default_data[$option]);
 					else
 						delete_option("{$this->class}_$option");
-				}
 				wp_cache_flush();
 				if (isset($default_data['vars']) && property_exists($thesis->skin, '_css'))
 					$thesis->skin->_css->restore_vars($default_data['vars']);
 			}
 			else return false;
 		}
+		// TODO: Identify the version number at which this elseif no longer applies
 		elseif (file_exists($directory. '/seed.php')) {
 			// old style. nukes everything.
 			include_once($directory. '/seed.php');
@@ -217,7 +223,8 @@ final class thesis_skin_manager {
 				wp_cache_flush();
 				$thesis->skin->_css->restore_vars(get_option("{$this->class}_vars"));
 			}
-			else return false;
+			else
+				return false;
 		}
 		else return false;
 		if (property_exists($thesis, 'skin'))
@@ -225,23 +232,16 @@ final class thesis_skin_manager {
 		return true;
 	}
 
-	public function delete($id = false) {
-		global $wpdb;
-		if ($id === false || !is_integer($id) || !($check = $this->get_entry(abs($id))))	// make sure we're being passed an id and that the class was set up
-			return false;
-		$where = array(																		// if we're here, we found something. let's delete it.
-			'class' => esc_attr($this->class),
-			'ID' => absint($id));
-		return (bool) $wpdb->delete($this->table, $where);
-	}
-
-	public function export($options = array(), $seed = false) {					// assumed to be ALL if left empty. send $options['id'] to target a specific id
-		global $wpdb;
-		
+	/*
+	TODO: This is a poorly constructed method. Code can be trimmed, and logic can be vastly improved.
+	— $options: assumed to be ALL if left empty; send $options['id'] to target a specific id
+	— $seed: is the resulting export a seed file?
+	*/
+	public function export($options = array(), $seed = false) {
 		if ($options === false and $seed === true) {
 			$new = array();
 			foreach ($this->options as $option)
-				$new[$option] = get_option($this->class . '_' . $option);
+				$new[$option] = get_option("{$this->class}_$option");
 			$new = array_filter($new);
 			$new['class'] = $this->class;
 			return $new;
@@ -249,19 +249,20 @@ final class thesis_skin_manager {
 		else {
 			if (empty($options['id']))
 				return false;
+			$new = array();
 			$id = (int) $options['id'];
 			unset($options['id']);
 			$options = array_keys($options);
+			// If nothing is requested, everything will be sent. This is for the creation of seed files.
 			if (empty($options))											// if nothing, we're sending everything
 				$options = $this->options;
 			$options = array_intersect($options, $this->options);			// check to see what was requested
-			if(!($data = $this->get_entry($id)) || $data['class'] !== $this->class)
+			if (!($data = $this->get_entry($id)) || $data['class'] !== $this->class)
 				return false;
 			unset($data['ID']);
 			unset($data['notes']);
 			unset($data['time']);
 			$data = array_filter($data);									// get rid of empty entries
-			$new = array();
 			foreach ($options as $option)
 				if (isset($data[$option]))
 					$new[$option] = maybe_unserialize($data[$option]);
@@ -279,6 +280,16 @@ final class thesis_skin_manager {
 		exit;
 	}
 
+	public function delete($id = false) {
+		global $wpdb;
+		if ($id === false || !is_integer($id) || !($check = $this->get_entry(abs($id))))	// make sure we're being passed an id and that the class was set up
+			return false;
+		$where = array(																		// if we're here, we found something. let's delete it.
+			'class' => esc_attr($this->class),
+			'ID' => absint($id));
+		return (bool) $wpdb->delete($this->table, $where);
+	}
+
 	public function get() {
 		global $wpdb;
 		$sql = $wpdb->prepare("SELECT ID,time,notes FROM {$this->table} WHERE class = %s", $this->class);
@@ -288,11 +299,10 @@ final class thesis_skin_manager {
 			$results = array($results);
 		$valid = array();
 		foreach ($results as $result)
-			if (is_array($result) && !empty($result['ID']) && !empty($result['time'])) {
+			if (is_array($result) && !empty($result['ID']) && !empty($result['time']))
 				$valid[absint(maybe_unserialize($result['ID']))] = array(
 					'time' => absint(maybe_unserialize($result['time'])),
 					'notes' => !empty($result['notes']) ? sanitize_text_field(wp_specialchars_decode(maybe_unserialize(stripslashes($result['notes'])))) : false);
-			}
 		krsort($valid);
 		return empty($valid) ? array() : $valid;
 	}
@@ -307,36 +317,35 @@ final class thesis_skin_manager {
 
 	public function import($location = false) {
 		global $thesis;
-		if (empty($_FILES[$location]) || $_FILES[$location]['error'] > 0 || !($unserialize = $thesis->api->verify_data_file($_FILES[$location], $this->class)))
+		if (empty($_FILES[$location]) || $_FILES[$location]['error'] > 0 || !($unserialize = $this->verify_data_file($_FILES[$location], $this->class)))
 			return false;
-		$data = array();
 		foreach ($unserialize as $option => $value)
 			if ($option != 'class')
-				update_option($this->class . "_" . $option, $value);
+				update_option("{$this->class}_$option", $value);
 		wp_cache_flush();
 		return true;
 	}
 
 	public function restore($id = false) {
-		global $wpdb;
 		if (empty($id) || !is_integer($id))
 			return false;
 		if (!($result = $this->get_entry(absint($id))) || empty($result['class']))
 			return null; 			// null so that we know the row wasn't found
-		unset($result['ID']);		// do…
-		unset($result['time']);		// …not…
-		unset($result['class']);	// …need…
-		unset($result['notes']);	// …these.
+		// Remove data that is not needed for the restoration
+		unset($result['ID'], $result['time'], $result['class'], $result['notes']);
 		$verified = array();
-		$need = array_filter($result);		
-		if (!empty($need) && is_array($need))
-			foreach ($need as $key => $check) 			// run through and unserialize everything to make sure we don't have a screw up
-				if (in_array($key, $this->options) && ($save = maybe_unserialize($check)))
-					$verified[$key] = $save;					
-		if ($check = array_diff_key($need, $verified)) 	// something happened, likely in unserialization. do not restore from broken deal.
-			return array_keys($check);		
-		foreach ($verified as $what => $data) 			// everything is money, so update the options
-			update_option("{$this->class}_$what", $data);
+		$restore = array_filter($result);
+		if (!empty($restore) && is_array($restore))
+			foreach ($restore as $key => $check) 			// run through and unserialize everything to make sure we don't have a screw up
+				if (in_array($key, $this->options) && ($value = maybe_unserialize($check)))
+					$verified[$key] = $value;
+		if ($check = array_diff_key($restore, $verified)) 	// something happened, likely in unserialization. do not restore from broken deal.
+			return array_keys($check);
+		foreach ($this->options as $option)
+			if (!empty($verified[$option]))
+				update_option("{$this->class}_$option", $verified[$option]);
+			else
+				delete_option("{$this->class}_$option");
 		wp_cache_flush();
 		return true;
 	}
@@ -345,12 +354,12 @@ final class thesis_skin_manager {
 		global $wpdb;
 		$exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->table}'");
 		$return = true;
-		if ($exists && ! (bool) $wpdb->query("SHOW COLUMNS FROM {$this->table} LIKE '_design'")) {
+		if ($exists && ! (bool) $wpdb->query("SHOW COLUMNS FROM {$this->table} LIKE '_design'"))
 			$return = (bool) $wpdb->query("ALTER TABLE {$this->table} ADD _design longtext NOT NULL");
-		}
-		if ($exists && ! (bool) $wpdb->query("SHOW COLUMNS FROM {$this->table} LIKE '_display'")) {
+		if ($exists && ! (bool) $wpdb->query("SHOW COLUMNS FROM {$this->table} LIKE '_display'"))
 			$return = (bool) $wpdb->query("ALTER TABLE {$this->table} ADD _display longtext NOT NULL");
-		}
+		if ($exists && ! (bool) $wpdb->query("SHOW COLUMNS FROM {$this->table} LIKE 'css_editor'"))
+			$return = (bool) $wpdb->query("ALTER TABLE {$this->table} ADD css_editor longtext NOT NULL");
 		if (!empty($exists))
 			return $return && true;
 		else {											// make the table
@@ -363,6 +372,7 @@ final class thesis_skin_manager {
 				packages longtext NOT NULL,
 				vars longtext NOT NULL,
 				css longtext NOT NULL,
+				css_editor longtext NOT NULL,
 				css_custom longtext NOT NULL,
 				notes longtext NOT NULL,
 				_design longtext NOT NULL,
@@ -372,5 +382,34 @@ final class thesis_skin_manager {
 			$query = $wpdb->query($sql);
 			return (bool) $query && $return;
 		}
+	}
+
+	public function verify_class_name($class) {
+		return preg_match('/\A[a-zA-Z_]\w*\Z/', $class) ? $class : false;
+	}
+
+	public function verify_data_file($file, $class, $type = 'skin') {
+		$string = is_string($file);
+		$array = is_array($file);
+		if (($array && !file_exists($file['tmp_name'])) || ($string && !file_exists($file)) || empty($class))
+			return false;
+		$name = $string ? basename($file) : ($array ? $file['name'] : false);
+		$location = $string ? $file : ($array ? $file['tmp_name'] : false);
+		if (!$name || !$location)
+			return false;
+		if (!(preg_match('/^[a-z0-9-]+\.txt$/', strtolower($name)))		// first, read the file and check the checksum
+		|| !($contents = file_get_contents($location))
+		|| !is_serialized($contents)
+		|| !($unserialize = unserialize($contents))
+		|| empty($unserialize['checksum']) || empty($unserialize['data'])
+		|| $unserialize['checksum'] !== md5(serialize($unserialize['data']))
+		|| empty($unserialize['data']['class'])
+		|| $unserialize['data']['class'] !== $class)
+			return false;
+		$options = $type == 'skin' ? $this->options : array();
+		$real = array_intersect($options, array_keys($unserialize['data']));
+		foreach ($real as $send)
+			$data[$send] = $type == 'skin' && in_array($send, array('css', 'css_editor', 'css_custom')) ? strip_tags($unserialize['data'][$send]) : stripslashes_deep($unserialize['data'][$send]);
+		return $data;
 	}
 }

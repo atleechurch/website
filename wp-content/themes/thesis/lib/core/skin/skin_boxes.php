@@ -9,7 +9,7 @@ class thesis_skin_boxes {
 	public $active = array();		// (array) all active Box objects
 	public $add = array();			// (array) instance-based Boxes that can be added via the Box form
 	private $head = array();		// (array) <head> Box data
-	private $skin = array();		// (array) <body> (skin) Box data
+	private $skin = array();		// (array) <body> (Skin) Box data
 	private $instances = array();	// (array) data for all Box instances (<head> + <body>)
 	private $core = array(			// (array) list of core Box classes intended for HTML output
 		'thesis_html_head',
@@ -18,53 +18,50 @@ class thesis_skin_boxes {
 		'thesis_meta_keywords',
 		'thesis_meta_robots',
 		'thesis_stylesheets_link',
-		'thesis_favicon',
 		'thesis_canonical_link',
 		'thesis_html_head_scripts',
+		'thesis_favicon',
 		'thesis_html_body',
 		'thesis_html_container',
 		'thesis_site_title',
 		'thesis_site_tagline',
-		'thesis_wp_nav_menu',
-		'thesis_wp_loop',
 		'thesis_post_box',
 		'thesis_post_list',
-		'thesis_comments_intro',
-		'thesis_comments_nav',
-		'thesis_comments',
-		'thesis_comment_form',
-		'thesis_trackbacks',
-		'thesis_previous_post_link',
-		'thesis_next_post_link',
-		'thesis_previous_posts_link',
-		'thesis_next_posts_link',
 		'thesis_archive_title',
 		'thesis_archive_content',
 		'thesis_query_box',
-		'thesis_wp_widgets',
 		'thesis_text_box',
 		'thesis_attribution',
-		'thesis_wp_admin',
 		'thesis_js');
 
 	public function __construct($skin) {
 		global $thesis;
 		$this->head = is_array($head = $thesis->api->get_option('thesis_head_boxes')) ? $head : $this->head;
 		$this->skin = is_array($skin) ? $skin : $this->skin;
-		add_action('init', array($this, 'init'));
+		add_action('widgets_init', array($this, 'init'));
 	}
 
 	public function init() {
+		global $thesis;
 		$user = new thesis_user_boxes;
 		$this->instances = array_merge($this->head, $this->skin);
 		$core = is_array($boxes = apply_filters('thesis_boxes', $this->core)) ? $boxes : $this->core;
+		if ($thesis->wpseo) {
+			$remove = array(
+				'thesis_meta_description',
+				'thesis_meta_keywords',
+				'thesis_meta_robots',
+				'thesis_canonical_link');
+			foreach ($remove as $box)
+				unset($core[array_search($box, $core)]);
+		}
 		$this->create(is_array($user->active) ? array_merge($core, $user->active) : $core);
 	}
 
 	private function create($classes, $parent = false) {
 		foreach ((array) $classes as $class) {
 			$activated = false;
-			$lineage = !empty($parent) ? (($this->active[$parent]->_lineage ? $this->active[$parent]->_lineage : '') . ($this->active[$parent]->name ? $this->active[$parent]->name : $this->active[$parent]->title) . " &rarr; ") : false;
+			$lineage = !empty($parent) ? (($this->active[$parent]->_lineage ? $this->active[$parent]->_lineage : ''). ($this->active[$parent]->name ? $this->active[$parent]->name : $this->active[$parent]->title). " &rarr; ") : false;
 			if (!empty($this->instances[$class]) && is_array($this->instances[$class]))
 				foreach ($this->instances[$class] as $id => $options)
 					if (class_exists($class) && is_subclass_of($class, 'thesis_box') && (!$parent || ($parent && !empty($options['_parent']) && $options['_parent'] == $parent))) {
@@ -153,7 +150,7 @@ class thesis_skin_boxes {
 		if (in_array($id, array_keys($this->active)))
 			$box = $this->active[$id];
 		elseif (class_exists($id)) {
-			$box = new $id(array('id' => "{$id}_" . time()));
+			$box = new $id(array('id' => "{$id}_". time()));
 			$save = true;
 		}
 		else

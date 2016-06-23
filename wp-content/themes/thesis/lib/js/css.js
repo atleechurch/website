@@ -8,25 +8,34 @@ var thesis_css;
 (function($) {
 thesis_css = {
 	doing_save: false,
+	is_skin: false,
+	editors: { },
 	init: function() {
 		var menu = '#t_css_header ul';
-		thesis_css.codeMirror = CodeMirror.fromTextArea(document.getElementById("t_css_skin"), {
-			lineNumbers: true,
-			indentUnit: 4,
-			lineWrapping: true,
-			indentWithTabs: true
-		});
-		$('button[data-pane="css"]').one('click', function(){
-			thesis_css.codeMirror.refresh();
-		});
-		$('.CodeMirror-lines > div > div:nth-child(3)').droppable({
-			accept: '.css_draggable',
-			tolerance: 'pointer',
-			drop: function(e, ui) {
-				var text = $(e.originalEvent.target).data('value');
-				thesis_css.codeMirror.replaceSelection(text, 'end');
-				thesis_css.css();
-			}
+		$('button[data-pane="css"]').one('click', function() {
+			$('.t_css_tab').each(function() {
+				tab = $(this).data('type');
+				thesis_css.editors[tab] = thesis_css.init_editor(tab);
+				if ($(this).hasClass('t_tab_current')) {
+					thesis_css.show_editor(tab);
+					thesis_css.codeMirror = thesis_css.editors[tab];
+					thesis_css.codeMirror.refresh();
+				}
+			});
+			$('.t_css_tab').on('click', function() {
+				thesis_css.show_editor($(this).data('type'));
+				thesis_css.codeMirror = thesis_css.editors[$(this).data('type')];
+				thesis_css.codeMirror.refresh();
+			});
+			$('.CodeMirror-lines').droppable({
+				accept: '.css_draggable',
+				tolerance: 'pointer',
+				drop: function(e, ui) {
+					var text = $(e.originalEvent.target).data('value');
+					thesis_css.codeMirror.replaceSelection(text, 'end');
+					thesis_css.live_css();
+				}
+			});
 		});
 		$('.t_edit_item').each(function() { thesis_css.editable(this); });
 		$('#t_create_var').click(function() {
@@ -44,7 +53,7 @@ thesis_css = {
 		});
 		$('.CodeMirror').keyup(function() {
 			if (typeof thesis_editor.canvas == "object" && typeof thesis_editor.canvas.document.getElementById('t_live_css') == "object")
-				thesis_css.css();
+				thesis_css.live_css();
 		});
 		thesis_css.timeout = false;
 		$('#t_save_css').click(function() {
@@ -55,14 +64,37 @@ thesis_css = {
 			return thesis_css.maybe_save(e);
 		});
 	},
+	init_editor: function(editor) {
+		return CodeMirror.fromTextArea(document.getElementById('t_css_'+editor), {
+			lineNumbers: true,
+			indentUnit: 4,
+			lineWrapping: true,
+			indentWithTabs: true
+		});
+	},
+	show_editor: function(editor) {
+		$('.t_css_tab').each(function() {
+			if ($(this).data('type') == editor)
+				$(this).addClass('t_tab_current');
+			else
+				$(this).removeClass('t_tab_current');
+		});
+		$('.t_css_area').each(function() {
+			if ($(this).data('type') == editor)
+				$(this).show();
+			else
+				$(this).hide();
+		});
+		thesis_css.is_skin = editor == 'css' ? true : false;
+	},
 	editable: function(element) {
 		$(element).on('mouseover', function() {
 			var	w = $(this).parent().parent().width();
 			$(this).parent().append('<div class="t_ajax_alert" style="width: '+w+'px; left: -'+(w + 11)+'px;"><div class="t_message"><p>'+$(this).data('tooltip')+'</p></div></div>');
 		}).on('mouseout', function() { $(this).siblings('.t_ajax_alert').remove(); }).on('click', function() {
 			var item = {
-					type: $(this).data('type'),
-					id: $(this).data('id') };
+                type: $(this).data('type'),
+                id: $(this).data('id') };
 			if (item.type == 'pkg') {
 				item.class = $(this).data('class');
 				thesis_css.package.edit(item);
@@ -105,6 +137,58 @@ thesis_css = {
 			return false;
 		});
 	},
+	variable: {
+		get: function() {
+			return {
+				id: $('#t_var_id').val(),
+				name: $('#t_var_name').val(),
+				ref: $('#t_var_ref').val(),
+				css: $('#t_var_css').val(),
+				symbol: $('#t_var_symbol').val() };
+		},
+		edit: function(item) {
+			$.post(thesis_ajax.url, { action: 'edit_variable', item: item, nonce: $('#_wpnonce-thesis-save-css').val() }, function(html) {
+				$('#t_create_var').prop('disabled', false);
+				$('#t_css_popup').children('.t_popup_html').html(html);
+				thesis_ui.popup('#t_css_popup');
+				thesis_css.init_popup('var', '#t_css_popup');
+			});
+		},
+		save: function(item) {
+			$.post(thesis_ajax.url, { action: 'save_css_variable', item: item, nonce: $('#_wpnonce-thesis-save-css-variable').val() }, function(saved) {
+				var found = false;
+				$('#t_vars li').each(function() {
+					if ($(this).children('code').data('id') == item.id) {
+						found = true;
+						$(this).children('code').html(item.symbol+item.ref).data({ 'value': item.symbol+item.ref, 'tooltip': item.name+' &rarr; '+item.css }).attr('data-value', item.symbol+item.ref);
+					}
+				});
+				if (!found) {
+					$('#t_vars ul').append('<li><code class="t_edit_item css_draggable" data-type="var" data-id="'+item.id+'" data-value="'+item.symbol+item.ref+'" data-tooltip="'+item.name+' &rarr; '+item.css+'" title="click to edit">'+item.symbol+item.ref+'</code></li>\n');
+					thesis_css.editable($('#t_vars ul li:last').children('.t_edit_item'));
+				}
+				if (saved && $('#var_saved').length === 0) {
+					$('#t_vars').prepend(saved);
+					$('#var_saved').css({'right': $('#t_vars').width()+11+'px'});
+					$('#var_saved').fadeOut(3000, function() { $(this).remove(); });
+				}
+				thesis_css.live_css();
+			});
+		},
+		delete: function(item) {
+			$.post(thesis_ajax.url, { action: 'delete_css_variable', item: item, nonce: $('#_wpnonce-thesis-save-css-variable').val() }, function(deleted) {
+				if (deleted) {
+					$('#t_vars li').each(function() {
+						if ($(this).children('code').data('id') == item.id)
+							$(this).remove();
+					});
+					$('#t_vars').prepend(deleted);
+					$('#var_deleted').css({'right': $('#t_vars').width()+11+'px'});
+					$('#var_deleted').fadeOut(3000, function() { $(this).remove(); });
+				}
+			});
+		}
+	},
 	package: {
 		get: function() {
 			return {
@@ -145,7 +229,7 @@ thesis_css = {
 					$('#package_saved').css({'right': $('#t_packages').width()+11+'px'});
 					$('#package_saved').fadeOut(3000, function() { $(this).remove(); });
 				}
-				thesis_css.css();
+				thesis_css.live_css();
 			});
 		},
 		delete: function(pkg) {
@@ -162,67 +246,18 @@ thesis_css = {
 			});
 		}
 	},
-	variable: {
-		get: function() {
-			return {
-				id: $('#t_var_id').val(),
-				name: $('#t_var_name').val(),
-				ref: $('#t_var_ref').val(),
-				css: $('#t_var_css').val(),
-				symbol: $('#t_var_symbol').val() };
-		},
-		edit: function(item) {
-			$.post(thesis_ajax.url, { action: 'edit_variable', item: item, nonce: $('#_wpnonce-thesis-save-css').val() }, function(html) {
-				$('#t_create_var').prop('disabled', false);
-				$('#t_css_popup').children('.t_popup_html').html(html);
-				thesis_ui.popup('#t_css_popup');
-				thesis_css.init_popup('var', '#t_css_popup');
-			});
-		},
-		save: function(item) {
-			$.post(thesis_ajax.url, { action: 'save_css_variable', item: item, nonce: $('#_wpnonce-thesis-save-css-variable').val() }, function(saved) {
-				var found = false;
-				$('#t_vars li').each(function() {
-					if ($(this).children('code').data('id') == item.id) {
-						found = true;
-						$(this).children('code').html(item.symbol+item.ref).data({ 'value': item.symbol+item.ref, 'tooltip': item.name+' &rarr; '+item.css }).attr('data-value', item.symbol+item.ref);
-					}
-				});
-				if (!found) {
-					$('#t_vars ul').append('<li><code class="t_edit_item css_draggable" data-type="var" data-id="'+item.id+'" data-value="'+item.symbol+item.ref+'" data-tooltip="'+item.name+' &rarr; '+item.css+'" title="click to edit">'+item.symbol+item.ref+'</code></li>\n');
-					thesis_css.editable($('#t_vars ul li:last').children('.t_edit_item'));
-				}
-				if (saved && $('#var_saved').length === 0) {
-					$('#t_vars').prepend(saved);
-					$('#var_saved').css({'right': $('#t_vars').width()+11+'px'});
-					$('#var_saved').fadeOut(3000, function() { $(this).remove(); });
-				}
-				thesis_css.css();
-			});
-		},
-		delete: function(item) {
-			$.post(thesis_ajax.url, { action: 'delete_css_variable', item: item, nonce: $('#_wpnonce-thesis-save-css-variable').val() }, function(deleted) {
-				if (deleted) {
-					$('#t_vars li').each(function() {
-						if ($(this).children('code').data('id') == item.id)
-							$(this).remove();
-					});
-					$('#t_vars').prepend(deleted);
-					$('#var_deleted').css({'right': $('#t_vars').width()+11+'px'});
-					$('#var_deleted').fadeOut(3000, function() { $(this).remove(); });
-				}
-			});
-		}
-	},
-	css: function() {
-		$.post(thesis_ajax.url, { action: 'live_css', skin: thesis_css.codeMirror.getValue(), nonce: $('#_wpnonce-thesis-save-css').val() }, function(css) {
+	live_css: function() {
+		if (!thesis_css.is_skin) return;
+		$.post(thesis_ajax.url, { action: 'live_css', css: thesis_css.editors.css.getValue(), nonce: $('#_wpnonce-thesis-save-css').val() }, function(css) {
 			if (typeof thesis_editor.canvas == "object" && typeof thesis_editor.canvas.document.getElementById('t_live_css') == "object")
 				thesis_editor.canvas.document.getElementById('t_live_css').innerHTML = css;
 		});
 	},
 	save: function(external) {
+		var editors = {};
 		$('#t_save_css').prop('disabled', true);
-		$.post(thesis_ajax.url, { action: 'save_css', skin: thesis_css.codeMirror.getValue(), nonce: $('#_wpnonce-thesis-save-css').val() }, function(saved) {
+		$.each(thesis_css.editors, function(name, editor) { editors[name] = editor.getValue(); });
+		$.post(thesis_ajax.url, { action: 'save_css', editors: editors, nonce: $('#_wpnonce-thesis-save-css').val() }, function(saved) {
 			if (external == true) {
 				thesis_editor.login.css_saved = true;
 			}

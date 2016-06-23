@@ -6,30 +6,36 @@ License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_css {
-	private $css;			// (string) skin CSS
-	private $custom;		// (string) custom CSS
-	private $packages;		// (object) CSS package controller
-	private $vars;			// (object) CSS variable controller
+	private $css;				// (string) Skin CSS
+	private $css_editor;		// (string) Skin WP Editor CSS
+	private $css_custom;		// (string) custom CSS
+	private $preprocessor;		// (string) reference for CSS preprocessor (if specified)
+	private $packages;			// (object) CSS package controller
+	private $vars;				// (object) CSS variable controller
 
 	public function __construct($args) {
-		global $thesis;
+		global $thesis, $pagenow;
 		if (!is_array($args)) return;
 		if (!defined('THESIS_CSS'))
 			define('THESIS_CSS', THESIS_SKIN. '/css');
 		require_once(THESIS_CSS. '/packages.php');
 		require_once(THESIS_CSS. '/variables.php');
-		extract($args); // $css, $custom, $packages, $user_packages, $vars
+		extract($args); // $css, $css_editor, $css_custom, $packages, $user_packages, $vars, $preprocessor
 		$this->css = !empty($css) ? $css : '';
-		$this->custom = !empty($custom) ? $custom : '';
+		$this->css_editor = !empty($css_editor) ? $css_editor : '';
+		$this->css_custom = !empty($css_custom) ? $css_custom : '';
+		$this->preprocessor = isset($preprocessor) && !apply_filters('thesis_use_packages', false) ? $preprocessor : false;
 		$this->packages = new thesis_packages(!empty($packages) && is_array($packages) ? $packages : array(), !empty($user_packages) && is_array($user_packages) ? $user_packages : false);
 		$this->vars = new thesis_css_variables($vars);
-		$this->preprocessor = isset($preprocessor) ? $preprocessor : false;
+		add_filter('thesis_quicklaunch_menu_skin', array($this, 'menu'), 99);
+		if (!empty($this->css_editor) && file_exists(THESIS_USER_SKIN. '/css-editor.css'))
+			add_editor_style(THESIS_USER_SKIN_URL. '/css-editor.css?'. time()); #wp
 		if ($thesis->environment == 'thesis') {
-			add_filter('thesis_skin_menu', array($this, 'menu'), 11);
+			add_filter('thesis_skin_menu', array($this, 'menu'), 98);
 			if (!empty($_GET['canvas']) && $_GET['canvas'] === 'custom_css') {
 				add_action('admin_init', array($this, 'admin_init'));
+				add_action('admin_head', array($this, 'admin_js'));
 				add_action('thesis_admin_canvas', array($this, 'admin'));
-				add_action('admin_head', array($this, 'canvas'));
 			}
 		}
 		if ($thesis->environment == 'editor')
@@ -40,25 +46,42 @@ class thesis_css {
 			add_action('wp_ajax_live_css', array($this, 'live'));
 	}
 
+/*---:[ Custom CSS Editor ]:---*/
+
 	public function menu($menu) {
-		$add['custom_css'] = array(
+		$menu['custom_css'] = array(
 			'text' => __('Custom CSS', 'thesis'),
-			'url' => admin_url('admin.php?page=thesis&canvas=custom_css'));
-		return is_array($menu) ? array_merge($menu, $add) : $add;
+			'url' => 'admin.php?page=thesis&canvas=custom_css',
+			'description' => __('Easily add Custom CSS to your site', 'thesis'));
+		return $menu;
 	}
 
 	public function admin_init() {
 		global $thesis;
 		wp_enqueue_style('thesis-options');
-		wp_enqueue_style('custom-css', THESIS_CSS_URL . '/custom.css', array('thesis-options'), $thesis->version);
-		wp_enqueue_style('codemirror', THESIS_CSS_URL . '/codemirror.css', array('thesis-options'), $thesis->version);
-		wp_enqueue_script('custom-css', THESIS_JS_URL . '/custom.js', array('jquery'), $thesis->version, true);
-		wp_enqueue_script('codemirror', THESIS_JS_URL . '/codemirror.js', array(), $thesis->version, true);
+		wp_enqueue_style('custom-css', THESIS_CSS_URL. '/custom.css', array('thesis-options'), $thesis->version);
+		wp_enqueue_style('codemirror', THESIS_CSS_URL. '/codemirror.css', array('thesis-options'), $thesis->version);
+		wp_enqueue_script('custom-css', THESIS_JS_URL. '/custom.js', array('jquery'), $thesis->version, true);
+		wp_enqueue_script('codemirror', THESIS_JS_URL. '/codemirror.js', array(), $thesis->version, true);
+	}
+
+	public function admin_js() {
+		$url = set_url_scheme(home_url('?thesis_canvas=2'));
+		$name = wp_create_nonce('thesis-canvas-name');
+		$canvas = wp_create_nonce('thesis-canvas');
+		echo
+			"<script type=\"text/javascript\">\n",
+			"window.name = '$name';\n",
+			"var thesis_canvas = {\n",
+			"\turl: '", esc_url_raw($url), "',\n",
+			"\tname: '$canvas' };\n",
+			"var thesis_ajax = { url: '", str_replace('/', '\/', admin_url("admin-ajax.php")), "' };\n",
+			"</script>\n";
 	}
 
 	public function admin() {
 		global $thesis;
-		$css = strlen(rtrim(htmlspecialchars($this->custom, ENT_QUOTES))) < 1 ? "\r" : rtrim(htmlspecialchars($this->custom, ENT_QUOTES));
+		$css = strlen(rtrim(htmlspecialchars($this->css_custom, ENT_QUOTES))) < 1 ? "\r" : rtrim(htmlspecialchars(stripslashes($this->css_custom), ENT_QUOTES));
 		$preprocessor = in_array($this->preprocessor, array(false, 'thesis')) ? __('Thesis', 'thesis') : strtoupper($this->preprocessor);
 		echo
 			"\t\t<h3 title=\"", sprintf(__("Current Skin: %s\nCSS Preprocessor: %s", 'thesis'), esc_attr($thesis->skins->skin['name']), esc_attr($preprocessor)), "\">", sprintf(__('Custom %s', 'thesis'), $thesis->api->base['css']),
@@ -77,6 +100,8 @@ class thesis_css {
 			"\t\t\t<div id=\"t_flyout\" class=\"t_ajax_alert\"><div class=\"t_message\"><p></p></div></div>\n",
 			"\t\t</div>\n";
 	}
+
+/*---:[ Skin Editor CSS and Canvas ]:---*/
 
 	public function init_editor() {
 		add_action('thesis_editor_head', array($this, 'editor_head'));
@@ -103,11 +128,17 @@ class thesis_css {
 	public function editor() {
 		global $thesis;
 		return
-			"\t\t<h3>". sprintf(__('Skin %s', 'thesis'), $thesis->api->base['css']). "</h3>\n".
-			"\t\t<div id=\"t_css_area\" data-style=\"box\">\n".
-			"\t\t\t\t<textarea id=\"t_css_skin\" class=\"t_css_input css_droppable language-css\" data-style=\"box\" spellcheck=\"false\">".
+			"\t\t<h3><span class=\"t_css_tab t_tab_current\" data-type=\"css\">". sprintf(__('Skin %s', 'thesis'), $thesis->api->base['css']). "</span><span class=\"t_css_tab\" data-type=\"css_editor\">". sprintf(__('Editor %s', 'thesis'), $thesis->api->base['css']). "</span></h3>\n".
+			"\t\t<div class=\"t_css_area\" data-type=\"css\" data-style=\"box\">\n".
+			"\t\t\t\t<textarea id=\"t_css_css\" class=\"t_css_input code-html css_droppable language-css\" data-style=\"box\" spellcheck=\"false\">".
 			(strlen(rtrim(htmlspecialchars($this->css, ENT_QUOTES))) < 1 ?
 			"" : rtrim(htmlspecialchars(stripslashes($this->css), ENT_QUOTES))).
+			"</textarea>\n".
+			"\t\t</div>\n".
+			"\t\t<div class=\"t_css_area\" data-type=\"css_editor\" data-style=\"box\">\n".
+			"\t\t\t\t<textarea id=\"t_css_css_editor\" class=\"t_css_input code-html css_droppable language-css\" data-style=\"box\" spellcheck=\"false\">".
+			(strlen(rtrim(htmlspecialchars($this->css_editor, ENT_QUOTES))) < 1 ?
+			"" : rtrim(htmlspecialchars(stripslashes($this->css_editor), ENT_QUOTES))).
 			"</textarea>\n".
 			"\t\t</div>\n".
 			"\t\t<div id=\"t_css_items\" data-style=\"box\">\n".
@@ -118,6 +149,7 @@ class thesis_css {
 			(in_array($this->preprocessor, array(false, 'thesis')) ?
 			"\t\t\t<div id=\"t_packages\" class=\"t_items\" data-style=\"box\">\n".
 			"\t\t\t\t<h3>{$thesis->api->strings['packages']}</h3>\n".
+			"\t\t\t\t<div class=\"deprecated\">". __('<strong>Attention!</strong> Packages are deprecated. Although they will continue to work, we now recommend using only Variables in your CSS.', 'thesis'). "</div>\n".
 			$this->packages->items(4).
 			"\t\t\t</div>\n" : '').
 			"\t\t</div>\n".
@@ -139,61 +171,25 @@ class thesis_css {
 			$this->reset(),
 			"</style>\n",
 			"<style id=\"t_live_css\" type=\"text/css\">\n",
-			$this->update(stripslashes($this->css), ($_GET['thesis_canvas'] == '1' ? $this->custom : false), true),
+			$this->update($this->css, ($_GET['thesis_canvas'] == '1' ? $this->css_custom : false), true),
 			"\n</style>\n";
 	}
 
+	/*
+	Live CSS updates for the Canvas
+	*/
 	public function live() {
 		global $thesis;
 		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css');
-		$skin = !empty($_POST['skin']) ? $_POST['skin'] : '';
-		$custom = !empty($_POST['custom']) ? $_POST['custom'] : (!empty($skin) ? $this->custom : '');
-		echo $this->update(stripslashes($skin), stripslashes($custom), true);
+		$css = !empty($_POST['css']) ? $_POST['css'] : '';
+		$css_custom = !empty($_POST['custom']) ?
+			$_POST['custom'] : (!empty($css) ?
+			$this->css_custom : '');
+		echo $this->update($css, $css_custom, true);
 		if ($thesis->environment == 'ajax') die();
 	}
 
-	private function update($skin = false, $custom = false, $editor = false) {
-		global $thesis;
-		$skin = $skin ? stripslashes($skin) : '';
-		$custom = $custom ? stripslashes($custom) : '';
-		$css = apply_filters('thesis_css', $this->reset(). $skin, $this->reset(), $skin) . (!empty($custom) ? "\n$custom" : '');
-		if (empty($css)) return '';
-		$return = '';
-		$clearfix = array();
-		if (in_array($this->preprocessor, array(false, 'thesis')))
-			extract($this->packages->css($css));
-		$css = $this->vars->css($css);
-		if ($editor)
-			$css = preg_replace('/url\(\s*(\'|")(images|fonts)\/([\w-\.]+)(\'|")\s*\)/', 'url(${1}'. THESIS_USER_SKIN_URL .'/${2}/${3}${1})', $css);
-		$css = $css . (!empty($clearfix) ? $this->clearfix($clearfix) : '');
-		if ($this->preprocessor === 'less') {
-			require_once(THESIS_CSS . '/lessc.inc.php');
-			$less = new lessc;
-			try {
-				$css = $less->compile($css);
-			}
-			catch (Exception $e) {
-				print_r($e->getMessage());
-				die();
-			}
-		}
-		elseif (in_array($this->preprocessor, array('sass', 'scss'))) {
-			require_once(THESIS_CSS . '/sass/SassParser.php');
-			$options = array(
-				'style' => 'nested',
-				'cache' => false,
-				'syntax' => $this->preprocessor,
-				'debug' => false);
-			try {
-				$sass = new SassParser($options);
-				$css = $sass->toCss($css, false);
-			}
-			catch (Exception $e) {
-				return false;
-			}
-		}
-		return $css;
-	}
+/*---:[ CSS data handling ]:---*/
 
 	public function save_package($pkg) {
 		return !is_array($pkg) ? false : (is_array($packages = $this->packages->save($pkg)) ? $packages : false);
@@ -211,17 +207,84 @@ class thesis_css {
 		return !is_array($item) ? false : (is_array($save = $this->vars->delete($item)) ? $save : false);
 	}
 
-	public function write($skin, $custom) {
-		$css = strip_tags($this->update($skin, !empty($custom) ? "/*---:[ custom CSS ]:---*/\n". $custom : false));
+	public function update_vars($vars) {
+		return !is_array($vars) || !is_array($update = $this->vars->update($vars)) ? false : $update;
+	}
+
+	public function restore_vars($vars) {
+		return !is_array($vars) || !is_array($restore = $this->vars->restore($vars)) ? false : $restore;
+	}
+
+/*---:[ CSS output ]:---*/
+
+	public function write($css, $css_custom, $css_editor = false) {
+		$skin = $this->minify(strip_tags($this->update($css, !empty($css_custom) ? "/*---:[ custom CSS ]:---*/\n$css_custom" : false)));
 		if (is_multisite()) {
-			update_option('thesis_raw_css', $css);
+			update_option('thesis_raw_css', $skin);
 			wp_cache_flush();
 		}
 		else {
-			$lid = @fopen(THESIS_USER_SKIN . '/css.css', 'w');
-			@fwrite($lid, trim($css));
+			$lid = @fopen(THESIS_USER_SKIN. '/css.css', 'w');
+			@fwrite($lid, trim($skin));
 			@fclose($lid);
+			if ($editor = !empty($css_editor) ? $this->minify(strip_tags($this->update($css_editor))) : false) {
+	            $editor_lid = @fopen(THESIS_USER_SKIN. '/css-editor.css', 'w');
+				@fwrite($editor_lid, trim($editor));
+				@fclose($editor_lid);
+			}
 		}
+	}
+
+	private function update($core = false, $custom = false, $rewrite_urls = false, $reset = true) {
+		global $thesis;
+        $core = $core ? stripslashes($core) : '';
+		$custom = $custom ? stripslashes($custom) : '';
+		$css = apply_filters('thesis_css', ($reset ? $this->reset(). $core : $core), $this->reset(), $core). (!empty($custom) ? "\n$custom" : '');
+		if (empty($css)) return '';
+		$clearfix = array();
+		if (in_array($this->preprocessor, array(false, 'thesis')))
+			extract($this->packages->css($css));
+		$css = $this->vars->css($css);
+		if ($rewrite_urls)
+			$css = preg_replace('/url\(\s*(\'|")(\w+|-*)\/([\w-\.\?#=&]+)(\'|")\s*\)/', 'url(${1}'. THESIS_USER_SKIN_URL. '/${2}/${3}${1})', $css);
+		$css = $css. (!empty($clearfix) ? $this->clearfix($clearfix) : '');
+		if ($this->preprocessor === 'less') {
+			require_once(THESIS_CSS. '/lessc.inc.php');
+			$less = new lessc;
+			try {
+				$css = $less->compile($css);
+			}
+			catch (Exception $e) {
+				print_r($e->getMessage());
+				die();
+			}
+		}
+		elseif (in_array($this->preprocessor, array('sass', 'scss'))) {
+			require_once(THESIS_CSS. '/sass/SassParser.php');
+			$options = array(
+				'style' => 'nested',
+				'cache' => false,
+				'syntax' => $this->preprocessor,
+				'debug' => false);
+			try {
+				$sass = new SassParser($options);
+				$css = $sass->toCss($css, false);
+			}
+			catch (Exception $e) {
+				return false;
+			}
+		}
+		return $css;
+	}
+
+	public function minify($css = '') {
+		if (apply_filters('thesis_minify_css', false)) {
+			$css = preg_replace('#(?<!and)\s*(;|:|\{|\}|,|\+|>|\(|\)|~)\s*#', '$1', $css);
+			$css = str_replace(';}', '}', $css);
+			$css = preg_replace('#/\*.*?\*/#s', '', $css);
+			$css = trim(str_replace(array("\n", "\t", "\r"), '', $css));
+		}
+		return $css;
 	}
 
 	private function reset() {
@@ -231,6 +294,9 @@ class thesis_css {
 			"\tmargin: 0;\n".
 			"\tpadding: 0;\n".
 			"\tword-wrap: break-word;\n".
+			"}\n".
+			"html {\n".
+			"\t-webkit-text-size-adjust: 100%;\n".
 			"}\n".
 			"h1, h2, h3, h4, h5, h6 {\n".
 			"\tfont-weight: normal;\n".
@@ -286,6 +352,11 @@ class thesis_css {
 			"\tdisplay: block;\n".
 			"\tclear: both;\n".
 			"}\n".
+			"input[type=\"submit\"], button {\n".
+			"\tcursor: pointer;\n".
+			"\toverflow: visible;\n".
+			"\t-webkit-appearance: none;\n".
+			"}\n".
 			".wp-smiley {\n".
 			"\tdisplay: inline;\n".
 			"}\n");
@@ -296,28 +367,6 @@ class thesis_css {
 		$clear = array();
 		foreach ($clearfix as $selector)
 			$clear[] = "$selector:after";
-		return "\n" . implode(', ', $clear) . ' { content: "."; display: block; height: 0; clear: both; visibility: hidden; }';
-	}
-
-	public function update_vars($vars) {
-		return !is_array($vars) || !is_array($update = $this->vars->update($vars)) ? false : $update;
-	}
-
-	public function restore_vars($vars) {
-		return !is_array($vars) || !is_array($restore = $this->vars->restore($vars)) ? false : $restore;
-	}
-	
-	public function canvas() {
-		$url = set_url_scheme(home_url('?thesis_canvas=2'));
-		$name = wp_create_nonce('thesis-canvas-name');
-		$canvas = wp_create_nonce('thesis-canvas');
-		echo
-			"<script type=\"text/javascript\">\n",
-			"window.name = '$name';\n",
-			"var thesis_canvas = {\n",
-			"\turl: '", esc_url_raw($url), "',\n",
-			"\tname: '$canvas' };\n",
-			"var thesis_ajax = { url: '", str_replace('/', '\/', admin_url("admin-ajax.php")), "' };\n",
-			"</script>\n";
+		return "\n". implode(', ', $clear). " { display: table; clear: both; content: '';  }";
 	}
 }

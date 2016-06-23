@@ -20,7 +20,7 @@ thesis_templates = {
 		});
 	},
 	manager: function() {
-		$('.edit_templates').click(function() { $(this).toggleClass('active_manager'); $('#t_template_manager').slideToggle(50); });
+		$('#template').click(function() { $(this).toggleClass('active'); $('#t_template_manager').slideToggle(50); });
 		$('.toggle_child_templates').click(function() {
 			if ($(this).hasClass('toggled')) {
 				$(this).removeClass('toggled');

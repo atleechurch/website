@@ -54,25 +54,29 @@ function powerpress_admin_players($type='audio')
 {
 	$General = powerpress_get_settings('powerpress_general');
 	
-	$select_player = false;
+	$select_player = true;
+	if( isset($_REQUEST['ep']) )
+	{
+		$select_player = false;
+	}
+
 	if( isset($_GET['sp']) )
 	{
 		$select_player = true;
 	}
 	else if( $type == 'video' )
 	{
-		if( empty($General['video_player']) )
-		{
+		if( empty($General['video_player']) ) {
 			$select_player = true;
-		}
-		switch( $General['video_player'] )
-		{
-			case 'mediaelement-video':
-			case 'videojs-html5-video-player-for-wordpress':
-			case 'html5video': break;
-			default: {
-				$select_player = true;
-			};
+		} else {
+			switch( $General['video_player'] ) {
+				case 'mediaelement-video':
+				case 'videojs-html5-video-player-for-wordpress':
+				case 'html5video': break;
+				default: {
+					$select_player = true;
+				};
+			}
 		}
 	}
 	else
@@ -85,6 +89,7 @@ function powerpress_admin_players($type='audio')
 		{
 			switch( $General['player'] )
 			{
+				case 'blubrryaudio':
 				case 'mediaelement-audio':
 				case 'html5audio':
 				case 'audio-player': break;
@@ -110,6 +115,7 @@ function powerpress_admin_players($type='audio')
 	$Audio['audio-player'] = 'http://media.blubrry.com/blubrry/content.blubrry.com/blubrry/1_Pixel_Out_Flash_Player.mp3';
 	$Audio['html5audio'] = 'http://media.blubrry.com/blubrry/content.blubrry.com/blubrry/html5.mp3';
 	$Audio['mediaelement-audio'] = 'http://media.blubrry.com/blubrry/content.blubrry.com/blubrry/MediaElement_audio.mp3';
+	$Audio['blubrryaudio'] = ''; // Set hardcoded by ID
 		
 	
 	$Video = array();
@@ -244,7 +250,10 @@ table.html5formats tr > td:first-child {
 <?php
 		if( $type == 'video' ) // Video player
 		{
+			if( empty($General['video_player']) )
+				$General['video_player'] = '';
 ?>
+<input type="hidden" name="ep" value="1" />
 <table class="form-table">
 <tr valign="top">
 <th scope="row">&nbsp;</th>  
@@ -252,7 +261,7 @@ table.html5formats tr > td:first-child {
 	<ul>
 		<li><label><input type="radio" name="VideoPlayer[video_player]" id="player_mediaelement_video" value="mediaelement-video" <?php if( $General['video_player'] == 'mediaelement-video' ) echo 'checked'; ?> />
 		<?php echo __('MediaElement.js Media Player (default)', 'powerpress'); ?></label>
-			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_mediaelement_video" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url("admin.php?page=powerpress/powerpressadmin_videoplayer.php&amp;ep=1"); ?>" id="activate_mediaelement_video" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
 			<div style="max-width: 70%;">
@@ -266,7 +275,7 @@ table.html5formats tr > td:first-child {
 		</li>
 
 		<li><label><input type="radio" name="VideoPlayer[video_player]" id="player_html5video" value="html5video" <?php if( $General['video_player'] == 'html5video' ) echo 'checked'; ?> /> <?php echo __('HTML5 Video Player', 'powerpress'); ?>  </label>
-			<strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_html5video" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			<strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url("admin.php?page=powerpress/powerpressadmin_videoplayer.php&amp;ep=1"); ?>" id="activate_html5video" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
 			<p>
@@ -283,7 +292,7 @@ table.html5formats tr > td:first-child {
 		<li><label><input type="radio" name="VideoPlayer[video_player]" id="player_videojs_html5_video_player_for_wordpress" value="videojs-html5-video-player-for-wordpress" <?php if( $General['video_player'] == 'videojs-html5-video-player-for-wordpress' ) echo 'checked'; ?> <?php echo (function_exists('add_videojs_header')?'':'disabled');  ?> />
 		<?php echo __('VideoJS', 'powerpress'); ?></label> 
 		<?php if ( function_exists('add_videojs_header') ) { ?>
-			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_videojs_html5_video_player_for_wordpress" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url("admin.php?page=powerpress/powerpressadmin_videoplayer.php&amp;ep=1"); ?>" id="activate_videojs_html5_video_player_for_wordpress" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		<?php } ?>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
@@ -309,15 +318,22 @@ table.html5formats tr > td:first-child {
 		else // audio player
 		{
 ?>
+<input type="hidden" name="ep" value="1" />
 <table class="form-table">
 <tr valign="top">
 <th scope="row">&nbsp;</th>  
 <td>
 	<ul>
+		<li><label><input type="radio" name="Player[player]" id="player_blubrryaudio" value="blubrryaudio" <?php if( $General['player'] == 'blubrryaudio' ) echo 'checked'; ?> /> <?php echo __('Blubrry Audio Player', 'powerpress'); ?>  <?php echo powerpressadmin_new(); ?></label>
+			<strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_player.php&ep=1'); ?>" id="activate_blubrryaudio" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+		</li>
+		<li style="margin-left: 30px; margin-bottom:16px;">
+			<?php print_blubrry_player_demo(); ?>
+		</li>
 
 		<li><label><input type="radio" name="Player[player]" id="player_mediaelement_audio" value="mediaelement-audio" <?php if( $General['player'] == 'mediaelement-audio' ) echo 'checked'; ?> />
 		<?php echo __('MediaElement.js Media Player (default)', 'powerpress'); ?></label> 
-			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_mediaelement_audio" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			 <strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_player.php&ep=1'); ?>" id="activate_mediaelement_audio" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
 			<p>
@@ -326,11 +342,13 @@ table.html5formats tr > td:first-child {
 ?>
 			</p>
 			<?php powerpressplayer_mediaelement_info(); ?>
+			<div style="margin: 30px 0;">
+			<?php powerpresspartner_clammr_info(false); ?>
+			</div>
 		</li>
-	
 		
 		<li><label><input type="radio" name="Player[player]" id="player_html5audio" value="html5audio" <?php if( $General['player'] == 'html5audio' ) echo 'checked'; ?> /> <?php echo __('HTML5 Audio Player', 'powerpress'); ?>  </label>
-			<strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_html5audio" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			<strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_player.php&ep=1'); ?>" id="activate_html5audio" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
 			<p>
@@ -344,11 +362,11 @@ table.html5formats tr > td:first-child {
 		</li>
 				
 		<li><label><input type="radio" name="Player[player]" id="player_audio_player" value="audio-player" <?php if( $General['player'] == 'audio-player' ) echo 'checked'; ?> /> <?php echo __('1 Pixel Out Audio Player', 'powerpress'); ?></label>
-			<strong style="padding-top: 8px; margin-left: 20px;"><a href="#" id="activate_audio_player" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
+			<strong style="padding-top: 8px; margin-left: 20px;"><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_player.php&ep=1'); ?>" id="activate_audio_player" class="activate-player"><?php echo __('Activate and Configure Now', 'powerpress'); ?></a></strong>
 		</li>
 		<li>
 			<div class="updated fade powerpress-notice inline">
-			<?php echo __('NOTICE: Flash based players are no longer recommended. We highly recommend picking an HTM5 based player.', 'powerpress'); ?>
+			<?php echo __('NOTICE: The 1 pixel out Audio Player will be removed from PowerPress 7.1. We highly recommend picking an HTM5 based player.', 'powerpress'); ?>
 			</div>
 		</li>
 		<li style="margin-left: 30px; margin-bottom:16px;">
@@ -374,6 +392,7 @@ table.html5formats tr > td:first-child {
 	else
 	{
 ?>
+<input type="hidden" name="ep" value="1" />
 <h2><?php echo __('Configure Player', 'powerpress'); ?></h2>
 <?php if( $type == 'audio' ) { ?>
 <p style="margin-bottom: 20px;"><strong>&#8592;  <a href="<?php echo admin_url("admin.php?page=powerpress/powerpressadmin_player.php&amp;sp=1"); ?>"><?php echo __('Select a different audio player', 'powerpress'); ?></a></strong></p>
@@ -387,6 +406,9 @@ table.html5formats tr > td:first-child {
 	 // Start adding logic here to display options based on the player selected...
 	 if( $type == 'audio' )
 	 {
+		if( empty($General['player']) )
+			$General['player'] = '';
+
 		switch( $General['player'] )
 		{
 			case 'audio-player': {
@@ -436,8 +458,8 @@ function update_audio_player()
 	if( myWidth < 10 || myWidth > 900 )
 		myWidth = 290;
 	
-	var out = '<object type="application/x-shockwave-flash" data="<?php echo powerpress_get_root_url();?>/audio-player.swf" width="'+myWidth+'" height="24">'+"\n";
-	out += '    <param name="movie" value="<?php echo powerpress_get_root_url();?>/audio-player.swf" />'+"\n";
+	var out = '<object type="application/x-shockwave-flash" data="<?php echo powerpress_get_root_url();?>audio-player.swf" width="'+myWidth+'" height="24">'+"\n";
+	out += '    <param name="movie" value="<?php echo powerpress_get_root_url();?>audio-player.swf" />'+"\n";
 	out += '    <param name="FlashVars" value="playerID=1&amp;soundFile=<?php echo $Audio['audio-player']; ?>';
 	
 	var x = 0;
@@ -578,7 +600,7 @@ function audio_player_defaults()
 </script>
 	<input type="hidden" name="action" value="powerpress-audio-player" />
 	<div class="updated fade powerpress-notice inline">
-		<?php echo __('NOTICE: Flash based players are no longer recommended. We highly recommend picking an HTM5 based player.', 'powerpress'); ?>
+		<?php echo __('NOTICE: The 1 pixel out Audio Player will be removed from PowerPress 7.1. We highly recommend picking an HTM5 based player.', 'powerpress'); ?>
 	</div>
 	<?php echo __('Configure the 1 pixel out Audio Player', 'powerpress'); ?>
 	
@@ -928,7 +950,7 @@ function audio_player_defaults()
 	<?php echo __('Play Icon', 'powerpress'); ?></th>
 	<td>
 
-	<input type="text" id="audio_custom_play_button" name="General[audio_custom_play_button]" style="width: 60%;" value="<?php echo esc_attr($General['audio_custom_play_button']); ?>" maxlength="250" />
+	<input type="text" id="audio_custom_play_button" name="General[audio_custom_play_button]" style="width: 60%;" value="<?php echo esc_attr($General['audio_custom_play_button']); ?>" maxlength="255" />
 	<a href="#" onclick="javascript: window.open( document.getElementById('audio_custom_play_button').value ); return false;"><?php echo __('preview', 'powerpress'); ?></a>
 
 	<p><?php echo __('Place the URL to the play icon above.', 'powerpress'); ?> <?php echo __('Example', 'powerpress'); ?>: http://example.com/images/audio_play_icon.jpg<br /><br />
@@ -946,7 +968,26 @@ function audio_player_defaults()
 
 <?php
 			}; break;
-			
+
+		case 'blubrryaudio' : {
+
+?>
+<p><?php echo __('Configure Blubrry Audio Player', 'powerpress'); ?></p>
+<table class="form-table">
+	<tr valign="top">
+		<th scope="row">
+			<?php echo __('Preview of Player', 'powerpress'); ?>
+		</th>
+		<td>
+			<?php print_blubrry_player_demo(); ?>
+		</td>
+	</tr>
+
+</table>
+
+<?php
+
+		}; break;
 		case 'mediaelement-audio': {
 				$SupportUploads = powerpressadmin_support_uploads();
 				
@@ -976,6 +1017,7 @@ function audio_player_defaults()
 		<td valign="top">
 				<input type="text" style="width: 50px;" id="audio_player_max_width" name="General[audio_player_max_width]" class="player-width" value="<?php echo esc_attr($General['audio_player_max_width']); ?>" maxlength="4" />
 			<?php echo __('Width of Audio mp3 player (leave blank for max width)', 'powerpress'); ?>
+			<?php powerpresspartner_clammr_info(); ?>
 		</td>
 	</tr>
 	
@@ -1017,7 +1059,7 @@ function audio_player_defaults()
 	 }
 	 else if( $type == 'video' )
 	 {
-			$player_to_configure = $General['video_player'];
+			$player_to_configure = (!empty($General['video_player'])?$General['video_player']:'');
 			switch( $player_to_configure )
 			{
 				case 'html5':
@@ -1086,7 +1128,8 @@ function audio_player_defaults()
 					<?php
 				}; break;
 				case 'mejs': // $player_to_configure
-				case 'mediaelement-video': {
+				case 'mediaelement-video':
+				default: {
 					?>
 					<p><?php echo __('Configure MediaElement.js Player', 'powerpress'); ?></p>
 <table class="form-table">
@@ -1204,7 +1247,7 @@ function audio_player_defaults()
 <?php echo __('Default Poster Image', 'powerpress'); ?></th>
 <td>
 
-<input type="text" id="poster_image" name="General[poster_image]" style="width: 60%;" value="<?php echo esc_attr($General['poster_image']); ?>" maxlength="250" />
+<input type="text" id="poster_image" name="General[poster_image]" style="width: 60%;" value="<?php echo esc_attr($General['poster_image']); ?>" maxlength="255" />
 <a href="#" onclick="javascript: window.open( document.getElementById('poster_image').value ); return false;"><?php echo __('preview', 'powerpress'); ?></a>
 
 <p><?php echo __('Place the URL to the poster image above.', 'powerpress'); ?> <?php echo __('Example', 'powerpress'); ?>: http://example.com/images/poster.jpg<br /><br />
@@ -1238,7 +1281,7 @@ function audio_player_defaults()
 <?php echo __('Video Play Icon', 'powerpress'); ?></th>
 <td>
 
-<input type="text" id="video_custom_play_button" name="General[video_custom_play_button]" style="width: 60%;" value="<?php echo esc_attr($General['video_custom_play_button']); ?>" maxlength="250" />
+<input type="text" id="video_custom_play_button" name="General[video_custom_play_button]" style="width: 60%;" value="<?php echo esc_attr($General['video_custom_play_button']); ?>" maxlength="255" />
 <a href="#" onclick="javascript: window.open( document.getElementById('video_custom_play_button').value ); return false;"><?php echo __('preview', 'powerpress'); ?></a>
 
 <p><?php echo __('Place the URL to the play icon above.', 'powerpress'); ?> <?php echo __('Example', 'powerpress'); ?>: http://example.com/images/video_play_icon.jpg<br /><br />
@@ -1262,6 +1305,25 @@ function audio_player_defaults()
 
 <?php
 	}
+}
+
+function print_blubrry_player_demo()
+{
+?>
+		<p>
+			<?php echo __('Note: The Blubrry Audio Player is only available to Blubrry Hosting Customers.', 'powerpress'); ?>
+		</p>
+			<div style="border: 1px solid #000000; height: 138px; box-shadow: inset 0 0 10px black, 0 0 6px black; margin: 20px 0;">
+			<?php
+			echo powerpressplayer_build_blubrryaudio_by_id(12559710); // Special episdoe where we talk about the new player
+			?></div>
+			<p>
+				<?php echo __('Modern podcast audio player complete with subscribe and share tools.', 'powerpress'); ?>
+			</p>
+			<p style="margin-top: 10px;">
+				<?php echo __('Shownotes and Download options are not displayed initially.', 'powerpress'); ?>
+			</p>
+<?php
 }
 
 ?>

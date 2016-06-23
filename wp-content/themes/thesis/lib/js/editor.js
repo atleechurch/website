@@ -49,8 +49,14 @@ thesis_editor = {
 		$('#popup_login_notice .t_popup_close').on('click', function() {
 			thesis_editor.login.dismissed = true;
 		});
-		$('#t_login_expiration').on('click', function() {
-			thesis_editor.do_saves();
+		$('#t_login_expiration').on('click', function() { //TODO add saving notification
+			$('#t_login_expiration').prop('disabled', true);
+			thesis_templates.save(true);
+			thesis_css.save(true);
+			setInterval(function() {
+				thesis_editor.login_reload();
+			}, 2000);
+			return false;
 		});
 		setInterval(function() {
 			thesis_editor.check_login();
@@ -143,6 +149,12 @@ thesis_editor = {
 				window.location = thesis_login.url;
 			});
 		}
+	},
+	login_reload: function() {
+		if ((thesis_editor.login.css_saved && thesis_editor.login.templates_saved) == true) {
+			window.location = thesis_login.url;
+		}
+		return false;
 	}
 };
 $(document).ready(function($){ thesis_editor.init(); });

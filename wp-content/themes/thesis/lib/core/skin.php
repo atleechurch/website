@@ -6,57 +6,83 @@ License: DIYthemes Software License Agreement
 License URI: http://diythemes.com/thesis/rtfm/software-license-agreement/
 */
 class thesis_skin {
-	protected $_class; 					// (string) class name of the active Skin
-	protected $_skin;					// (array) basic Skin properties
-	private $_templates;				// (object) template controller
-	private $_user_packages;			// (object) packages added by the user
-	private $_name = false;				// (string) Thesis will auto-set this to your Skin name
-	private $_menu = false;				// (array) Thesis will auto-set this to an array if your Skin provides admin functionality
-	private $_instances = false;		// (array) Thesis will auto-set to an array if your Skin has Box instances that contain options
+	public $_class; 					// (string) class name of the active Skin
+	public $_name = false;				// (string) Thesis will auto-set this to your Skin name
+	public $_skin;						// (array) basic Skin properties
 	public $_boxes;						// (object) box controller
+	public $_templates;					// (object) template controller
+	public $_menu = false;				// (array) Thesis will auto-set this to an array if your Skin provides admin functionality
+	public $_instances = false;			// (array) Thesis will auto-set to an array if your Skin has Box instances that contain options
 	public $_template = array();		// (array) current template data
-	protected $_display = array();		// (array) raw Skin display options
-	protected $display = array();		// (array) merged Skin display options, including defaults
-	protected $_design = array();		// (array) raw Skin design options
-	protected $design = array();		// (array) merged Skin design options, including defaults
-	protected $header_image = array();	// (array) will hold all the header image related data
-	protected $filters = array();		// (array) functionality overrides
+	public $_display = array();			// (array) raw Skin display options
+	public $display = array();			// (array) merged Skin display options, including defaults
+	public $_design = array();			// (array) raw Skin design options
+	public $design = array();			// (array) merged Skin design options, including defaults
 	public $page_404 = false;			// (string) 404 page ID, if applicable
+	// Reserved properties for automatic API tools
+	public $color;						// (object) design color tools
+	public $css_tools;					// (object) tools for working with CSS and creating CSS-related design options
+	public $fonts;						// (object) controller to initialize the Thesis font list
+	public $typography;					// (object) design typography tools
+	// Reserved properties for Skin-defined add-ons
+	public $header_image;				// (object) for outputting the header image or (array) deprecated header image data
+	public $logo;						// (object) for outputting a user-selected logo image
+	// Skin-defined properties
+	public $functionality = array();	// (array) Skin-defined functionality overrides
+	// Deprecated properties
+	public $_user_packages;				// (object) packages added by the user
+	protected $filters = array();		// (array) Skin-defined functionality overrides (replaced by $functionality)
 
 	public function __construct($skin) {
 		global $thesis;
 		define('THESIS_SKIN', THESIS_CORE. '/skin');
+		define('THESIS_SKIN_API', THESIS_SKIN. '/api');
 		require_once(THESIS_SKIN. '/boxes.php');
 		require_once(THESIS_SKIN. '/skin_boxes.php');
 		require_once(THESIS_SKIN. '/templates.php');
 		require_once(THESIS_SKIN. '/user_boxes.php');
 		require_once(THESIS_SKIN. '/user_packages.php');
 		$this->_class = get_class($this);
+		$this->_name = !empty($skin['name']) ? $skin['name'] : false;
 		$this->_skin = $skin;
+		// Convert deprecated (and confusing) $filters to $functionality
+		if (!empty($this->filters) && empty($this->functionality))
+			$this->functionality = $this->filters;
+		$this->display = $thesis->api->get_options($this->_display(),
+			is_array($this->_display = get_option("{$this->_class}__display")) ?
+				$this->_display : $this->display);
 		$this->_actions();
 		$this->_filters();
 		$this->_boxes = new thesis_skin_boxes($thesis->api->get_option("{$this->_class}_boxes"));
 		$this->_templates = new thesis_templates($thesis->api->get_option("{$this->_class}_templates"));
 		$this->_user_packages = new thesis_user_packages;
-		$this->_name = !empty($skin['name']) ? $skin['name'] : false;
-		$this->display = $thesis->api->get_options($this->_display(), is_array($this->_display = get_option("{$this->_class}__display")) ? $this->_display : $this->display);
-		$this->header_image = $thesis->api->get_option("{$this->_class}__header_image");
 		$this->construct();
 	}
 
 	protected function construct() {
-		// Secondary constructor for skins
+		// Skin API method: Secondary constructor intended for use in each Skin's skin.php file
 	}
+
+/*---:[ Initialize core Skin functionality through actions and filters ]:---*/
 
 	private function _actions() {
 		global $thesis;
+		// Skin API method to hide Boxes whose display options are turned off
+		if (method_exists($this, 'display_elements'))
+			$this->_hide_elements($this->display_elements(), $this->display);
+		add_action('widgets_init', array($this, '_legacy_image_support'));
+		if (method_exists($this, 'header_image') && empty($this->functionality['header_image']))
+			$this->header_image = $thesis->api->get_option("{$this->_class}__header_image"); // Deprecated
+		add_action('init', array($this, '_api'));
 		if (method_exists($this, 'boxes'))
 			add_action('thesis_boxes', array($this, '_add_boxes'));
 		add_filter('template_include', array($this, '_skin'));
 		if ((!$thesis->environment && !is_admin()) || $thesis->environment == 'canvas') {
 			add_action('parse_query', array($this, '_query'));
-			if (!$thesis->environment)
+			if (!$thesis->environment) {
 				add_action('hook_after_html', array($this, '_editor_launcher'), 2);
+				add_action('hook_after_html', array($this, '_editor_launcher_css'));
+			}
 		}
 		if (empty($thesis->environment)) return;
 		add_action('init', array($this, '_css'), 13);
@@ -82,8 +108,8 @@ class thesis_skin {
 	private function _filters() {
 		global $thesis;
 		add_filter('thesis_html_body_class', array($this, '_body_class'));
-		if (method_exists($this, 'meta_viewport'))
-			add_filter('thesis_meta_viewport', array($this, 'meta_viewport'));
+		if (!empty($this->functionality['meta_viewport']))
+			add_filter('thesis_meta_viewport', array($this, '_meta_viewport'));
 		if (method_exists($this, 'filter_css') && in_array($thesis->environment, array('canvas', 'admin', 'ajax')))
 			add_filter('thesis_css', array($this, 'filter_css'));
 		if (method_exists($this, 'font_script'))
@@ -97,16 +123,45 @@ class thesis_skin {
 			add_filter('thesis_fonts', array($this, '_add_fonts'));
 	}
 
+/*---:[ Skin component initializations ]:---*/
+
+	public function _api() {
+		global $thesis;
+		// Base design tools
+		require_once(THESIS_SKIN_API. '/color.php');
+		require_once(THESIS_SKIN_API. '/css_tools.php');
+		require_once(THESIS_SKIN_API. '/fonts.php');
+		require_once(THESIS_SKIN_API. '/typography.php');
+		$this->color = new thesis_skin_color;
+		$this->css_tools = new thesis_skin_css_tools;
+		$this->fonts = new thesis_skin_fonts;
+		$this->typography = new thesis_skin_typography;
+		// Add-on functionality
+		if (!empty($this->functionality['fonts_google']) && $this->functionality['fonts_google'] === true) {
+			require_once(THESIS_SKIN_API. '/fonts_google.php');
+			new thesis_skin_fonts_google($thesis->api->get_option("{$this->_class}__design"));
+		}
+		if (!empty($this->functionality['header_image']) && $this->functionality['header_image'] === true) {
+			require_once(THESIS_SKIN_API. '/header_image.php');
+			$this->header_image = new thesis_skin_header_image;
+		}
+		if (!empty($this->functionality['logo']) && $this->functionality['logo'] === true) {
+			require_once(THESIS_SKIN_API. '/logo.php');
+			$this->logo = new thesis_skin_logo;
+		}
+	}
+
 	public function _css() {
 		global $thesis;
 		require_once(THESIS_SKIN. '/css.php');
 		$css = array();
-		$css['css'] = ($skin = $thesis->api->get_option("{$this->_class}_css")) ? $skin : '';
-		$css['custom'] = ($custom = $thesis->api->get_option("{$this->_class}_css_custom")) ? stripslashes($custom) : '';
+		$css['css'] = ($css_skin = $thesis->api->get_option("{$this->_class}_css")) ? $css_skin : '';
+		$css['css_editor'] = ($css_editor = $thesis->api->get_option("{$this->_class}_css_editor")) ? $css_editor : '';
+		$css['css_custom'] = ($css_custom = $thesis->api->get_option("{$this->_class}_css_custom")) ? $css_custom : '';
+		$css['vars'] = is_array($vars = $thesis->api->get_option("{$this->_class}_vars")) ? $vars : array();
+		$css['preprocessor'] = !empty($this->functionality['css_preprocessor']) ? $this->functionality['css_preprocessor'] : false;
 		$css['packages'] = is_array($packages = $thesis->api->get_option("{$this->_class}_packages")) ? $packages : array();
 		$css['user_packages'] = is_array($this->_user_packages->active) ? $this->_user_packages->active : array();
-		$css['vars'] = is_array($vars = $thesis->api->get_option("{$this->_class}_vars")) ? $vars : array();
-		$css['preprocessor'] = !empty($this->filters['css_preprocessor']) ? $this->filters['css_preprocessor'] : false;
 		if (method_exists($this, 'packages')) {
 			add_action('thesis_include_packages', array($this, '_include_packages'));
 			add_filter('thesis_packages', array($this, '_add_packages'));
@@ -126,30 +181,34 @@ class thesis_skin {
 			wp_redirect(set_url_scheme(home_url('?thesis_editor=1')));
 			exit;
 		}
-		require_once(THESIS_SKIN . '/images.php');
+		require_once(THESIS_SKIN. '/images.php');
 		$this->_images = new thesis_images;
 		new thesis_upload(array(
 			'title' => sprintf(__('Import %s Data', 'thesis'), $thesis->skins->skin['name']),
 			'prefix' => 'import_skin',
 			'file_type' => 'txt'));
-		add_action('thesis_quicklaunch_menu', array($this, '_quicklaunch'));
+		add_filter('thesis_quicklaunch_menu', array($this, '_quicklaunch'));
 		add_action('admin_post_thesis_head', array($this, '_save_head'));
 		if (method_exists($this, 'display'))
 			add_action("admin_post_{$this->_class}__display", array($this, '_save_display'));
 		if (method_exists($this, 'design'))
 			add_action("admin_post_{$this->_class}__design", array($this, '_save_design'));
-		if (method_exists($this, 'header_image'))
+		if (!empty($this->functionality['editor_grt']) && $this->functionality['editor_grt'] === true)
+			add_filter('tiny_mce_before_init', array($this, '_mce_grt'));
+		// Deprecated header image functionality
+		if (method_exists($this, 'header_image') && empty($this->functionality['header_image']))
 			add_action("admin_post_{$this->_class}__header_image", array($this, '_save_header_image'));
 	}
 
 	public function _init_admin() {
 		add_filter('thesis_skin_menu', array($this, '_add_menu'));
-		add_action('thesis_skin_menu', array($this, '_editor_menu_link'), 100);
-		add_action('thesis_current_skin', array($this, '_current'));
+		add_action('thesis_skin_menu', array($this, '_editor_menu_link'), 99);
+		add_action('thesis_admin_home', array($this, '_admin_home'));
 		if (!empty($this->_instances) || method_exists($this, 'display'))
 			$this->_menu["{$this->_class}__content"] = array(
 				'text' => __('Content', 'thesis'),
-				'url' => admin_url("admin.php?page=thesis&canvas={$this->_class}__content"));
+				'url' => admin_url("admin.php?page=thesis&canvas={$this->_class}__content"),
+				'description' => __('Manage what displays in your Skin and edit selected Skin content', 'thesis'));
 		if (!empty($_GET['canvas'])) {
 			if ($_GET['canvas'] == "{$this->_class}__content") {
 				add_action('admin_init', array($this, '_init_content_admin'));
@@ -160,23 +219,25 @@ class thesis_skin {
 				add_action('thesis_admin_canvas', array($this, '_head_editor'));
 			}
 		}
-		if (method_exists($this, 'design') || method_exists($this, 'design_admin') || !empty($this->filters['design_admin'])) {
+		if (method_exists($this, 'design') || method_exists($this, 'design_admin') || !empty($this->functionality['design_admin'])) {
 			$this->_menu["{$this->_class}__design"] = array(
 				'text' => __('Design', 'thesis'),
-				'url' => !empty($this->filters['design_url']) ?
-					esc_url($this->filters['design_url']) :
-					admin_url("admin.php?page=thesis&canvas={$this->_class}__design"));
-			if (empty($this->filters['design_url'])) {
+				'url' => !empty($this->functionality['design_url']) ?
+					esc_url($this->functionality['design_url']) :
+					admin_url("admin.php?page=thesis&canvas={$this->_class}__design"),
+				'description' => __('Change certain aspects of your Skin&#8217;s design, like fonts and colors', 'thesis'));
+			if (empty($this->functionality['design_url'])) {
 				if (!empty($_GET['canvas']) && $_GET['canvas'] == "{$this->_class}__design") {
-					add_action('thesis_admin_canvas', array($this, !empty($this->filters['design_admin']) && method_exists($this, $this->filters['design_admin']) ?
-						$this->filters['design_admin'] : (method_exists($this, 'design_admin') ?
+					add_action('thesis_admin_canvas', array($this, !empty($this->functionality['design_admin']) && method_exists($this, $this->functionality['design_admin']) ?
+						$this->functionality['design_admin'] : (method_exists($this, 'design_admin') ?
 						'design_admin' :
 						'_design_admin')));
 					add_action('admin_init', array($this, '_init_design_admin'));
 				}
 			}
 		}
-		if (method_exists($this, 'header_image')) {
+		// Deprecated header image functionality
+		if (method_exists($this, 'header_image') && empty($this->functionality['header_image'])) {
 			$this->_menu["{$this->_class}__header_image"] = array(
 				'text' => __('Header Image', 'thesis'),
 				'url' => admin_url("admin.php?page=thesis&canvas={$this->_class}__header_image"));
@@ -187,8 +248,15 @@ class thesis_skin {
 		}
 	}
 
+	/*
+	Populate the WordPress Dashboard quicklaunch menu with Skin-specific items.
+	TODO: See if this method can leverage $this->_menu to avoid repetitive code
+	*/
 	public function _quicklaunch($menu) {
-		global $thesis;
+		/*
+		TODO: Unsetting the Content page link on this basis seems faulty; a Skin could
+		conceivably have only Display Options and no Box instanes with options.
+		*/
 		if (is_array($instances = apply_filters('thesis_skin_instances', array())) && !empty($instances))
 			$this->_instances = $instances;
 		else
@@ -197,39 +265,42 @@ class thesis_skin {
 			$quicklaunch['content'] = array(
 				'text' => __('Skin Content', 'thesis'),
 				'url' => "admin.php?page=thesis&canvas={$this->_class}__content");
-		if (method_exists($this, 'design') || method_exists($this, 'design_admin') || (!empty($this->filters['design_admin']) && method_exists($this->filters['design_admin'])))
+		if (method_exists($this, 'design') || method_exists($this, 'design_admin') || (!empty($this->functionality['design_admin']) && method_exists($this->functionality['design_admin'])))
 			$quicklaunch['design'] = array(
 				'text' => __('Skin Design', 'thesis'),
 				'url' => "admin.php?page=thesis&canvas={$this->_class}__design");
-		if (method_exists($this, 'header_image'))
+		// Deprecated header image functionality
+		if (method_exists($this, 'header_image') && empty($this->functionality['header_image']))
 			$quicklaunch['header_image'] = array(
 				'text' => __('Header Image', 'thesis'),
 				'url' => "admin.php?page=thesis&canvas={$this->_class}__header_image");
-		$quicklaunch['custom_css'] = array(
-			'text' => sprintf(__('Custom %s', 'thesis'), $thesis->api->base['css']),
-			'url' => "admin.php?page=thesis&canvas=custom_css");
+		$quicklaunch = apply_filters('thesis_quicklaunch_menu_skin', $quicklaunch);
 		$quicklaunch['editor'] = array(
 			'text' => __('Skin Editor', 'thesis'),
 			'url' =>  'admin.php?t_quicklaunch_editor=1');
+		$quicklaunch['break_skin'] = array(
+			'text' => '––––––––––––',
+			'url' => '#');
 		return !empty($quicklaunch) ? (is_array($menu) ? array_merge($menu, $quicklaunch) : $quicklaunch) : $menu;
 	}
 
-	public function _current() {
+	/*
+	Current Skin controls that appear on the Thesis Home screen
+	*/
+	public function _admin_home() {
 		global $thesis;
+		$items = '';
+		foreach (apply_filters('thesis_skin_menu', array()) as $item)
+			if ($item['url'] !== '#')
+				$items .= "\t\t\t\t<li><strong><a href=\"{$item['url']}\">{$item['text']}</a></strong>". (!empty($item['description']) ? ": {$item['description']}" : ''). "</li>\n";
+		if (empty($items)) return;
 		echo
-			"\t\t<div id=\"current_skin\">\n",
-			"\t\t\t<h4>", sprintf(__('%s Skin', 'thesis'), wptexturize($this->_name)), "</h4>\n",
+			"\t\t\t<h3>", sprintf(__('%s Skin', 'thesis'), wptexturize($this->_name)), "</h3>\n",
 			(!empty($thesis->skins->preview) ?
-			"\t\t\t<p>". __('You are previewing this Skin in Development Mode. To change this, visit the <strong>Manage Skins</strong> link below.', 'thesis'). "</p>\n" : ''),
+			"\t\t\t<p>". sprintf(__('<strong>Note:</strong> You are previewing this Skin in Development Mode. To change this, visit the <a href="%s"><strong>Manage Skins</strong></a> page.', 'thesis'), admin_url('admin.php?page=thesis&canvas=select_skin')). "</p>\n" : ''),
 			"\t\t\t<ul>\n",
-			(!empty($this->_instances) ?
-			"\t\t\t\t<li><a href=\"". admin_url("admin.php?page=thesis&canvas={$this->_class}__content"). "\">". __('Content', 'thesis'). "</a></li>\n" : ''),
-			(method_exists($this, 'design') ?
-			"\t\t\t\t<li><a href=\"". admin_url("admin.php?page=thesis&canvas={$this->_class}__design"). "\">". __('Design', 'thesis'). "</a></li>\n" : ''),
-			"\t\t\t\t<li><a href=\"", admin_url('admin.php?page=thesis&canvas=custom_css'), "\">", sprintf(__('Custom %s', 'thesis'), $thesis->api->base['css']), "</a></li>\n",
-			"\t\t\t\t<li><a href=\"", admin_url('admin.php?page=thesis&canvas=select_skin'), "\">", __('Manage Skins', 'thesis'), "</a></li>\n",
-			"\t\t\t</ul>\n",
-			"\t\t</div>\n";
+			$items,
+			"\t\t\t</ul>\n";
 	}
 
 	public function _add_menu($menu) {
@@ -237,14 +308,14 @@ class thesis_skin {
 	}
 
 	public function _add_boxes($boxes) {
-		if (file_exists(THESIS_USER_SKIN . '/box.php'))
-			include_once(THESIS_USER_SKIN . '/box.php');
+		if (file_exists(THESIS_USER_SKIN. '/box.php'))
+			include_once(THESIS_USER_SKIN. '/box.php');
 		return is_array($add_boxes = $this->boxes()) ? (is_array($boxes) ? array_merge($boxes, $add_boxes) : $add_boxes) : $boxes;
 	}
 
 	public function _include_packages() {
-		if (file_exists(THESIS_USER_SKIN . '/package.php'))
-			include_once(THESIS_USER_SKIN . '/package.php');
+		if (file_exists(THESIS_USER_SKIN. '/package.php'))
+			include_once(THESIS_USER_SKIN. '/package.php');
 	}
 
 	public function _add_packages($packages) {
@@ -255,7 +326,74 @@ class thesis_skin {
 		return is_array($add_fonts = $this->fonts()) ? (is_array($fonts) ? array_merge($fonts, $add_fonts) : $add_fonts) : $fonts;
 	}
 
-	/*---:[ Skin admin page initializations ]:---*/
+	/*
+	Operational method to hide Skin elements based on their display filter names.
+	Functionality also includes support for ID'd elements with parent/child dependencies.
+	The 'display' index reference is for backward-compatibility only.
+	- $elements: multi-dimensional array of elements
+	- $display: Skin display options
+	*/
+	public function _hide_elements($elements, $display) {
+		if (!is_array($elements)) return;
+		foreach ($elements as $element => $items)
+			if (is_array($items))
+				foreach ($items as $item => $filter)
+					if (empty($display[$element][$item]) && empty($display[$element]['display'][$item])) {
+						if (!is_array($filter))
+							$this->_hide_element($filter);
+						elseif (!empty($filter['id'])) {
+							$this->_hide_element($filter['id']);
+							if (!empty($filter['dependents']) && is_array($filter['dependents']))
+								foreach ($filter['dependents'] as $dep)
+									$this->_hide_element($dep);
+						}
+					}
+					elseif (is_array($filter) && !empty($filter['id']) && !empty($filter['parent']) && is_array($filter['parent']))
+						foreach ($filter['parent'] as $p => $p_item)
+							if (empty($display[$p][$p_item]))
+								$this->_hide_element($filter['id']);
+
+	}
+
+	/*
+	Recursive method to hide elements based on display filter names
+	- $filter: display filter name
+	*/
+	public function _hide_element($filter) {
+		if (empty($filter)) return;
+		if (is_array($filter))
+			foreach ($filter as $f)
+				$this->_hide_element($f);
+		else
+			add_filter("{$filter}_show", '__return_false');
+	}
+
+	/*
+	Filter method to add 'grt' class to the TinyMCE editor
+	*/
+	public function _mce_grt($mce) {
+		$mce['body_class'] .= ' grt';
+		return $mce;
+	}
+
+	public function _legacy_image_support() {
+		if (isset($this->functionality['legacy_image_support']) && !apply_filters('thesis_legacy_image_support', $this->functionality['legacy_image_support']))
+			foreach (array('thesis_post_box', 'thesis_query_box') as $box)
+				add_filter("{$box}_dependents", array($this, '_remove_image_support'));
+	}
+
+	public function _remove_image_support($boxes) {
+		foreach (array('thesis_post_image', 'thesis_post_thumbnail') as $box)
+			if (($key = array_search($box, $boxes)) !== false)
+				unset($boxes[$key]);
+		return $boxes;
+	}
+
+	public function _meta_viewport() {
+		return $this->functionality['meta_viewport'];
+	}
+
+/*---:[ Skin Content page (with Display options) ]:---*/
 
 	public function _init_content_admin() {
 		global $thesis;
@@ -324,6 +462,8 @@ class thesis_skin {
 		exit;
 	}
 
+/*---:[ Skin Design page ]:---*/
+
 	public function _init_design_admin() {
 		global $thesis;
 		wp_enqueue_style('thesis-options');
@@ -376,63 +516,14 @@ class thesis_skin {
 		exit;
 	}
 
-	public function _init_header_image() {
-		wp_enqueue_style('thesis-options');
-		wp_enqueue_media();
-		wp_enqueue_script('custom-header');
-	}
-
-	public function _header_image() {
-		global $thesis;
-		$width = is_numeric($w = $this->header_image()) ? strip_tags($w) : false;
-		$save_url = esc_url(add_query_arg(array('action' => "{$this->_class}__header_image", '_wpnonce' => wp_create_nonce('thesis-header-image')), admin_url("admin-post.php")));
-		$delete_url = esc_url(add_query_arg(array('action' => "{$this->_class}__header_image", '_wpnonce' => wp_create_nonce('thesis-header-image'), 'delete' => 'true'), admin_url("admin-post.php")));
-		$data_attributes = "data-style=\"save button\" data-update-link=\"$save_url\" data-choose=\"". __('Select a Header Image', 'thesis'). "\" data-update=\"". __('Set Header Image', 'thesis'). "\"";
-		echo
-			$width == false ?
-			"\t\t<p>". __('You must declare a width for your header image before this functionality can be enabled.', 'thesis'). "</p>\n" :
-			"\t\t<h3>". sprintf(__('%s Skin Header Image', 'thesis'), $this->_name). "</h3>\n".
-			"\t\t<p class=\"option_item\">". sprintf(__('Based on your current design settings, we recommend a header image that is <strong>%dpx wide</strong>.', 'thesis'), $width). "</p>\n".
-			"\t\t<div class=\"option_item\" id=\"t_header_image_container\">\n".
-			(!empty($this->header_image) ?
-			"\t\t\t<img src=\"". esc_url($this->header_image['src']). "\" height=\"". (int) $this->header_image['height']. "\" width=\"". (int) $this->header_image['width']. "\"/>\n".
-			"\t\t\t<p style=\"font-size: 14px; color: #888;\">". sprintf(__('Current image is %1$dpx wide by %2$dpx tall.', 'thesis'), (int) $this->header_image['width'], (int) $this->header_image['height']). "</p>\n" : '').
-			"\t\t</div>\n".
-			"\t\t<p>\n".
-			"\t\t<button id=\"choose-from-library-link\" $data_attributes>". __('Select Header Image', 'thesis'). "</button>\n".
-			(!empty($this->header_image) ?
-			"\t\t<a id=\"t_delete_header_image\" data-style=\"button delete\" style=\"margin-left: 1em;\" href=\"$delete_url\">". __('Remove Header Image', 'thesis'). "</a>\n" : '').
-			"\t\t</p>\n";
-	}
-
-	public function _save_header_image() {
-		global $thesis;
-		$thesis->wp->check('edit_theme_options');
-		$thesis->wp->nonce($_GET['_wpnonce'], 'thesis-header-image');
-		if (!empty($_GET['delete']) && $_GET['delete'] === 'true') {
-			delete_option("{$this->_class}__header_image");
-			$this->header_image = array();
-		}
-		else {
-			$id = (int) $_GET['file'];
-			$image = wp_get_attachment_metadata($id);
-			update_option("{$this->_class}__header_image", $this->header_image = array(
-				'src' => esc_url_raw(wp_get_attachment_url($id)),
-				'height' => (int) $image['height'],
-				'width' => (int) $image['width'],
-				'id' => $id));
-		}
-		wp_cache_flush();
-		$this->_write_css();
-		wp_redirect(admin_url("admin.php?page=thesis&canvas={$this->_class}__header_image"));
-		exit;
-	}
+/*---:[ Thesis Skin Editor ]:---*/
 
 	public function _editor_menu_link($menu) {
 		$skin['editor'] = array(
 			'text' => __('Editor', 'thesis'),
 			'url' => set_url_scheme(home_url('?thesis_editor=1')),
-			'icon' => '&#59190;');
+			'icon' => '&#59190;',
+			'description' => __('(Advanced) edit your Skin&#8217;s templates and base CSS, and manage Skin data', 'thesis'));
 		return is_array($menu) ? array_merge($menu, $skin) : $skin;
 	}
 
@@ -486,7 +577,7 @@ class thesis_skin {
 		$parsed = parse_url((!empty($_SERVER['HTTP_REFERER']) && strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower(admin_url())) !== 0 && !strpos(strtolower($_SERVER['HTTP_REFERER']), 'wp-login') ? $_SERVER['HTTP_REFERER'] : home_url('', $real_scheme)));
 		extract($parsed);
 		$query = isset($query) ? str_ireplace('thesis_editor=1', '', $query) : '';
-		$url = $real_scheme . '://' . trailingslashit($host) . (!empty($path) && $path != '/' ? trailingslashit($path) : '' ) . '?' . (! empty($query) ? rtrim($query, '&') . '&' : '') . 'thesis_canvas=1&thesis_canvas_nonce=' . wp_create_nonce('thesis-canvas-url') . (!empty($fragment) ? "#$fragment" : '');
+		$url = $real_scheme. '://'. trailingslashit($host). (!empty($path) && $path != '/' ? trailingslashit($path) : '' ). '?'. (! empty($query) ? rtrim($query, '&'). '&' : ''). 'thesis_canvas=1&thesis_canvas_nonce='. wp_create_nonce('thesis-canvas-url'). (!empty($fragment) ? "#$fragment" : '');
 		$name = wp_create_nonce('thesis-canvas-name');
 		$canvas = wp_create_nonce('thesis-canvas');
 		$cookie = explode('|', $_COOKIE[LOGGED_IN_COOKIE]);
@@ -537,26 +628,6 @@ class thesis_skin {
 			"</script>\n";
 	}
 
-	public function _editor_launcher() {
-		global $thesis;
-		if (!current_user_can('edit_theme_options') || $thesis->wp_customize === true) return;
-		$scheme = defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN === true ? 'https' : 'http';
-		echo
-			"<style type=\"text/css\">\n",
-			"#thesis_launcher { position: fixed; bottom: 0; left: 0; font: bold 16px/1em \"Helvetica Neue\", Helvetica, Arial, sans-serif; padding: 12px; text-align: center; color: #fff; background: rgba(0,0,0,0.5); text-shadow: 0 1px 1px rgba(0,0,0,0.75); }\n",
-			"#thesis_launcher input { font-size: 16px; margin-top: 6px; }\n",
-			"</style>\n",
-			"<div id=\"thesis_launcher\">\n",
-			"\t<form method=\"post\" action=\"", home_url('?thesis_editor=1', $scheme), "\">\n",
-			"\t\t<p>", $thesis->api->esch(ucfirst($this->_template['title'])), "</p>\n",
-			"\t\t<p>\n",
-			"\t\t\t<input type=\"hidden\" name=\"thesis_template\" value=\"{$this->_template['id']}\" />\n",
-			"\t\t\t<input type=\"submit\" name=\"thesis_editor\" value=\"", esc_attr($thesis->api->strings['click_to_edit']), "\" />\n",
-			"\t\t</p>\n",
-			"\t</form>\n",
-			"</div>\n";
-	}
-
 	private function _editor() {
 		global $thesis;
 		$li = '';
@@ -565,13 +636,13 @@ class thesis_skin {
 				'text' => __('HTML', 'thesis'),
 				'title' => __('Edit HTML Templates', 'thesis')),
 			'css' => array(
-				'text' => 'CSS',
+				'text' => __('CSS', 'thesis'),
 				'title' => __('Edit CSS', 'thesis')),
 			'images' => array(
 				'text' => __('Images', 'thesis'),
 				'title' => __('Edit Images', 'thesis')),
 			'manager' => array(
-				'text' => __('Manager', 'thesis'),
+				'text' => __('Data Manager', 'thesis'),
 				'title' => __('Backup and restore your Skin data', 'thesis')));
 		foreach ($menu as $pane => $m)
 			$li .= "\t<li><button class=\"t_menu t_pane_switch\" data-pane=\"$pane\" title=\"{$m['title']}\">{$m['text']}</button></li>\n";
@@ -579,7 +650,7 @@ class thesis_skin {
 			"<ul id=\"t_menu\">\n".
 			$li.
 			"\t<li><button class=\"t_menu action\" id=\"t_launch_canvas\"><span data-style=\"icon\">&#59212;</span> ". __('Canvas', 'thesis'). "</button></li>\n".
-			"\t<li class=\"t_logo t_right\"><a href=\"". esc_url(admin_url('admin.php?page=thesis')). "\" title=\"" . __('return to the Thesis admin page', 'thesis'). "\">Thesis</a></li>\n".
+			"\t<li class=\"t_logo t_right\"><a href=\"". esc_url(admin_url('admin.php?page=thesis')). "\" title=\"". __('return to the Thesis admin page', 'thesis'). "\">Thesis</a></li>\n".
 			"\t<li class=\"t_right\"><a class=\"t_menu t_menu_link\" href=\"". esc_url(home_url()). '"><span data-style="icon">&#59392;</span> '. __('View Site', 'thesis'). "</a></li>\n".
 			"</ul>\n";
 		echo
@@ -609,7 +680,7 @@ class thesis_skin {
 				'id' => 'login_notice',
 				'title' => __('Login Expiration Notice', 'thesis'),
 				'depth' => 1,
-				'body' =>	$this->_login_form())),
+				'body' => $this->_login_form())),
 			"</div>\n";
 		do_action('thesis_editor_scripts');
 		echo
@@ -631,15 +702,22 @@ class thesis_skin {
 			'form' => $form);
 	}
 
+	public function _login_form() {
+		return
+			'<p>'. __('Your WordPress login expires in <span id="t_countdown"></span> seconds. Please click the button below to save your Skin. You will then be redirected to the WordPress login page.', 'thesis'). "</p>\n".
+			'<p><button id="t_login_expiration" data-style="button save">'. __('Save Skin &amp; Login', 'thesis'). "</button></p>\n";
+	}
+
+/*---:[ Thesis HTML Head Editor (separate from the Skin Editor; appears in the Thesis Admin) ]:---*/
+
 	public function _admin_init_head_editor() {
 		global $thesis;
 		wp_enqueue_style('thesis-options'); #wp
-		wp_enqueue_style('thesis-popup'); #wp
 		wp_enqueue_style('thesis-box-form'); #wp
 		wp_enqueue_script('jquery-ui-droppable'); #wp
 		wp_enqueue_script('jquery-ui-sortable'); #wp
 		wp_enqueue_script('thesis-options');
-		wp_enqueue_script('thesis-ui', THESIS_JS_URL . '/ui.js', array('thesis-menu', 'thesis-options'), $thesis->version, true); #wp
+		wp_enqueue_script('thesis-ui', THESIS_JS_URL. '/ui.js', array('thesis-menu', 'thesis-options'), $thesis->version, true); #wp
 		add_action('admin_head', array($this, '_admin_head_js'));
 	}
 
@@ -662,6 +740,8 @@ class thesis_skin {
 	public function _head_editor() {
 		echo $this->_templates->head($this->_boxes->get_box_form_data($this->_templates->head, true));
 	}
+
+/*---:[ ajax interface actions ]:---*/
 
 	public function _init_ajax() {
 		add_action('wp_ajax_add_box', array($this, '_add_box'));
@@ -798,24 +878,56 @@ class thesis_skin {
 	}
 
 	public function _write_css() {
-		global $thesis;
 		$css = ($skin = get_option("{$this->_class}_css")) ? $skin : '';
-		$custom = ($custom = get_option("{$this->_class}_css_custom")) ? $custom : '';
+		$css_custom = ($custom = get_option("{$this->_class}_css_custom")) ? $custom : '';
+		$css_editor = ($editor = get_option("{$this->_class}_css_editor")) ? $editor : '';
 		if (property_exists($this, '_css'))
-			$this->_css->write($css, $custom);
+			$this->_css->write($css, $css_custom, $css_editor);
 	}
 
 	public function _save_css() {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
 		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css');
-		if (isset($_POST['skin']))
-			update_option("{$this->_class}_css", trim(strip_tags($_POST['skin'])));
-		if (isset($_POST['custom']))
+		if (isset($_POST['editors']) && is_array($_POST['editors']))
+			foreach ($_POST['editors'] as $editor => $css)
+				update_option("{$this->_class}_$editor", trim(strip_tags($css)));
+		elseif (isset($_POST['custom']))
 			update_option("{$this->_class}_css_custom", trim(strip_tags($_POST['custom'])));
 		wp_cache_flush();
 		$this->_write_css();
 		echo $thesis->api->alert(__('CSS saved!', 'thesis'), 'css_saved', true);
+		if ($thesis->environment == 'ajax') die();
+	}
+
+	public function _save_css_variable() {
+		global $thesis;
+		$thesis->wp->check('edit_theme_options');
+		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css-variable');
+		if (is_array($save = $this->_css->save_variable($_POST['item']))) {
+			update_option("{$this->_class}_vars", $save);
+			wp_cache_flush();
+			echo $thesis->api->alert(__('Variable saved!', 'thesis'), 'var_saved', true);
+		}
+		else
+			echo $thesis->api->alert(__('Variable not saved.', 'thesis'), 'var_saved', true);
+		if ($thesis->environment == 'ajax') die();
+	}
+
+	public function _delete_css_variable() {
+		global $thesis;
+		$thesis->wp->check('edit_theme_options');
+		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css-variable');
+		if (is_array($save = $this->_css->delete_variable($_POST['item']))) {
+			if (empty($save))
+				delete_option("{$this->_class}_vars");
+			else
+				update_option("{$this->_class}_vars", $save);
+			wp_cache_flush();
+			echo $thesis->api->alert(__('Variable deleted!', 'thesis'), 'var_deleted', true);
+		}
+		else
+			echo $thesis->api->alert(__('Variable not deleted.', 'thesis'), 'var_deleted', true);
 		if ($thesis->environment == 'ajax') die();
 	}
 
@@ -852,37 +964,6 @@ class thesis_skin {
 		if ($thesis->environment == 'ajax') die();
 	}
 
-	public function _save_css_variable() {
-		global $thesis;
-		$thesis->wp->check('edit_theme_options');
-		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css-variable');
-		if (is_array($save = $this->_css->save_variable($_POST['item']))) {
-			update_option("{$this->_class}_vars", $save);
-			wp_cache_flush();
-			echo $thesis->api->alert(__('Variable saved!', 'thesis'), 'var_saved', true);
-		}
-		else
-			echo $thesis->api->alert(__('Variable not saved.', 'thesis'), 'var_saved', true);
-		if ($thesis->environment == 'ajax') die();
-	}
-
-	public function _delete_css_variable() {
-		global $thesis;
-		$thesis->wp->check('edit_theme_options');
-		$thesis->wp->nonce($_POST['nonce'], 'thesis-save-css-variable');
-		if (is_array($save = $this->_css->delete_variable($_POST['item']))) {
-			if (empty($save))
-				delete_option("{$this->_class}_vars");
-			else
-				update_option("{$this->_class}_vars", $save);
-			wp_cache_flush();
-			echo $thesis->api->alert(__('Variable deleted!', 'thesis'), 'var_deleted', true);
-		}
-		else
-			echo $thesis->api->alert(__('Variable not deleted.', 'thesis'), 'var_deleted', true);
-		if ($thesis->environment == 'ajax') die();
-	}
-
 	public function _color_complement() {
 		global $thesis;
 		$thesis->wp->check('edit_theme_options');
@@ -890,13 +971,7 @@ class thesis_skin {
 		if ($thesis->environment == 'ajax') die();
 	}
 
-	public function _login_form() {
-		return
-			'<p>'. __('Your WordPress login expires in <span id="t_countdown"></span> seconds. Please click the button below to save your skin. You will then be redirected to the WordPress login page.', 'thesis'). "</p>\n".
-			'<p><button id="t_login_expiration" data-style="button save">'. __('Save Skin &amp; Login', 'thesis'). "</button></p>\n";
-	}
-
-	/*---:[ Front-end Skin output ]:---*/
+/*---:[ Front-end Skin output ]:---*/
 
 	public function _skin() {
 		global $thesis;
@@ -908,7 +983,7 @@ class thesis_skin {
 	}
 
 	public function _query($query) {
-		global $thesis;
+		global $thesis, $wp_version;
 		if (!$query->is_main_query()) return $query;
 		$page = $custom = false;
 		if ($query->is_page && ($page = !empty($query->queried_object_id) ? $query->queried_object_id : (!empty($query->query_vars['page_id']) ? $query->query_vars['page_id'] : false)) && !empty($page)) {
@@ -920,10 +995,8 @@ class thesis_skin {
 			$custom = is_array($post_meta = get_post_meta($page, "_{$this->_class}", true)) ? (!empty($post_meta['template']) ? $post_meta['template'] : false) : false;
 		}
 		elseif ($query->is_category || $query->is_tax || $query->is_tag) {
-			if ($query->is_category || $query->is_tax) {
-				$query->get_queried_object();
-			}
-			elseif ($query->is_tag) {
+			$query->get_queried_object();
+			if ($query->is_tag && version_compare($wp_version, '3.8.2', '<') && version_compare($wp_version, '3.8', '>=')) {
 				$query->queried_object = get_term_by('slug', $query->query_vars['tag'], 'post_tag');
 				$query->queried_object_id = $query->queried_object->term_id;
 			}
@@ -981,14 +1054,45 @@ class thesis_skin {
 	}
 
 	public function _body_class($classes) {
+		global $wp_query;
 		$add = $this->_template['id'];
 		if (in_array($this->_template['id'], array_keys($this->_templates->custom_select())))
 			$add = 'custom';
 		$classes[] = "template-$add";
+		if (isset($wp_query->queried_object) && is_object($wp_query->queried_object) && !empty($wp_query->queried_object->taxonomy))
+			$classes[] = "template-". esc_attr($wp_query->queried_object->slug);
 		return $classes;
 	}
 
-	/*---:[ automatic Skin options for WP integration ]:---*/
+	public function _editor_launcher() {
+		global $thesis;
+		if (!current_user_can('edit_theme_options') || $thesis->wp_customize === true) return;
+		$scheme = defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN === true ? 'https' : 'http';
+		echo
+			"<div id=\"thesis_launcher\">\n",
+			"\t<form method=\"post\" action=\"", home_url('?thesis_editor=1', $scheme), "\">\n",
+			"\t\t<p>", $thesis->api->esch(ucfirst($this->_template['title'])), "</p>\n",
+			"\t\t<p>\n",
+			"\t\t\t<input type=\"hidden\" name=\"thesis_template\" value=\"{$this->_template['id']}\" />\n",
+			"\t\t\t<input type=\"submit\" name=\"thesis_editor\" value=\"", esc_attr($thesis->api->strings['click_to_edit']), "\" />\n",
+			"\t\t</p>\n",
+			"\t</form>\n",
+			"</div>\n";
+	}
+
+	public function _editor_launcher_css() {
+		global $thesis;
+		if (!current_user_can('edit_theme_options') || $thesis->wp_customize === true) return;
+		$position = !empty($this->functionality['launcher_position']) && $this->functionality['launcher_position'] == 'right' ?
+			'right' : 'left';
+		echo
+			"<style type=\"text/css\">\n",
+			"#thesis_launcher { position: fixed; bottom: 0; $position: 0; font: bold 16px/1em \"Helvetica Neue\", Helvetica, Arial, sans-serif; padding: 12px; text-align: center; color: #fff; background: rgba(0,0,0,0.5); text-shadow: 0 1px 1px rgba(0,0,0,0.75); }\n",
+			"#thesis_launcher input { font-size: 16px; margin-top: 6px; -webkit-appearance: none; }\n",
+			"</style>\n";
+	}
+
+/*---:[ 301 redirect post meta and custom template options for posts, pages, and archive pages ]:---*/
 
 	public function _post_meta($post_meta) {
 		global $thesis;
@@ -1025,7 +1129,7 @@ class thesis_skin {
 		return is_array($term_options) ? array_merge($term_options, $options) : $options;
 	}
 
-	/*---:[ Skin API valet methods ]:---*/
+/*---:[ Skin API valet methods ]:---*/
 
 	public function color_scheme($scheme) {
 		global $thesis;
@@ -1042,10 +1146,63 @@ class thesis_skin {
 			'output' => $thesis->api->colors->scheme($scheme, $values, $this->_class));
 	}
 
+/*---:[ Deprecated Skin API methods ]:---*/
+
+	public function _init_header_image() {
+		wp_enqueue_style('thesis-options');
+		wp_enqueue_media();
+		wp_enqueue_script('custom-header');
+	}
+
+	public function _header_image() {
+		$width = is_numeric($w = $this->header_image()) ? strip_tags($w) : false;
+		$save_url = esc_url(add_query_arg(array('action' => "{$this->_class}__header_image", '_wpnonce' => wp_create_nonce('thesis-header-image')), admin_url("admin-post.php")));
+		$delete_url = esc_url(add_query_arg(array('action' => "{$this->_class}__header_image", '_wpnonce' => wp_create_nonce('thesis-header-image'), 'delete' => 'true'), admin_url("admin-post.php")));
+		$data_attributes = "data-style=\"save button\" data-update-link=\"$save_url\" data-choose=\"". __('Select a Header Image', 'thesis'). "\" data-update=\"". __('Set Header Image', 'thesis'). "\"";
+		echo
+			$width == false ?
+			"\t\t<p>". __('You must declare a width for your header image before this functionality can be enabled.', 'thesis'). "</p>\n" :
+			"\t\t<h3>". sprintf(__('%s Skin Header Image', 'thesis'), $this->_name). "</h3>\n".
+			"\t\t<p class=\"option_item\">". sprintf(__('Based on your current design settings, we recommend a header image that is <strong>%dpx wide</strong>.', 'thesis'), $width). "</p>\n".
+			"\t\t<div class=\"option_item\" id=\"t_header_image_container\">\n".
+			(!empty($this->header_image) ?
+			"\t\t\t<img src=\"". esc_url($this->header_image['src']). "\" height=\"". (int) $this->header_image['height']. "\" width=\"". (int) $this->header_image['width']. "\"/>\n".
+			"\t\t\t<p style=\"font-size: 14px; color: #888;\">". sprintf(__('Current image is %1$dpx wide by %2$dpx tall.', 'thesis'), (int) $this->header_image['width'], (int) $this->header_image['height']). "</p>\n" : '').
+			"\t\t</div>\n".
+			"\t\t<p>\n".
+			"\t\t<button id=\"choose-from-library-link\" $data_attributes>". __('Select Header Image', 'thesis'). "</button>\n".
+			(!empty($this->header_image) ?
+			"\t\t<a id=\"t_delete_header_image\" data-style=\"button delete inline\" href=\"$delete_url\">". __('Remove Header Image', 'thesis'). "</a>\n" : '').
+			"\t\t</p>\n";
+	}
+
+	public function _save_header_image() {
+		global $thesis;
+		$thesis->wp->check('edit_theme_options');
+		$thesis->wp->nonce($_GET['_wpnonce'], 'thesis-header-image');
+		if (!empty($_GET['delete']) && $_GET['delete'] === 'true') {
+			delete_option("{$this->_class}__header_image");
+			$this->header_image = array();
+		}
+		else {
+			$id = (int) $_GET['file'];
+			$image = wp_get_attachment_metadata($id);
+			update_option("{$this->_class}__header_image", $this->header_image = array(
+				'src' => esc_url_raw(wp_get_attachment_url($id)),
+				'height' => (int) $image['height'],
+				'width' => (int) $image['width'],
+				'id' => $id));
+		}
+		wp_cache_flush();
+		$this->_write_css();
+		wp_redirect(admin_url("admin.php?page=thesis&canvas={$this->_class}__header_image"));
+		exit;
+	}
+
 	public function header_image_html() {
 		global $thesis;
-		if (empty($this->header_image)) return;
-		echo "<a href=\"", esc_url(home_url()), "\"><img id=\"thesis_header_image\" src=\"", esc_url($this->header_image['src']), "\" alt=\"", trim($thesis->api->escht((!empty($thesis->api->options['blogname']) ?
+		if (empty($this->header_image) || !empty($this->functionality['header_image'])) return;
+		echo "<a id=\"thesis_header_image_link\" href=\"", esc_url(home_url()), "\"><img id=\"thesis_header_image\" src=\"", esc_url($this->header_image['src']), "\" alt=\"", trim($thesis->api->escht((!empty($thesis->api->options['blogname']) ?
 			htmlspecialchars_decode($thesis->api->options['blogname'], ENT_QUOTES). ' ' : ''). __('header image', 'thesis'))), "\" width=\"{$this->header_image['width']}\" height=\"{$this->header_image['height']}\" title=\"", __('click to return home', 'thesis'), "\" /></a>\n";
 	}
 }
