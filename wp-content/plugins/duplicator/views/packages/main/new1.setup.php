@@ -37,7 +37,7 @@ $dbbuild_mode = (DUP_Settings::Get('package_mysqldump') && DUP_Database::GetMySq
     div.dup-sys-section {margin:1px 0px 5px 0px}
     div.dup-sys-title {display:inline-block; width:250px; padding:1px; }
     div.dup-sys-title div {display:inline-block;float:right; }
-    div.dup-sys-info {display:none; max-width: 98%; margin:4px 4px 12px 4px}
+    div.dup-sys-info {display:none; max-width: 98%; margin:4px 4px 12px 4px}	
     div.dup-sys-pass {display:inline-block; color:green;}
     div.dup-sys-fail {display:inline-block; color:#AF0000;}
     div.dup-sys-contact {padding:5px 0px 0px 10px; font-size:11px; font-style:italic}
@@ -58,20 +58,20 @@ TOOL BAR: STEPS -->
                 </div>
                 <div id="dup-wiz-title">
 					<?php _e('Step 1: Package Setup', 'duplicator'); ?>
-                </div>
-            </div>
+                </div> 
+            </div>	
         </td>
         <td class="dup-toolbar-btns">
             <a id="dup-pro-create-new"  href="?page=duplicator" class="add-new-h2"><i class="fa fa-archive"></i> <?php _e("All Packages", 'duplicator'); ?></a> &nbsp;
             <span> <?php _e("Create New", 'duplicator'); ?></span>
         </td>
     </tr>
-</table>
+</table>	
 <hr style="margin-bottom:8px">
 
 <?php if (!empty($action_response)) : ?>
     <div id="message" class="updated below-h2"><p><?php echo $action_response; ?></p></div>
-<?php endif; ?>
+<?php endif; ?>	
 
 <!-- ============================
 SYSTEM REQUIREMENTS -->
@@ -105,15 +105,15 @@ SYSTEM REQUIREMENTS -->
                     <tr>
                         <td><?php _e('Zip Archive Enabled', 'duplicator'); ?></td>
                         <td><?php echo $dup_tests['PHP']['ZIP'] ?></td>
-                    </tr>
+                    </tr>					
                     <tr>
                         <td><?php _e('Safe Mode Off', 'duplicator'); ?></td>
                         <td><?php echo $dup_tests['PHP']['SAFE_MODE'] ?></td>
-                    </tr>
+                    </tr>					
                     <tr>
                         <td><?php _e('Function', 'duplicator'); ?> <a href="http://php.net/manual/en/function.file-get-contents.php" target="_blank">file_get_contents</a></td>
                         <td><?php echo $dup_tests['PHP']['FUNC_1'] ?></td>
-                    </tr>
+                    </tr>					
                     <tr>
                         <td><?php _e('Function', 'duplicator'); ?> <a href="http://php.net/manual/en/function.file-put-contents.php" target="_blank">file_put_contents</a></td>
                         <td><?php echo $dup_tests['PHP']['FUNC_2'] ?></td>
@@ -121,13 +121,13 @@ SYSTEM REQUIREMENTS -->
                     <tr>
                         <td><?php _e('Function', 'duplicator'); ?> <a href="http://php.net/manual/en/mbstring.installation.php" target="_blank">mb_strlen</a></td>
                         <td><?php echo $dup_tests['PHP']['FUNC_3'] ?></td>
-                    </tr>
+                    </tr>					
                 </table>
                 <small>
 					<?php _e("PHP versions 5.2.9+ or higher is required.  For compression to work the ZipArchive extension for PHP is required. Safe Mode should be set to 'Off' in you php.ini file and is deprecated as of PHP 5.3.0.  For any issues in this section please contact your hosting provider or server administrator.  For additional information see our online documentation.", 'duplicator'); ?>
                 </small>
             </div>
-        </div>
+        </div>		
 
         <!-- PERMISSIONS -->
         <div class='dup-sys-req'>
@@ -141,13 +141,13 @@ SYSTEM REQUIREMENTS -->
                     printf("<b>%s</b> &nbsp; [%s] <br/>", $dup_tests['IO']['WPROOT'], DUPLICATOR_WPROOTPATH);
                     printf("<b>%s</b> &nbsp; [%s] <br/>", $dup_tests['IO']['SSDIR'], DUPLICATOR_SSDIR_PATH);
                     printf("<b>%s</b> &nbsp; [%s] <br/>", $dup_tests['IO']['SSTMP'], DUPLICATOR_SSDIR_PATH_TMP);
-                    //printf("<b>%s:</b> [%s] <br/>", __('PHP Script Owner', 'duplicator'), DUP_Util::GetCurrentUser());
-                    //printf("<b>%s:</b> [%s] <br/>", __('PHP Process Owner', 'duplicator'), DUP_Util::GetProcessOwner());
+                    //printf("<b>%s:</b> [%s] <br/>", __('PHP Script Owner', 'duplicator'), DUP_Util::GetCurrentUser());	
+                    //printf("<b>%s:</b> [%s] <br/>", __('PHP Process Owner', 'duplicator'), DUP_Util::GetProcessOwner());	
                     ?>
                 </div>
                 <small>
 					<?php _e("Permissions can be difficult to resolve on some systems. If the plugin can not read the above paths here are a few things to try. 1) Set the above paths to have permissions of 755 for directories and 644 for files. You can temporarily try 777 however, be sure you don’t leave them this way. 2) Check the owner/group settings for both files and directories. The PHP script owner and the process owner are different. The script owner owns the PHP script but the process owner is the user the script is running as, thus determining its capabilities/privileges in the file system. For more details contact your host or server administrator or visit the 'Help' menu under Duplicator for additional online resources.", 'duplicator'); ?>
-                </small>
+                </small>					
             </div>
         </div>
 
@@ -172,7 +172,7 @@ SYSTEM REQUIREMENTS -->
                     <?php
                     _e("MySQL version 5.0+ or better is required and the PHP MySQLi extension (note the trailing 'i') is also required.  Contact your server administrator and request that mysqli extension and MySQL Server 5.0+ be installed. Please note in future versions support for other databases and extensions will be added.", 'duplicator');
                     echo "&nbsp;<i><a href='http://php.net/manual/en/mysqli.installation.php' target='_blank'>[" . __('more info', 'duplicator') . "]</a></i>";
-                    ?>
+                    ?>										
                 </small>
             </div>
         </div>
@@ -184,13 +184,13 @@ SYSTEM REQUIREMENTS -->
             </div>
             <div class="dup-sys-info dup-info-box">
                 <?php if ($dup_tests['RES']['INSTALL'] == 'Pass') : ?>
-                        <?php
+                        <?php 
 							_e("None of the reserved files where found from a previous install.  This means you are clear to create a new package.", 'duplicator');
 							echo "  [{$dup_intaller_files}]";
 						?>
-                    <?php else:
+                    <?php else: 
                         $duplicator_nonce = wp_create_nonce('duplicator_cleanup_page');
-                    ?>
+                    ?> 
                     <form method="post" action="admin.php?page=duplicator-tools&tab=cleanup&action=installer&_wpnonce=<?php echo $duplicator_nonce; ?>">
                     <?php _e("A reserved file(s) was found in the WordPress root directory. Reserved file names are [{$dup_intaller_files}].  To archive your data correctly please remove any of these files from your WordPress root directory.  Then try creating your package again.", 'duplicator'); ?>
                         <br/><input type='submit' class='button action' value='<?php _e('Remove Files Now', 'duplicator') ?>' style='font-size:10px; margin-top:5px;' />
@@ -217,7 +217,7 @@ FORM PACKAGE OPTIONS -->
 </div>
 
 <script type="text/javascript">
-jQuery(document).ready(function ($)
+jQuery(document).ready(function ($) 
 {
 	//Init: Toogle for system requirment detial links
 	$('.dup-sys-title a').each(function () {

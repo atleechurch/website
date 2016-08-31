@@ -26,7 +26,7 @@ global $EM_Event, $post, $allowedposttags, $EM_Ticket, $col_count;
 	}else{
 		?>
 		<h4><?php esc_html_e('Tickets','events-manager'); ?></h4>
-		<p><em><?php esc_html_e('You can have single or multiple tickets, where certain tickets become available under certain conditions, e.g. early bookings, group discounts, maximum bookings per ticket, etc.', 'events-manager'); ?> <?php esc_html_e('Basic HTML is allowed in ticket labels and descriptions.','events-manager'); ?></em></p>
+		<p><em><?php esc_html_e('You can have single or multiple tickets, where certain tickets become available under certain conditions, e.g. early bookings, group discounts, maximum bookings per ticket, etc.', 'events-manager'); ?> <?php esc_html_e('Basic HTML is allowed in ticket labels and descriptions.','events-manager'); ?></em></p>					
 		<table class="form-table">
 			<thead>
 				<tr valign="top">
@@ -61,11 +61,11 @@ global $EM_Event, $post, $allowedposttags, $EM_Ticket, $col_count;
 								<span class="ticket_name"><?php if($EM_Ticket->ticket_members) echo '* ';?><?php echo wp_kses_data($EM_Ticket->ticket_name); ?></span>
 								<div class="ticket_description"><?php echo wp_kses($EM_Ticket->ticket_description,$allowedposttags); ?></div>
 								<div class="ticket-actions">
-									<a href="#" class="ticket-actions-edit"><?php esc_html_e('Edit','events-manager'); ?></a>
+									<a href="#" class="ticket-actions-edit"><?php esc_html_e('Edit','events-manager'); ?></a> 
 									<?php if( count($EM_Ticket->get_bookings()->bookings) == 0 ): ?>
 									| <a href="<?php bloginfo('wpurl'); ?>/wp-load.php" class="ticket-actions-delete"><?php esc_html_e('Delete','events-manager'); ?></a>
 									<?php else: ?>
-									| <a href="<?php echo EM_ADMIN_URL; ?>&amp;page=events-manager-bookings&ticket_id=<?php echo $EM_Ticket->ticket_id ?>"><?php esc_html_e('View Bookings','events-manager'); ?></a>
+									| <a href="<?php echo esc_url(add_query_arg('ticket_id', $EM_Ticket->ticket_id, $EM_Event->get_bookings_url())); ?>"><?php esc_html_e('View Bookings','events-manager'); ?></a>
 									<?php endif; ?>
 								</div>
 							</td>

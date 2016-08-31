@@ -87,9 +87,6 @@ if (file_exists('dtoken.php')) {
 /* ==============================================================================================
 ADVANCED FEATURES - Allows admins to perform aditional logic on the import.
 
-$GLOBALS['TABLES_SKIP_COLS']
-	Add Known column names of tables you don't want the search and replace logic to run on.
-
 $GLOBALS['REPLACE_LIST']
 	Add additional search and replace items to step 2 for the serialize engine.  
 	Place directly below $GLOBALS['REPLACE_LIST'] variable below your items
@@ -134,7 +131,7 @@ $GLOBALS['DB_MAX_PACKETS'] = 268435456;
 ini_set('mysql.connect_timeout', '5000');
 
 //PHP SETUP: all time in seconds
-ini_set('memory_limit', '5000M');
+ini_set('memory_limit', '2048M');
 ini_set("max_execution_time", '5000');
 ini_set("max_input_time", '5000');
 ini_set('default_socket_timeout', '5000');
@@ -144,7 +141,6 @@ $GLOBALS['DBCHARSET_DEFAULT'] = 'utf8';
 $GLOBALS['DBCOLLATE_DEFAULT'] = 'utf8_general_ci';
 
 //UPDATE TABLE SETTINGS
-$GLOBALS['TABLES_SKIP_COLS'] = array('');
 $GLOBALS['REPLACE_LIST'] = array();
 
 
@@ -195,7 +191,9 @@ if ($_POST['action_step'] == 1) {
 
 @@CLASS.UTILS.PHP@@
 
-@@CLASS.CONFIG.PHP@@
+@@CLASS.CONF.WP.PHP@@
+
+@@CLASS.CONF.SRV.PHP@@
 
 @@CLASS.SERIALIZER.PHP@@
 

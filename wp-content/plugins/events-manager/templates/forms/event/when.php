@@ -5,7 +5,7 @@ $required = apply_filters('em_required_html','<i>*</i>');
 ?>
 <div class="event-form-when" id="em-form-when">
 	<p class="em-date-range">
-		<?php _e ( 'From ', 'events-manager'); ?>
+		<?php _e ( 'From ', 'events-manager'); ?>					
 		<input class="em-date-start em-date-input-loc" type="text" />
 		<input class="em-date-input" type="hidden" name="event_start_date" value="<?php echo $EM_Event->event_start_date ?>" />
 		<?php _e('to','events-manager'); ?>

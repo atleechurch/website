@@ -163,7 +163,7 @@ class EM_Tickets_Bookings extends EM_Object implements Iterator{
 				if( $EM_Ticket_Booking->can_manage() ){
 					$tickets_bookings_ids[] = $EM_Ticket_Booking->booking_id;
 				}else{
-					$this->errors[] = sprintf(__('You do not have the rights to manage this %s.','events-manager'),__('Booking','events-manager'));
+					$this->errors[] = sprintf(__('You do not have the rights to manage this %s.','events-manager'),__('Booking','events-manager'));					
 				}
 			}
 			if(count($ticket_ids) > 0){

@@ -10,8 +10,8 @@ $package			= DUP_Package::GetByID($package_id);
 $err_found		    = ($package == null || $package->Status < 100);
 $link_log			= "{$package->StoreURL}{$package->NameHash}.log";
 $err_link_log		= "<a target='_blank' href='{$link_log}' >" . __('package log', 'duplicator') . '</a>';
-$err_link_faq		= '<a target="_blank" href="http://lifeinthegrid.com/duplicator-faq">' . __('FAQ', 'duplicator') . '</a>';
-$err_link_ticket	= '<a target="_blank" href="http://lifeinthegrid.com/labs/duplicator/resources/">' . __('resources page', 'duplicator') . '</a>';
+$err_link_faq		= '<a target="_blank" href="http://lifeinthegrid.com/duplicator-faq">' . __('FAQ', 'duplicator') . '</a>';		
+$err_link_ticket	= '<a target="_blank" href="http://lifeinthegrid.com/labs/duplicator/resources/">' . __('resources page', 'duplicator') . '</a>';	
 ?>
 
 <style>
@@ -24,25 +24,25 @@ $err_link_ticket	= '<a target="_blank" href="http://lifeinthegrid.com/labs/dupli
 
 <div class="wrap">
     <?php 
-		duplicator_header(__("Package Details &raquo; {$package->Name}", 'duplicator'));
+		duplicator_header(__("Package Details &raquo; {$package->Name}", 'duplicator')); 
 	?>
 	
 	<?php if ($err_found) :?>
 	<div class="error">
 		<p>
-			<?php echo __('This package contains an error.  Please review the ', 'duplicator') . $err_link_log .  __(' for details.', 'duplicator'); ?>
-			<?php echo __('For help visit the ', 'duplicator') . $err_link_faq . __(' and ', 'duplicator') . $err_link_ticket; ?>
+			<?php echo __('This package contains an error.  Please review the ', 'duplicator') . $err_link_log .  __(' for details.', 'duplicator'); ?> 
+			<?php echo __('For help visit the ', 'duplicator') . $err_link_faq . __(' and ', 'duplicator') . $err_link_ticket; ?> 
 		</p>
 	</div>
 	<?php endif; ?>
 	
     <h2 class="nav-tab-wrapper">  
-        <a href="?page=duplicator&action=detail&tab=detail&id=<?php echo $package_id ?>" class="nav-tab <?php echo ($current_tab == 'detail') ? 'nav-tab-active' : '' ?>">
+        <a href="?page=duplicator&action=detail&tab=detail&id=<?php echo $package_id ?>" class="nav-tab <?php echo ($current_tab == 'detail') ? 'nav-tab-active' : '' ?>"> 
 			<?php _e('Details', 'duplicator'); ?>
-		</a>
-		<a href="?page=duplicator&action=detail&tab=transfer&id=<?php echo $package_id ?>" class="nav-tab <?php echo ($current_tab == 'transfer') ? 'nav-tab-active' : '' ?>">
+		</a> 
+		<a href="?page=duplicator&action=detail&tab=transfer&id=<?php echo $package_id ?>" class="nav-tab <?php echo ($current_tab == 'transfer') ? 'nav-tab-active' : '' ?>"> 
 			<?php _e('Transfer', 'duplicator'); ?>
-		</a>
+		</a> 		
     </h2>
 	<div class="all-packages"><a href="?page=duplicator" class="add-new-h2"><i class="fa fa-archive"></i> <?php _e('All Packages', 'duplicator'); ?></a></div>
 	

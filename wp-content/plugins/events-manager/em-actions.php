@@ -28,7 +28,7 @@ function em_init_actions() {
 					$result = array('result'=>false, 'error'=>$EM_Ticket->feedback_message);
 				}
 			}else{
-				$result = array('result'=>false, 'error'=>__('No ticket id provided','events-manager'));
+				$result = array('result'=>false, 'error'=>__('No ticket id provided','events-manager'));	
 			}			
 		    echo EM_Object::json_encode($result);
 			die();
@@ -182,7 +182,7 @@ function em_init_actions() {
 				}
 				if( empty($errors) ){
 					$result = true;
-					$location_term = ( count($locations) > 1 ) ?__('Locations', 'events-manager') : __('Location', 'events-manager');
+					$location_term = ( count($locations) > 1 ) ?__('Locations', 'events-manager') : __('Location', 'events-manager'); 
 					$EM_Notices->add_confirm( sprintf(__('%s successfully deleted', 'events-manager'), $location_term) );
 				}else{
 					$result = false;
@@ -426,7 +426,7 @@ function em_init_actions() {
 					exit();
 				}else{
 					$result = false;
-					$EM_Notices->add_error( __('ERROR : Email Not Sent.','events-manager') );
+					$EM_Notices->add_error( __('ERROR : Email Not Sent.','events-manager') );			
 					$feedback = $EM_Booking->feedback_message;
 				}	
 			}
@@ -461,7 +461,7 @@ function em_init_actions() {
 				$EM_Notices->add_error($EM_Booking->errors);
 			}
 		}
-
+	
 		if( $result && defined('DOING_AJAX') ){
 			$return = array('result'=>true, 'message'=>$feedback);
 			header( 'Content-Type: application/javascript; charset=UTF-8', true ); //add this for HTTP -> HTTPS requests which assume it's a cross-site request

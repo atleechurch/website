@@ -2,8 +2,8 @@
 Contributors: amandato, blubrry
 Tags: powerpress, podcasting, podcast, podcaster, itunes, google play music, google play, enclosure, professional, apple, apple tv, ipad, iphone, soundcloud, squarespace, youtube, viddler, ustream, podcasting, audio, video, rss2, feed, player, media, rss, mp3, music, embed, feedburner, statistics, stats, flv, flash, id3, episodes, blubrry, mp4, m4v, wordpressmu, mu, wordpress mu, multisite, multi site, mediacaster, post, plugin, posts, simple, social, dashboard, TSG, Buzzsprout, MTR, WP-boxCast, CastMyBlog, tgs podcasting,  simple podcasting, seriously simple podcasting, seriously-simple-podcasting, serious, seriously, ssp, podlove, podcast.de, clammr, clammr radio, audio player, stitcher, tunein, show, shows, series, docs, documentation, support, free, add-ons, extensions, addons, libsyn, libsyn-podcasting, podbean, podomatic, spreaker
 Requires at least: 3.6
-Tested up to: 4.5.2
-Stable tag: 7.0.1
+Tested up to: 4.5.3
+Stable tag: 7.0.2
 Donate link: https://www.patreon.com/blubrry?ty=h
 License: GPLv2 or later
 
@@ -15,7 +15,7 @@ PowerPress is the No. 1 Podcasting plugin for WordPress. Developed by podcasters
 
 
 = Simple Mode =
-If you are just getting started or feel overwelmed with all the settings and options, switch to Simple mode! PowerPress's Simple Mode will walk you through getting started in 3 easy steps.
+If you are just getting started or feel overwelmed with all the settings and options, switch to Simple mode! PowerPress's Simple Mode will walk you through getting started in 3 easy steps. 
 
 1. Setup your Podcast quickly with only the essential settings
 1. Create your first Episode
@@ -113,7 +113,7 @@ Note: Advanced settings such as settings for podcast categories will need to be 
 
 = PowerPress is looking for translators! =
 
-[Anyone can help translate PowerPress!](http://create.blubrry.com/resources/powerpress/powerpress-language/translate-powerpress/) If you are intersted in translating PowerPress, please [contact us](https://www.blubrry.com/contact/#translate).
+[Anyone can help translate PowerPress!](http://create.blubrry.com/resources/powerpress/powerpress-language/translate-powerpress/) If you are intersted in translating PowerPress, please [contact us](https://www.blubrry.com/contact/#translate). 
 
 **Translators will receive the following from us as a thank you for contributing:**
 
@@ -126,7 +126,7 @@ Interested translators please [contact us](https://www.blubrry.com/contact/#tran
 = Need Help? =
 . . . or have some ideas that could improve the plugin?
 
-* Visit the Blubrry [PowerPress Forum](https://wordpress.org/support/plugin/powerpress) and [Blubrry Resources](http://create.blubrry.com/resources/)
+* Visit the Blubrry [PowerPress Forum](https://wordpress.org/support/plugin/powerpress) and [Blubrry Resources](http://create.blubrry.com/resources/) 
 * Use the Blubrry [Contact Us](http://www.blubrry.com/contact.php) form
 * Blubrry [PowerPress Documentation](http://create.blubrry.com/resources/powerpress/)
 * Check out [The Podcasting Manual](http://create.blubrry.com/manual/) - everything you need to know about podcasting
@@ -219,19 +219,32 @@ To install Blubrry PowerPress manually, follow these steps:
 == Changelog ==
 
 = Next Major Release Announcements =
-* PowerPress 7.1 coming early July 2016. Beta testers expect an email mid to late June.
+* Facebook Instant Articles for podcasting coming in PowerPress 7.1 release!
+* PowerPress 7.1 will be released in 1-2 weeks. Beta testers expect an email early next week.
 * We are looking for beta testers! If you would like to beta test future versions of PowerPress, please [contact us](http://www.blubrry.com/contact.php) with your name and email.
 
 = Become a PowerPress Patron! =
 Help support your favorite podcasting plugin via Patreon. [Visit Blubrry's Patreon page](https://www.patreon.com/blubrry?ty=h)
 
+= 7.0.2 = 
+* Released on 7/22/2016
+* Fixed bug with new Blubrry Player not displaying show notes button.
+* Added TuneIn subscribe URL option. (Thanks @kgagne for bringing to our attention!)
+* Removed the PHP 5.2 or older error message in the getid3 library. (Thanks davidpmariano for the heads up!)
+* Fixed bug where podcast channels with a blank feed title do not apply specific channel settings like the website link. (Thanks Robin Brinkler for bringing to our attention!)
+* Fixed bug where category episodes were not using the category settings like they used to if only one category is selected. (Thanks Jason Bryant for explaining the situation for us to reproduce the problem!)
+* Added additional logic to better handle category podcasting when strict category podcasting is not enabled.
+* Removed itunes:summary when Feed Maximizer on (this was the behavior before 7.0). iTunes summary is a duplicate of the RSS description. To include itunes summary in maximizer mode, please add `define('POWERPRESS_MAXIMIZER_INCLUDE_ITUNES_SUMMARY', true);` in your wp-config.php.
+
+
 = 7.0.1 =
-* Released on 6/11/2016
-* Fixed bug where verify media could fail with "unable to determine file format" caused by getid3 library update. (Thanks @budgetnerd  for bringing to our attention!)
+* Released on 6/20/2016
+* Fixed bug where verify media could fail with "unable to determine file format" caused by getid3 library update. (Thanks @budgetnerd for bringing to our attention!)
 * Re-added the itpc links for subscribe on iTunes when no iTunes subscribe URL provided. For those who wanted this, please notice itpc does not work on iOS devices.
 * Statistics redirects that do not end with a / will now work. We add a slash if no slash is present.
 * Removed February 2016 iTunes notice message.
 * Subscribe by Email, on Google Play and Stitcher options removed for premium podcast feeds.
+* Subscribe links will no longer appear when episode no links option checked. (Thanks @360woodworking for bringing to our attention)
 
 
 = 7.0 =
@@ -240,7 +253,7 @@ Help support your favorite podcasting plugin via Patreon. [Visit Blubrry's Patre
 * Added Stitcher to subscribe page shortcode embed and sidebar widget.
 * New: Strict Category Podcasting. Select a specific category to each episode for statistics tracking and subscription links.
 * New: Podcast only category feeds. You can now mix blog posts with podcast episodes in your podast categories.
-* New: Blubrry Audio Player. Modern podcast audio player complete with subscribe and share tools. For Blubrry Hosting customers only.
+* New: Blubrry Audio Player. Modern podcast audio player complete with subscribe and share tools. For Blubrry Hosting customers only. 
 * Updated the getid3 library to latest version.
 * Embed link enhanced to use provided embed. If an embed is placed into an episode, the embed link below the player will use that embed as well.
 * Fixed bug where post type podcast feed with slug 'podcast' will also get the default podcast feed settings (Thanks steveportigal for bringing to our attention).

@@ -59,7 +59,7 @@ function powerpress_admin_players($type='audio')
 	{
 		$select_player = false;
 	}
-
+	
 	if( isset($_GET['sp']) )
 	{
 		$select_player = true;
@@ -408,7 +408,7 @@ table.html5formats tr > td:first-child {
 	 {
 		if( empty($General['player']) )
 			$General['player'] = '';
-
+		
 		switch( $General['player'] )
 		{
 			case 'audio-player': {
@@ -968,9 +968,9 @@ function audio_player_defaults()
 
 <?php
 			}; break;
-
+		
 		case 'blubrryaudio' : {
-
+		
 ?>
 <p><?php echo __('Configure Blubrry Audio Player', 'powerpress'); ?></p>
 <table class="form-table">
@@ -983,7 +983,7 @@ function audio_player_defaults()
 		</td>
 	</tr>
 
-</table>
+</table>  
 
 <?php
 

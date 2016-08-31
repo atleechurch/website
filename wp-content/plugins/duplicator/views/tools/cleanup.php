@@ -17,7 +17,7 @@
 		}   
 	}
 	
-
+	
 	$txt_found = __('File Found', 'duplicator');
 	$txt_not_found = __('File Removed', 'duplicator');
 	$installer_files = DUP_Server::GetInstallerFiles();
@@ -75,15 +75,15 @@
 					{
 						$path_parts = pathinfo($package_name);
 						$path_parts = (isset($path_parts['extension'])) ? $path_parts['extension'] : '';
-						if ($path_parts  == "zip"  && ! is_dir($package_name))
+						if ($path_parts  == "zip"  && ! is_dir($package_name)) 
 						{
 							$lang1 = __('Successfully removed', 'duplicator');
 							$lang2 = __('Does not exist or unable to remove archive file.', 'duplicator');
 							$html .= (@unlink($package_name))   
-								?  "<div class='success'>{$lang1} {$package_name}</div>"
+								?  "<div class='success'>{$lang1} {$package_name}</div>"   
 								:  "<div class='failed'>{$lang2}</div>";
-						}
-						else
+						} 
+						else 
 						{
 							$lang = __('Does not exist or unable to remove archive file.  Please validate that an archive file exists.', 'duplicator');
 							$html .= "<div class='failed'>{$lang}</div>";
@@ -150,7 +150,7 @@ jQuery(document).ready(function($) {
    Duplicator.Tools.DeleteLegacy = function () {
 	   <?php
 		   $msg  = __('This action will remove all legacy settings prior to version %1$s.  ', 'duplicator');
-		   $msg .= __('Legacy settings are only needed if you plan to migrate back to an older version of this plugin.', 'duplicator');
+		   $msg .= __('Legacy settings are only needed if you plan to migrate back to an older version of this plugin.', 'duplicator'); 
 	   ?>
 	   var result = true;
 	   var result = confirm('<?php printf(__($msg, 'duplicator'), DUPLICATOR_VERSION) ?>');

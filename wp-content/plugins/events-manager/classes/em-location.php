@@ -73,7 +73,7 @@ class EM_Location extends EM_Object {
 	var $post_date;
 	var $post_date_gmt;
 	var $post_title;
-	var $post_excerpt;
+	var $post_excerpt = '';
 	var $post_status;
 	var $comment_status;
 	var $ping_status;
@@ -270,7 +270,7 @@ class EM_Location extends EM_Object {
 		foreach ( $this->required_fields as $field => $description) {
 			if( $field == 'location_country' && !array_key_exists($this->location_country, em_get_countries()) ){ 
 				//country specific checking
-				$this->add_error( $this->required_fields['location_country'].__(" is required.", 'events-manager') );
+				$this->add_error( $this->required_fields['location_country'].__(" is required.", 'events-manager') );				
 			}elseif ( $this->$field == "" ) {
 				$this->add_error( $description.__(" is required.", 'events-manager') );
 			}
@@ -317,6 +317,9 @@ class EM_Location extends EM_Object {
 			} 
 		}else{
 			$post_array['post_status'] = 'draft';
+		}
+		if( !empty($this->force_status) ){
+			$post_array['post_status'] = $this->force_status;
 		}
 		//Anonymous submission
 		if( !is_user_logged_in() && get_option('dbem_events_anonymous_submissions') && empty($this->location_id) ){
@@ -403,7 +406,7 @@ class EM_Location extends EM_Object {
 			}else{
 				$this->get_previous_status();
 				if ( $wpdb->update(EM_LOCATIONS_TABLE, $location_array, array('location_id'=>$this->location_id)) === false ){
-					$this->add_error( sprintf(__('Something went wrong updating your %s to the index table. Please inform a site administrator about this.','events-manager'),__('location','events-manager')));
+					$this->add_error( sprintf(__('Something went wrong updating your %s to the index table. Please inform a site administrator about this.','events-manager'),__('location','events-manager')));			
 				}else{
 					$this->feedback_message = sprintf(__('Successfully saved %s','events-manager'),__('Location','events-manager'));
 					//Also set the status here if status != previous status

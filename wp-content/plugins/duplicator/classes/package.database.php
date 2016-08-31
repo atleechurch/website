@@ -120,16 +120,16 @@ class DUP_Database {
 		$tblSizeFound = 0;
 		
 		//Grab Table Stats
-		foreach ($tables as $table)
+		foreach ($tables as $table) 
 		{
 			$name = $table["Name"];
-			if ($this->FilterOn  && is_array($filterTables))
+			if ($this->FilterOn  && is_array($filterTables)) 
 			{
 				if (in_array($name, $filterTables)) {
 					continue;
 				}
 			}
-
+			
 			$size = ($table["Data_length"] +  $table["Index_length"]);
 			$rows = empty($table["Rows"]) ? '0' : $table["Rows"];
 			
@@ -139,21 +139,21 @@ class DUP_Database {
 			$info['TableList'][$name]['Rows']	= number_format($rows);
 			$info['TableList'][$name]['Size']	= DUP_Util::ByteSize($size);
 			$tblCount++;
-
+			
 			//Table Uppercase
 			if ($info['TableList'][$name]['Case']) {
 				if (! $tblCaseFound) {
 					$tblCaseFound = 1;
 				}
 			}
-
+			
 			//Table Row Count
 			if ($rows > DUPLICATOR_SCAN_DB_TBL_ROWS) {
 				if (! $tblRowsFound) {
 					$tblRowsFound = 1;
 				}
 			}
-
+			
 			//Table Size
 			if ($size  > DUPLICATOR_SCAN_DB_TBL_SIZE) {
 				if (! $tblSizeFound) {
@@ -166,16 +166,16 @@ class DUP_Database {
 		$info['Status']['DB_Rows']   = ($info['Rows'] > DUPLICATOR_SCAN_DB_ALL_ROWS) ? 'Warn' : 'Good';
 		$info['Status']['DB_Size']   = ($info['Size'] > DUPLICATOR_SCAN_DB_ALL_SIZE) ? 'Warn' : 'Good';
 		
-
+		
 		$info['Status']['TBL_Case']   = ($tblCaseFound) ? 'Warn' : 'Good';
 		$info['Status']['TBL_Rows']   = ($tblRowsFound) ? 'Warn' : 'Good';
 		$info['Status']['TBL_Size']   = ($tblSizeFound) ? 'Warn' : 'Good';
-
+		
 		$info['Size']		= DUP_Util::ByteSize($info['Size'])	or "unknown";
 		$info['Rows']		= number_format($info['Rows'])		or "unknown";
 		$info['TableList']	= $info['TableList']				or "unknown";
 		$info['TableCount'] = $tblCount;
-
+	
 		return $info;
 	}	
 

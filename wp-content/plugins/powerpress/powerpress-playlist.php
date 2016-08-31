@@ -159,24 +159,24 @@ function powerpress_playlist_episodes($args)
 	if( !empty($TaxonomyObj->term_taxonomy_id) ) {
 		$query .= "AND tr.term_taxonomy_id = '". $TaxonomyObj->term_taxonomy_id ."' ";
 	}
-
+	
 	if( !empty( $args['ids'] ) ) {
 		// First santity check make sure we are only working with numbers....
 		if( preg_match('/^[0-9,\s]*$/', $args['ids']) ) {
 			$ids	= explode(',', preg_replace('/(\s)/', '', $args['ids']) );
 			$for_query = '';
 			while( list($index,$id) = each($ids) ) {
-				if( empty($id) )
+				if( empty($id) )	
 					continue;
 				if( !empty($for_query) )
 					$for_query .= ', ';
 				$for_query .= $id;
 			}
-
+			
 			if( !empty($for_query) ) {
 				$query .= "AND p.ID IN ($for_query) ";
 			}
-		}
+		}	
 	}
 	
 	$query .= "GROUP BY p.ID ";

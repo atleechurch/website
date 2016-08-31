@@ -15,7 +15,7 @@ global $EM_Event;
 </head>
 <body id="printable">
 	<div id="container">
-	<h1><?php echo sprintf(__('Bookings for %s','events-manager'), $EM_Event->name); ?></h1>
+	<h1><?php echo sprintf(__('Bookings for %s','events-manager'), $EM_Event->name); ?></h1> 
 	<p><?php echo $EM_Event->output("#d #M #Y"); ?></p>
 	<p><?php echo $EM_Event->output("#_LOCATION, #_ADDRESS, #_TOWN"); ?></p>   
 	<h2><?php _e('Bookings data', 'events-manager');?></h2>
@@ -23,7 +23,7 @@ global $EM_Event;
 		<tr>
 			<th scope='col'><?php _e('Name', 'events-manager')?></th>
 			<th scope='col'><?php _e('E-mail', 'events-manager')?></th>
-			<th scope='col'><?php _e('Phone number', 'events-manager')?></th>
+			<th scope='col'><?php _e('Phone number', 'events-manager')?></th> 
 			<th scope='col'><?php _e('Spaces', 'events-manager')?></th>
 			<th scope='col'><?php _e('Comment', 'events-manager')?></th>
 		</tr> 
@@ -46,7 +46,7 @@ global $EM_Event;
 		</tr>
 		<tr id='available-spaces'>
 			<td colspan='3'>&nbsp;</td> 
-			<td class='total-label'><?php _e('Available', 'events-manager')?>:</td>
+			<td class='total-label'><?php _e('Available', 'events-manager')?>:</td>  
 			<td class='spaces-number'><?php echo $EM_Event->get_bookings()->get_available_spaces(); ?></td>
 		</tr>
 	</table>  

@@ -26,7 +26,7 @@ class EM_Calendar extends EM_Object {
 			$year = $args['year'] = date('Y', $scope_middle);
 		}else{
 			//if month/year supplied, we use those or later on default to current month/year
-			$month = $args['month'];
+			$month = $args['month']; 
 			$year = $args['year'];
 		}
 		$long_events = $args['long_events'];
@@ -360,7 +360,7 @@ class EM_Calendar extends EM_Object {
 			if(function_exists('mb_substr')){ //fix for diacritic calendar names
 			    return mb_substr(__($string,'events-manager'), 0, $length, 'UTF-8');
 			}else{ 
-			return substr(__($string,'events-manager'), 0, $length);
+	    		return substr(__($string,'events-manager'), 0, $length); 
 	    	}
 	    }
 	    return __($string,'events-manager');

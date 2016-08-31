@@ -2,13 +2,13 @@
 <!-- PAGE OPTIONS -->
 <div class="em-menu-pages em-menu-group"  <?php if( !defined('EM_SETTINGS_TABS') || !EM_SETTINGS_TABS) : ?>style="display:none;"<?php endif; ?>>			
     	<?php
-	$template_page_tip = __( "Many themes display extra meta information on post pages such as 'posted by' or 'post date' information, which may not be desired. Usually, page templates contain less clutter.", 'events-manager');
-	$template_page_tip .= ' '. __("If you choose 'Pages' then %s will be shown using your theme default page template, alternatively choose from page templates that come with your specific theme.",'events-manager');
-	$template_page_tip .= ' '. str_replace('#','http://codex.wordpress.org/Post_Types#Template_Files',__("Be aware that some themes will not work with this option, if so (or you want to make your own changes), you can create a file named <code>single-%s.php</code> <a href='#'>as shown on the WordPress codex</a>, and leave this set to Posts.", 'events-manager'));
-	$body_class_tip = __('If you would like to add extra classes to your body html tag when a single %s page is displayed, enter it here. May be useful or necessary if your theme requires special class names for specific templates.','events-manager');
-	$post_class_tip = __('Same concept as the body classes option, but some themes also use the <code>post_class()</code> function within page content to differentiate styling between post types.','events-manager');
-	$format_override_tip = __("By using formats, you can control how your %s are displayed from within the Events Manager <a href='#formats' class='nav-tab-link' rel='#em-menu-formats'>Formatting</a> tab above without having to edit your theme files.",'events-manager');
-	$page_templates = array(''=>__('Posts'), 'page' => __('Pages'), __('Theme Templates','events-manager') => array_flip(get_page_templates()));
+    	$template_page_tip = __( "Many themes display extra meta information on post pages such as 'posted by' or 'post date' information, which may not be desired. Usually, page templates contain less clutter.", 'events-manager');
+    	$template_page_tip .= ' '. __("If you choose 'Pages' then %s will be shown using your theme default page template, alternatively choose from page templates that come with your specific theme.",'events-manager');
+    	$template_page_tip .= ' '. str_replace('#','http://codex.wordpress.org/Post_Types#Template_Files',__("Be aware that some themes will not work with this option, if so (or you want to make your own changes), you can create a file named <code>single-%s.php</code> <a href='#'>as shown on the WordPress codex</a>, and leave this set to Posts.", 'events-manager'));
+    	$body_class_tip = __('If you would like to add extra classes to your body html tag when a single %s page is displayed, enter it here. May be useful or necessary if your theme requires special class names for specific templates.','events-manager');
+    	$post_class_tip = __('Same concept as the body classes option, but some themes also use the <code>post_class()</code> function within page content to differentiate styling between post types.','events-manager');
+    	$format_override_tip = __("By using formats, you can control how your %s are displayed from within the Events Manager <a href='#formats' class='nav-tab-link' rel='#em-menu-formats'>Formatting</a> tab above without having to edit your theme files.",'events-manager');
+    	$page_templates = array(''=>__('Posts'), 'page' => __('Pages'), __('Theme Templates','events-manager') => array_flip(get_page_templates()));
     	?>
     	<div  class="postbox" id="em-opt-permalinks" >
 		<div class="handlediv" title="<?php __('Click to toggle', 'events-manager'); ?>"><br /></div><h3><span><?php echo sprintf(__('Permalink Slugs','events-manager')); ?></span></h3>
@@ -16,15 +16,15 @@
 			<p class="em-boxheader"><?php _e('You can change the permalink structure of your events, locations, categories and tags here. Be aware that you may want to set up redirects if you change your permalink structures to maintain SEO rankings.','events-manager'); ?></p>
         	<table class="form-table">
         	<?php
-		em_options_input_text ( __( 'Events', 'events-manager'), 'dbem_cp_events_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_cp_events_slug',EM_POST_TYPE_EVENT_SLUG).'</code>/2012-olympics/</strong>'), EM_POST_TYPE_EVENT_SLUG );
+        	em_options_input_text ( __( 'Events', 'events-manager'), 'dbem_cp_events_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_cp_events_slug',EM_POST_TYPE_EVENT_SLUG).'</code>/2012-olympics/</strong>'), EM_POST_TYPE_EVENT_SLUG );
 			if( get_option('dbem_locations_enabled')  && !(EM_MS_GLOBAL && get_site_option('dbem_ms_mainblog_locations') && !is_main_site()) ){
-		em_options_input_text ( __( 'Locations', 'events-manager'), 'dbem_cp_locations_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_cp_locations_slug',EM_POST_TYPE_LOCATION_SLUG).'</code>/wembley-stadium/</strong>'), EM_POST_TYPE_LOCATION_SLUG );
+            	em_options_input_text ( __( 'Locations', 'events-manager'), 'dbem_cp_locations_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_cp_locations_slug',EM_POST_TYPE_LOCATION_SLUG).'</code>/wembley-stadium/</strong>'), EM_POST_TYPE_LOCATION_SLUG );
 			}
         	if( get_option('dbem_categories_enabled') && !(EM_MS_GLOBAL && !is_main_site()) ){
-			em_options_input_text ( __( 'Event Categories', 'events-manager'), 'dbem_taxonomy_category_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_taxonomy_category_slug',EM_TAXONOMY_CATEGORY_SLUG).'</code>/sports/</strong>'), EM_TAXONOMY_CATEGORY_SLUG );
+        		em_options_input_text ( __( 'Event Categories', 'events-manager'), 'dbem_taxonomy_category_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_taxonomy_category_slug',EM_TAXONOMY_CATEGORY_SLUG).'</code>/sports/</strong>'), EM_TAXONOMY_CATEGORY_SLUG );
         	}
         	if( get_option('dbem_tags_enabled') ){
-		em_options_input_text ( __( 'Event Tags', 'events-manager'), 'dbem_taxonomy_tag_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_taxonomy_tag_slug',EM_TAXONOMY_TAG_SLUG).'</code>/running/</strong>'), EM_TAXONOMY_TAG_SLUG );
+            	em_options_input_text ( __( 'Event Tags', 'events-manager'), 'dbem_taxonomy_tag_slug', sprintf(__('e.g. %s - you can use / Separators too', 'events-manager'), '<strong>'.home_url().'/<code>'.get_option('dbem_taxonomy_tag_slug',EM_TAXONOMY_TAG_SLUG).'</code>/running/</strong>'), EM_TAXONOMY_TAG_SLUG );
         	}
         	echo $save_button;
         	?>
@@ -37,12 +37,12 @@
 		<div class="inside">
         	<table class="form-table">
         	<?php
-		//em_options_radio_binary ( sprintf(__( 'Display %s as', 'events-manager'),__('events','events-manager')), 'dbem_cp_events_template_page', sprintf($template_page_tip, EM_POST_TYPE_EVENT), array(__('Posts'),__('Pages')) );
-		em_options_select( sprintf(__( 'Display %s as', 'events-manager'),__('events','events-manager')), 'dbem_cp_events_template', $page_templates, sprintf($template_page_tip, __('events','events-manager'), EM_POST_TYPE_EVENT) );
-		em_options_input_text( __('Body Classes','events-manager'), 'dbem_cp_events_body_class', sprintf($body_class_tip, __('event','events-manager')) );
-		em_options_input_text( __('Post Classes','events-manager'), 'dbem_cp_events_post_class', $post_class_tip );
-		em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_events_formats', sprintf($format_override_tip,__('events','events-manager')));
-		em_options_radio_binary ( __( 'Enable Comments?', 'events-manager'), 'dbem_cp_events_comments', sprintf(__('If you would like to disable comments entirely, disable this, otherwise you can disable comments on each single %s. Note that %s with comments enabled will still be until you resave them.','events-manager'),__('event','events-manager'),__('events','events-manager')));
+        	//em_options_radio_binary ( sprintf(__( 'Display %s as', 'events-manager'),__('events','events-manager')), 'dbem_cp_events_template_page', sprintf($template_page_tip, EM_POST_TYPE_EVENT), array(__('Posts'),__('Pages')) );
+        	em_options_select( sprintf(__( 'Display %s as', 'events-manager'),__('events','events-manager')), 'dbem_cp_events_template', $page_templates, sprintf($template_page_tip, __('events','events-manager'), EM_POST_TYPE_EVENT) );
+        	em_options_input_text( __('Body Classes','events-manager'), 'dbem_cp_events_body_class', sprintf($body_class_tip, __('event','events-manager')) );
+        	em_options_input_text( __('Post Classes','events-manager'), 'dbem_cp_events_post_class', $post_class_tip );
+        	em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_events_formats', sprintf($format_override_tip,__('events','events-manager')));
+        	em_options_radio_binary ( __( 'Enable Comments?', 'events-manager'), 'dbem_cp_events_comments', sprintf(__('If you would like to disable comments entirely, disable this, otherwise you can disable comments on each single %s. Note that %s with comments enabled will still be until you resave them.','events-manager'),__('event','events-manager'),__('events','events-manager')));
 			echo $save_button;
         	?>
         	</table>
@@ -83,7 +83,7 @@
 			</tbody>
 			<tbody class="em-event-archive-options em-event-archive-sub-options">
 				<tr valign="top">
-					<th scope="row"><?php _e('Default event archive ordering','events-manager'); ?></th>
+			   		<th scope="row"><?php _e('Default event archive ordering','events-manager'); ?></th>
 			   		<td>   
 						<select name="dbem_events_default_archive_orderby" >
 							<?php 
@@ -118,7 +118,7 @@
 					</td>
 			   	</tr>
 			   	<?php 
-				em_options_select( __('Event archives scope','events-manager'), 'dbem_events_archive_scope', em_get_scopes() );
+			   	em_options_select( __('Event archives scope','events-manager'), 'dbem_events_archive_scope', em_get_scopes() );
 			   	?>
 			</tbody>
 			<tr class="em-header">
@@ -139,7 +139,7 @@
 				</td>
 			</tr>							
 			<tr valign="top" id='dbem_events_default_orderby_row'>
-				<th scope="row"><?php _e('Default event list ordering','events-manager'); ?></th>
+		   		<th scope="row"><?php _e('Default event list ordering','events-manager'); ?></th>
 		   		<td>   
 					<select name="dbem_events_default_orderby" >
 						<?php 
@@ -196,12 +196,12 @@
 		<div class="inside">
         	<table class="form-table">
         	<?php 
-		//em_options_radio_binary ( sprintf(__( 'Display %s as', 'events-manager'),__('locations','events-manager')), 'dbem_cp_locations_template_page', sprintf($template_page_tip, EM_POST_TYPE_LOCATION), array(__('Posts'),__('Pages')) );
-		em_options_select( sprintf(__( 'Display %s as', 'events-manager'),__('locations','events-manager')), 'dbem_cp_locations_template', $page_templates, sprintf($template_page_tip, __('locations','events-manager'), EM_POST_TYPE_LOCATION) );
-		em_options_input_text( __('Body Classes','events-manager'), 'dbem_cp_locations_body_class', sprintf($body_class_tip, __('location','events-manager')) );
-		em_options_input_text( __('Post Classes','events-manager'), 'dbem_cp_locations_post_class', $post_class_tip );
-		em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_locations_formats', sprintf($format_override_tip,__('locations','events-manager')));
-		em_options_radio_binary ( __( 'Enable Comments?', 'events-manager'), 'dbem_cp_locations_comments', sprintf(__('If you would like to disable comments entirely, disable this, otherwise you can disable comments on each single %s. Note that %s with comments enabled will still be until you resave them.','events-manager'),__('location','events-manager'),__('locations','events-manager')));
+        	//em_options_radio_binary ( sprintf(__( 'Display %s as', 'events-manager'),__('locations','events-manager')), 'dbem_cp_locations_template_page', sprintf($template_page_tip, EM_POST_TYPE_LOCATION), array(__('Posts'),__('Pages')) );
+        	em_options_select( sprintf(__( 'Display %s as', 'events-manager'),__('locations','events-manager')), 'dbem_cp_locations_template', $page_templates, sprintf($template_page_tip, __('locations','events-manager'), EM_POST_TYPE_LOCATION) );
+        	em_options_input_text( __('Body Classes','events-manager'), 'dbem_cp_locations_body_class', sprintf($body_class_tip, __('location','events-manager')) );
+        	em_options_input_text( __('Post Classes','events-manager'), 'dbem_cp_locations_post_class', $post_class_tip );
+        	em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_locations_formats', sprintf($format_override_tip,__('locations','events-manager')));
+        	em_options_radio_binary ( __( 'Enable Comments?', 'events-manager'), 'dbem_cp_locations_comments', sprintf(__('If you would like to disable comments entirely, disable this, otherwise you can disable comments on each single %s. Note that %s with comments enabled will still be until you resave them.','events-manager'),__('location','events-manager'),__('locations','events-manager')));
 			em_options_input_text ( __( 'Event List Limits', 'events-manager'), 'dbem_location_event_list_limit', sprintf(__( "Controls how many events being held at a location are shown per page when using placeholders such as %s. Leave blank for no limit.", 'events-manager'), '<code>#_LOCATIONNEXTEVENTS</code>') );
         	echo $save_button;
 			?>
@@ -222,7 +222,7 @@
 				</td>
 			</tr>
 			<?php 
-				em_options_radio_binary ( __( 'Show locations search?', 'events-manager'), 'dbem_locations_page_search_form', __( "If set to yes, a search form will appear just above your list of locations.", 'events-manager') );
+				em_options_radio_binary ( __( 'Show locations search?', 'events-manager'), 'dbem_locations_page_search_form', __( "If set to yes, a search form will appear just above your list of locations.", 'events-manager') ); 
 			?>
 			<tr class="em-header">
 				<td colspan="2">
@@ -233,12 +233,12 @@
 			</tr>
 			<tbody class="em-location-archive-options">
 				<?php
-				em_options_radio_binary ( __( 'Enable Archives?', 'events-manager'), 'dbem_cp_locations_has_archive', __( "Allow WordPress post-style archives.", 'events-manager') );
+				em_options_radio_binary ( __( 'Enable Archives?', 'events-manager'), 'dbem_cp_locations_has_archive', __( "Allow WordPress post-style archives.", 'events-manager') );						
 				?>
 			</tbody>
 			<tbody class="em-location-archive-options em-location-archive-sub-options">
 				<tr valign="top">
-					<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
+			   		<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
 			   		<td>   
 						<select name="dbem_locations_default_archive_orderby" >
 							<?php 
@@ -280,7 +280,7 @@
 			<?php 
 			em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_locations_archive_formats', sprintf($format_override_tip,__('locations','events-manager')));
 			em_options_radio_binary ( __( 'Override Excerpts with Formats?', 'events-manager'), 'dbem_cp_locations_excerpt_formats', sprintf($format_override_tip,__('locations','events-manager')));
-		em_options_radio_binary ( __( 'Include in WordPress Searches?', 'events-manager'), 'dbem_cp_locations_search_results', sprintf(__( "Allow %s to appear in the built-in search results.", 'events-manager'),__('locations','events-manager')) );
+        	em_options_radio_binary ( __( 'Include in WordPress Searches?', 'events-manager'), 'dbem_cp_locations_search_results', sprintf(__( "Allow %s to appear in the built-in search results.", 'events-manager'),__('locations','events-manager')) );
 			?>
 			<tr class="em-header">
 				<td colspan="2">
@@ -289,7 +289,7 @@
 				</td>
 			</tr>							
 			<tr valign="top" id='dbem_locations_default_orderby_row'>
-				<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
+		   		<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
 		   		<td>   
 					<select name="dbem_locations_default_orderby" >
 						<?php 
@@ -363,7 +363,7 @@
 			em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_categories_formats', sprintf($format_override_tip,__('categories','events-manager'))." ".__('Setting this to yes will make categories display as a page rather than an archive.', 'events-manager'));
 			?>
 			<tr valign="top">
-				<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
+		   		<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
 		   		<td>   
 					<select name="dbem_categories_default_archive_orderby" >
 						<?php foreach($event_archive_orderby_options as $key => $value) : ?>   
@@ -389,7 +389,7 @@
 				</td>
 			</tr>							
 			<tr valign="top" id='dbem_categories_default_orderby_row'>
-				<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
+		   		<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
 		   		<td>   
 					<select name="dbem_categories_default_orderby" >
 						<?php 
@@ -467,7 +467,7 @@
 				em_options_radio_binary ( __( 'Override with Formats?', 'events-manager'), 'dbem_cp_tags_formats', sprintf($format_override_tip,__('tags','events-manager')));
 				?>
 				<tr valign="top">
-					<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
+			   		<th scope="row"><?php _e('Default archive ordering','events-manager'); ?></th>
 			   		<td>   
 						<select name="dbem_tags_default_archive_orderby" >
 							<?php foreach($event_archive_orderby_options as $key => $value) : ?>   
@@ -492,7 +492,7 @@
 					</td>
 				</tr>			
 				<tr valign="top" id='dbem_tags_default_orderby_row'>
-					<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
+			   		<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
 			   		<td>   
 						<select name="dbem_tags_default_orderby" >
 							<?php 
@@ -540,7 +540,7 @@
 		<div  class="postbox " id="em-opt-other-pages" >
 		<div class="handlediv" title="<?php __('Click to toggle', 'events-manager'); ?>"><br /></div><h3><span><?php echo sprintf(__('%s Pages','events-manager'),__('Other','events-manager')); ?></span></h3>
 		<div class="inside">
-		<p class="em-boxheader"><?php _e('These pages allow you to provide an event management interface outside the admin area on whatever page you want on your website. Bear in mind that this is overridden by BuddyPress if activated.', 'events-manager'); ?></p>
+        	<p class="em-boxheader"><?php _e('These pages allow you to provide an event management interface outside the admin area on whatever page you want on your website. Bear in mind that this is overridden by BuddyPress if activated.', 'events-manager'); ?></p>
         	<table class="form-table">
 			<?php
 			$other_pages_tip = 'Using the %s shortcode, you can allow users to manage %s outside the admin area.';
@@ -561,7 +561,7 @@
 				</td>
 			</tr>	
 			<tr valign="top" id='dbem_bookings_default_orderby_row'>
-				<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
+		   		<th scope="row"><?php _e('Default list ordering','events-manager'); ?></th>
 		   		<td>   
 					<select name="dbem_bookings_default_orderby" >
 						<?php 

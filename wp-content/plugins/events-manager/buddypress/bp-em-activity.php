@@ -159,7 +159,7 @@ add_filter('em_event_save','bp_em_record_activity_event_save', 10, 2);
  * @return boolean
  */
 function bp_em_record_activity_booking_save( $result, $EM_Booking ){
-	/* @todo this isn't good at detecting status changes. */
+	/* @todo this isn't good at detecting status changes. */ 
 	if( !empty($EM_Booking->event_id) && $result ){
 		$action_type = 'new_booking';
 		if( !empty($EM_Booking->last_bp_activity) && $EM_Booking->last_bp_activity == $action_type ) return $result; //prevent duplicates

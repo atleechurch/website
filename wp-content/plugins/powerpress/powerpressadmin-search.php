@@ -129,7 +129,7 @@ jQuery(document).ready(function() {
 </td>
 </tr>
 <tr valign="top">
-<th scope="row"><?php echo __('Podcast Directory SEO Guidance', 'powerpress'); ?></th>
+<th scope="row"><?php echo __('Podcast Directory SEO Guidance', 'powerpress'); ?></th> 
 <td>
 	<p>
 		<input name="General[seo_itunes]" type="hidden" value="0" />

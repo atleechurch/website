@@ -349,8 +349,8 @@ class Image_XMP
 					switch ($xml_elem['type'])
 					{
 						case 'open':
-							$container_index = 0;
-							break;
+ 							$container_index = 0;
+ 							break;
 						case 'close':
 							$container_index = -1;
 							break;

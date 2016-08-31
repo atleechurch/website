@@ -50,7 +50,7 @@
 }
 #powerpress-steps li:first-child:after {
 	/*connector not needed before the first step*/
-	content: none;
+	content: none; 
 }
 #powerpress-steps li.pp-step-active:before,  #powerpress-steps li.pp-step-active:after{
 	background: #0D87E9;

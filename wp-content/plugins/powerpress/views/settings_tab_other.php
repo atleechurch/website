@@ -5,11 +5,11 @@
 		$FeedSettings['redirect'] = '';
 	if( !isset($FeedSettings['premium_label']) )
 		$FeedSettings['premium_label'] = '';
-	if( !isset($FeedSettings['redirect']) )
+	if( !isset($FeedSettings['redirect']) )	
 		$FeedSettings['redirect'] = '';
 	if( !isset($FeedSettings['redirect2']) )
 		$FeedSettings['redirect2'] = '';
-
+ 	
 	if( !empty($FeedAttribs['type']) && ($FeedAttribs['type'] == 'ttid' || $FeedAttribs['type'] == 'category' || ($FeedAttribs['type'] == 'channel') || ($FeedAttribs['type'] == 'post_type') )  )
 	{
 ?>
@@ -21,7 +21,7 @@
 	<table class="form-table">
 	<tr valign="top">
 	<th scope="row">
-	<?php echo __('Redirect URL', 'powerpress'); ?>
+	<?php echo __('Redirect URL', 'powerpress'); ?> 
 	</th>
 	<td>
 	<input type="text" style="width: 60%;" name="Feed[redirect]" value="<?php echo esc_attr($FeedSettings['redirect']); ?>" maxlength="255" />
@@ -39,7 +39,7 @@
 	<!--
 	<tr valign="top">
 	<th scope="row">
-	<?php echo __('Redirect URL 2', 'powerpress'); ?>
+	<?php echo __('Redirect URL 2', 'powerpress'); ?> 
 	</th>
 	<td>
 	<input type="text" style="width: 60%;" name="Feed[redirect2]" value="<?php echo esc_attr($FeedSettings['redirect2']); ?>" maxlength="255" />
@@ -49,7 +49,7 @@
 	</table>
 <?php
 	}
-
+	
 	if( $feed_slug ) // end if category, else channel...
 	{
 ?>
@@ -102,7 +102,7 @@
 			$actual_premium_value = 'premium_content';
 			if( !empty($FeedSettings['premium']) )
 				$actual_premium_value = $FeedSettings['premium'];
-
+			
 			echo '<option value="">'.  __('None', 'powerpress') .'</option>';
 			while( list($value,$desc) = each($caps) )
 				echo "\t<option value=\"$value\"". ($actual_premium_value==$value?' selected':''). ">".htmlspecialchars($desc)."</option>\n";
@@ -117,10 +117,10 @@ function powerpress_toggle_premium_content(enabled)
 {
 	jQuery('#premium_role').css('display', (enabled?'block':'none') );
 	jQuery('#protected_content_message').css('display', (enabled?'block':'none') );
-}
+}	
 function powerpress_premium_label_append_signin_link()
 {
-	jQuery('#premium_label').val( jQuery('#premium_label').val() + '<a href="<?php echo get_option('siteurl'); ?>/wp-login.php" title="<?php echo __('Sign In', 'powerpress'); ?>"><?php echo __('Sign In', 'powerpress'); ?><\/a>');
+	jQuery('#premium_label').val( jQuery('#premium_label').val() + '<a href="<?php echo get_option('siteurl'); ?>/wp-login.php" title="<?php echo __('Sign In', 'powerpress'); ?>"><?php echo __('Sign In', 'powerpress'); ?><\/a>'); 
 }
 function powerpress_default_premium_label(event)
 {
@@ -152,7 +152,7 @@ function powerpress_default_premium_label(event)
 	<p style="margin-top: 5px;"><input type="radio" name="PremiumLabel" id="premium_label_1" value="1" <?php echo ($FeedSettings['premium_label']!=''?'checked ':''); ?> onchange="jQuery('#premium_label_custom').css('display', (this.checked?'block':'none') );" />
 		<?php echo __('Use a custom label', 'powerpress'); ?>:
 	</p>
-
+	
 	<div id="premium_label_custom" style="margin-left: 20px; display: <?php echo ($FeedSettings['premium_label']!=''?'block':'none'); ?>;">
 	<textarea name="Feed[premium_label]" id="premium_label" style="width: 80%; height: 65px; margin-bottom: 0; padding-bottom: 0;"><?php echo esc_textarea($FeedSettings['premium_label']); ?></textarea>
 		<div style="width: 80%; font-size: 85%; text-align: right;">
@@ -177,9 +177,9 @@ function powerpress_default_premium_label(event)
 </p>
 <?php
 		}
-
+		
 		// Podcast Channels and Custom Post Types...
-
+		
 		if( $FeedAttribs['type'] == 'channel' )
 		{
 		?>
@@ -201,7 +201,7 @@ function powerpress_default_premium_label(event)
 			$custom_post_type = '';
 			if( !empty($FeedSettings['custom_post_type']) )
 				$custom_post_type = $FeedSettings['custom_post_type'];
-
+			
 			echo '<option value="">'. __('All Post Types (default)', 'powerpress') .'</option>';
 			while( list($index,$value) = each($post_types) )
 			{
@@ -212,7 +212,7 @@ function powerpress_default_premium_label(event)
 					$desc = $postTypeObj->labels->name . ' ('. $value .')';
 				echo "\t<option value=\"$value\"". ($custom_post_type==$value?' selected':''). ">".htmlspecialchars($desc)."</option>\n";
 			}
-
+			
 			if( defined('POWERPRESS_CUSTOM_CAPABILITY_TYPE') )
 			{
 				$post_types = powerpress_admin_get_post_types( POWERPRESS_CUSTOM_CAPABILITY_TYPE );

@@ -10,19 +10,19 @@ class EM_Locations_Widget extends WP_Widget {
     /** constructor */
     function __construct() {
     	$this->defaults = array(
-		'title' => __('Event Locations','events-manager'),
+    		'title' => __('Event Locations','events-manager'),
     		'scope' => 'future',
     		'order' => 'ASC',
     		'limit' => 5,
     		'format' => '<li>#_LOCATIONLINK<ul><li>#_LOCATIONADDRESS</li><li>#_LOCATIONTOWN</li></ul></li>',
-	    'no_locations_text' => '<li>'.__('No locations', 'events-manager').'</li>',
+    	    'no_locations_text' => '<li>'.__('No locations', 'events-manager').'</li>',
     		'orderby' => 'event_start_date,event_start_time,location_name'
     	);
     	$this->em_orderby_options = array(
-		'event_start_date, event_start_time, location_name' => __('Event start date/time, location name','events-manager'),
-		'location_name' => __('Location name','events-manager')
+    		'event_start_date, event_start_time, location_name' => __('Event start date/time, location name','events-manager'),
+    		'location_name' => __('Location name','events-manager')
     	);
-	$widget_ops = array('description' => __( "Display a list of event locations on Events Manager.", 'events-manager') );
+    	$widget_ops = array('description' => __( "Display a list of event locations on Events Manager.", 'events-manager') );
         parent::__construct(false, $name = 'Event Locations', $widget_ops);	
     }
 

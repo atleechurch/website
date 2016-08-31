@@ -136,12 +136,12 @@ function powerpress_admin_jquery_init()
 		case 'powerpress-jquery-hosting': {
 		
 				powerpress_admin_jquery_header( __('Blubrry Podcast Media Hosting', 'powerpress') );
-
+				
 				// Congratulations you aleady have hosting!
 ?>
 <div style="line-height: 32px; height: 32px;">&nbsp;</div>
 <iframe src="//www.blubrry.com/pp/" frameborder="0" style="overflow:hidden; overflow-y: hidden;" width="100%" height="480" scrolling="no" seamless="seamless"></iframe>
-<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?>
+<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?> 
 	<strong><a class="button-primary button-blubrry thickbox" title="<?php echo esc_attr(__('Blubrry Services Integration', 'powerpress')); ?>" href="<?php echo wp_nonce_url(admin_url('admin.php?action=powerpress-jquery-account'), 'powerpress-jquery-account'); ?>"><?php echo __('Click here to link Blubrry account', 'powerpress'); ?></a></strong>
 </p>
 <p style="text-align: center;"><a href="#" onclick="self.parent.tb_remove();"><?php echo __('Close', 'powerpress'); ?></a></p>
@@ -172,7 +172,7 @@ function powerpress_admin_jquery_init()
 <h2><?php echo __('Select Media', 'powerpress'); ?></h2>
 <p><?php echo __('Wait a sec! This feature is only available to Blubrry Media Podcast Hosting customers.', 'powerpress'); ?></p>
 <iframe src="//www.blubrry.com/pp/" frameborder="0" style="overflow:hidden; overflow-y: hidden;" width="100%" height="480" scrolling="no" seamless="seamless"></iframe>
-<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?>
+<p><?php echo __('Already have a blubrry hosting account?', 'powerpress'); ?> 
 	<strong><a class="button-primary button-blubrry thickbox" title="<?php echo esc_attr(__('Blubrry Services Integration', 'powerpress')); ?>" href="<?php echo wp_nonce_url(admin_url('admin.php?action=powerpress-jquery-account'), 'powerpress-jquery-account'); ?>"><?php echo __('Click here to link Blubrry account', 'powerpress'); ?></a></strong>
 </p>
 <p style="text-align: center;"><a href="#" onclick="self.parent.tb_remove();"><?php echo __('Close', 'powerpress'); ?></a></p>

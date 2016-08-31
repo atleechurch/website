@@ -34,11 +34,11 @@ function powerpress_admin_import_feed()
 
 <h2><?php echo __('Import settings from another plugin', 'powerpress'); ?></h2>
 <dl>
-	<dt><strong><a href="<?php echo admin_url() . wp_nonce_url("admin.php?page=powerpress/powerpressadmin_tools.php&amp;action=powerpress-podpress-settings", 'powerpress-podpress-settings'); ?>"
+	<dt><strong><a href="<?php echo admin_url() . wp_nonce_url("admin.php?page=powerpress/powerpressadmin_tools.php&amp;action=powerpress-podpress-settings", 'powerpress-podpress-settings'); ?>" 
 			onclick="return confirm('<?php echo __('Import PodPress settings, are you sure?\n\nExisting PowerPress settings will be overwritten.', 'powerpress'); ?>');"><?php echo __('Import PodPress Settings', 'powerpress'); ?></a></strong></dt>
 	<dd><?php echo __('Import settings from PodPress into PowerPress.', 'powerpress'); ?></dd>
-
-	<dt><strong><a href="<?php echo admin_url() . wp_nonce_url("admin.php?page=powerpress/powerpressadmin_tools.php&amp;action=powerpress-podcasting-settings", 'powerpress-podcasting-settings'); ?>"
+	
+	<dt><strong><a href="<?php echo admin_url() . wp_nonce_url("admin.php?page=powerpress/powerpressadmin_tools.php&amp;action=powerpress-podcasting-settings", 'powerpress-podcasting-settings'); ?>" 
 			onclick="return confirm('<?php echo __('Import Podcasting plugin settings, are you sure?', 'powerpress') .'\n\n'. __('Existing PowerPress settings will be overwritten.', 'powerpress'); ?>');"><?php echo htmlspecialchars(__('Import TSG\'s Podcasting Plugin Settings', 'powerpress')); ?></a></strong></dt>
 	<dd><?php echo esc_html(__('Import settings from the plugin "Podcasting Plugin by TSG" into PowerPress.', 'powerpress')); ?></dd>
 </dl>
@@ -48,7 +48,7 @@ function powerpress_admin_import_feed()
 <dl>
 	<dt><strong><a href="<?php echo admin_url("admin.php?page=powerpress/powerpressadmin_tools.php&amp;action=powerpress-podpress-epiosdes"); ?>"><?php echo __('Import PodPress Episodes', 'powerpress'); ?></a></strong></dt>
 	<dd><?php echo __('Import PodPress created episodes to PowerPress.', 'powerpress'); ?></dd>
-
+	
 	<dt><strong><?php echo __('Podcasting Plugin by TSG', 'powerpress'); ?></strong></dt>
 	<dd><?php echo esc_html(__('Note: Episodes created using the plugin "Podcasting Plugin by TSG" do not require importing.', 'powerpress')); ?></dd>
 </dl>

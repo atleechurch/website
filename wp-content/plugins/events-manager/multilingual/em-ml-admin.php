@@ -18,7 +18,7 @@ class EM_ML_Admin{
 		    remove_meta_box('em-event-group', EM_POST_TYPE_EVENT, 'side');
 		    if( get_option('dbem_attributes_enabled', true) ){
 	    	    remove_meta_box('em-event-attributes', EM_POST_TYPE_EVENT, 'normal');
-		    add_meta_box('em-event-attributes', __('Attributes','events-manager'), 'EM_ML_Admin::event_meta_box_attributes',EM_POST_TYPE_EVENT, 'normal','default');
+	    	    add_meta_box('em-event-attributes', __('Attributes','events-manager'), 'EM_ML_Admin::event_meta_box_attributes',EM_POST_TYPE_EVENT, 'normal','default');
 	    	}
 		    //add translation-specific meta boxes
 		    add_meta_box('em-event-translation', __('Translated Event Information','events-manager'), 'EM_ML_Admin::meta_box_translated_event',EM_POST_TYPE_EVENT, 'side','high');
@@ -35,7 +35,7 @@ class EM_ML_Admin{
 	    	remove_meta_box('em-location-where', EM_POST_TYPE_LOCATION, 'normal');
 	    	if( get_option('dbem_location_attributes_enabled') ){
 	    	    remove_meta_box('em-location-attributes', EM_POST_TYPE_LOCATION, 'normal');
-		    add_meta_box('em-location-attributes', __('Attributes','events-manager'), 'EM_ML_Admin::location_meta_box_attributes',EM_POST_TYPE_LOCATION, 'normal','default');
+	    	    add_meta_box('em-location-attributes', __('Attributes','events-manager'), 'EM_ML_Admin::location_meta_box_attributes',EM_POST_TYPE_LOCATION, 'normal','default');
 	    	}
 	    }
 	}
@@ -84,7 +84,7 @@ class EM_ML_Admin{
     	    foreach( $event->get_tickets()->tickets as $EM_Ticket ){ /* @var $EM_Ticket EM_Ticket */
     	        $name = !empty($EM_Ticket->ticket_meta['langs'][$lang]['ticket_name']) ? $EM_Ticket->ticket_meta['langs'][$lang]['ticket_name'] : '';
     	        $description =  !empty($EM_Ticket->ticket_meta['langs'][$lang]['ticket_description']) ? $EM_Ticket->ticket_meta['langs'][$lang]['ticket_description']: '';
-	        $desc_ph = !empty($EM_Ticket->ticket_description) ? $EM_Ticket->ticket_description:__('Description','events-manager');
+    	        $desc_ph = !empty($EM_Ticket->ticket_description) ? $EM_Ticket->ticket_description:__('Description','events-manager');  
     	        ?>
     	        <tbody>
     	        <tr>

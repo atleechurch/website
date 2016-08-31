@@ -155,17 +155,17 @@ jQuery(document).ready(function($) {
 			<td id="dup-log-panel-left">
 				<div class="name">
 					<i class='fa fa-list-alt'></i> <b><?php echo basename($logurl); ?></b> &nbsp; | &nbsp;
-					<i style="cursor: pointer"
-						data-tooltip-title="<?php _e("Host Recommendation:", 'duplicator'); ?>"
+					<i style="cursor: pointer" 
+						data-tooltip-title="<?php _e("Host Recommendation:", 'duplicator'); ?>" 
 						data-tooltip="<?php _e('Duplicator recommends going with the high performance pro plan or better from Bluehost.com', 'duplicator'); ?>">
 						 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
-						 <?php
+						 <?php 
 							 printf("%s <a target='_blank' href='//www.bluehost.com/track/snapcreek/?page=wordpress'>%s</a> %s",
-								 __("Duplicator recommends ", 'duplicator'),
+								 __("Duplicator recommends ", 'duplicator'), 
 								 __("Bluehost", 'duplicator'),
 								 __("for more reliable conversions", 'duplicator'));
 						 ?>
-					</i>
+					</i>					
 				</div>
 				<div class="opts"><a href="javascript:void(0)" id="dup-options"><?php _e("Options", 'duplicator') ?> <i class="fa fa-angle-double-right"></i></a> &nbsp;</div>
 				<br style="clear:both" />

@@ -37,7 +37,7 @@ class DUP_Package {
 	public $VersionDB;
 	public $VersionPHP;
 	public $VersionOS;
-
+	
 	public $ID;
 	public $Name;
 	public $Hash;

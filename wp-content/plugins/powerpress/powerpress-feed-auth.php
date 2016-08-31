@@ -22,7 +22,7 @@
 				}
 				unset($ha);
 			}
-
+			
 			if( !isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ) {
 				powerpress_feed_auth_basic( $FeedSettings['title'] );
 				exit;
@@ -53,14 +53,14 @@
 		if( !defined('POWERPRESS_FEED_AUTH_PRINT_WP_ERRORS') && is_wp_error($error) ) {
 			$error = __('Unauthorized', 'powerpress');
 		}
-
+		
 		if( empty($error) ) {
 			$error = __('Unauthorized', 'powerpress');
 		}
-
+		
 		$error_heading = (is_wp_error($error)? __('Unauthorized', 'powerpress') : $error);
 		$error_message = (is_wp_error($error)?$error->get_error_message(): htmlspecialchars($error) );
-
+		
 		if( !$error )
 			$error = __('Unauthorized', 'powerpress');
 		header('HTTP/1.0 401 Unauthorized');
@@ -83,5 +83,5 @@
 <?php
 		exit;
 	}
-
+	
 // eof

@@ -88,7 +88,7 @@ jQuery(document).ready(function($) {
 </div>
 
 <?php
-
+	
 	powerpressadmin_default_steps($Step);
 	
 	if( $MultiSiteServiceSettings && defined('POWERPRESS_MULTISITE_VERSION') )

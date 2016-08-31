@@ -1,8 +1,7 @@
 <?php
 	// Exit if accessed directly
 	if (! defined('DUPLICATOR_INIT')) {
-		$_baseURL =  strlen($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
-		$_baseURL =  "http://" . $_baseURL;
+		$_baseURL = "http://" . strlen($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
 		header("HTTP/1.1 301 Moved Permanently");
 		header("Location: $_baseURL");
 		exit; 
@@ -58,11 +57,11 @@ VIEW: STEP 3- INPUT -->
 					<span data-bind="with: status.step2" style="color:#888"><b>General Notices:</b> (<span data-bind="text: warn_all"></span>)</span>
 				</i>
 			</td>
-		</tr>
+		</tr>			
 	</table><br/>
 	
 	<div class="s3-btns-msg">Click buttons above to complete process</div>
-
+	
 	<div class="s3-go-back">
 		<i style='font-size:11px'>To re-install <a href="javascript:history.go(-2)">start over at step 1</a>.</i><br/>
 		<i style="font-size:11px;">The .htaccess file was reset.  Resave plugins that write to this file.</i>
@@ -120,17 +119,17 @@ VIEW: STEP 3- INPUT -->
 		<div id="dup-step3-errs-create" class="s3-err-msg">
 			<b data-bind="with: status.step1">STEP 1: DEPLOY ERRORS (<span data-bind="text: query_errs"></span>)</b><br/>
 			<div class="info-error">
-				Queries that error during the deploy step are logged to the <a href="installer-log.txt" target="_blank">install-log.txt</a> file  and marked '**ERROR**'.
-				<br/><br/>
+				Queries that error during the deploy step are logged to the <a href="installer-log.txt" target="_blank">install-log.txt</a> file  and marked '**ERROR**'. 
+				<br/><br/>  
 			
 				<b><u>Common Fixes:</u></b>
 				<br/>
-
-				<b>Query size limits:</b> Update your MySQL server with the <a href="https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html" target="_blank">max_allowed_packet</a>
+				
+				<b>Query size limits:</b> Update your MySQL server with the <a href="https://dev.mysql.com/doc/refman/5.5/en/packet-too-large.html" target="_blank">max_allowed_packet</a> 
 				setting to handle larger payloads. <br/>
-
-				<b>Unknown collation:</b> The MySQL Version is too old see:
-				<a href="https://lifeinthegrid.com/duplicator-faq" target="_blank">What is Compatibility mode & 'Unknown collation' errors?</a>
+				
+				<b>Unknown collation:</b> The MySQL Version is too old see: 
+				<a href="https://lifeinthegrid.com/duplicator-faq" target="_blank">What is Compatibility mode & 'Unknown collation' errors?</a> 
 				<br/>
 			</div>
 		</div>
@@ -142,7 +141,7 @@ VIEW: STEP 3- INPUT -->
 			<b data-bind="with: status.step2">STEP2: UPDATE ERRORS (<span data-bind="text: errsql_sum"></span>) </b><br/>
 			<div class="info-error">
 				Update errors that show here are queries that could not be performed because the database server being used has issues running it.  Please validate the query, if
-				it looks to be of concern please try to run the query manually.  In many cases if your site performs well without any issues you can ignore the error.
+				it looks to be of concern please try to run the query manually.  In many cases if your site performs well without any issues you can ignore the error.			
 			</div>
 			<div class="content">
 				<div data-bind="foreach: status.step2.errsql"><div data-bind="text: $data"></div></div>
@@ -152,9 +151,9 @@ VIEW: STEP 3- INPUT -->
 			<!-- TABLE KEY ERRORS -->
 			<b data-bind="with: status.step2">TABLE KEY NOTICES (<span data-bind="text: errkey_sum"></span>)</b><br/>
 			<div class="info-notice">
-				Notices should be ignored unless issues are found after you have tested an installed site. This notice indicates that a primary key is required to run the
+				Notices should be ignored unless issues are found after you have tested an installed site. This notice indicates that a primary key is required to run the 
 				update engine. Below is a list of tables and the rows that were not updated.  On some databases you can remove these notices by checking the box 'Enable Full Search'
-				under advanced options in step2 of the installer.
+				under advanced options in step2 of the installer.  
 				<br/><br/>
 				<small>
 					<b>Advanced Searching:</b><br/>
@@ -170,7 +169,7 @@ VIEW: STEP 3- INPUT -->
 			<!-- SERIALIZE ERRORS -->
 			<b data-bind="with: status.step2">SERIALIZATION NOTICES  (<span data-bind="text: errser_sum"></span>)</b><br/>
 			<div class="info-notice">
-				Notices should be ignored unless issues are found after you have tested an installed site.  The SQL below will show data that may have not been
+				Notices should be ignored unless issues are found after you have tested an installed site.  The SQL below will show data that may have not been 
 				updated during the serialization process.  Best practices for serialization notices is to just re-save the plugin/post/page in question.
 			</div>
 			<div class="content">
@@ -200,26 +199,26 @@ VIEW: STEP 3- INPUT -->
 		</div><br/>
 		
 	</div><br/>
-
-	<?php
-		$num = rand(1,2);
+	
+	<?php  
+		$num = rand(1,2);  
 		switch ($num) {
-			case 1:
-				$key = 'free-inst-s3btn1';
+			case 1: 
+				$key = 'free_inst_s3btn1';
 				$txt = 'Want More Power?';
 				break;
-			case 2:
-				$key = 'free-inst-s3btn2';
+			case 2: 
+				$key = 'free_inst_s3btn2';
 				$txt = 'Go Pro Today!';
-				break;
+				break;	
 			default :
-				$key = 'free-inst-s3btn2';
+				$key = 'free_inst_s3btn2';
 				$txt = 'Go Pro Today!';
 		}
 	?>
-
+	
 	<div class="s3-gopro-btn">
-		<a style="width:100%" class="s3-final-btns" href="https://snapcreek.com/duplicator/comparison?<?php echo $key;?>" target="_blank">&#10097;&#10097; <?php echo $txt;?></a>
+		<a style="width:100%" class="s3-final-btns" href="https://snapcreek.com/duplicator/?utm_source=duplicator_free&utm_medium=wordpress_plugin&utm_campaign=duplicator_pro&utm_content="<?php echo $key;?>" target="_blank">&#10097;&#10097; <?php echo $txt;?></a> 
 	</div>
 	<br/><br/>
 		

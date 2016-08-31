@@ -88,12 +88,12 @@ function powerpress_admin_categoryfeeds()
 		$edit_link = admin_url('admin.php?page='. powerpress_admin_get_page() .'&amp;action=powerpress-editcategoryfeed&amp;cat=') . $cat_ID;
 		
 		$feed_title = $category->name;
-
+		
 		if( !empty($General['cat_casting_podcast_feeds']) )
 			$url = get_category_feed_link($cat_ID, 'podcast');
 		else
 			$url = get_category_feed_link($cat_ID);
-
+		
 		$short_url = str_replace('http://', '', $url);
 		$short_url = str_replace('www.', '', $short_url);
 		if (strlen($short_url) > 35)
@@ -209,7 +209,7 @@ function powerpress_admin_categoryfeeds()
 <table class="form-table">
 <tr valign="top">
 <th scope="row">
-<?php echo __('Strict Categories', 'powerpress'); ?></th>
+<?php echo __('Strict Categories', 'powerpress'); ?></th> 
 <td>
 	<p><input type="hidden" name="cat_casting_strict" value="0" />
 		<label><input type="checkbox" name="cat_casting_strict" value="1" <?php echo ( !empty($General['cat_casting_strict']) ?'checked ':''); ?>/>
@@ -218,7 +218,7 @@ function powerpress_admin_categoryfeeds()
 </tr>
 <tr valign="top">
 <th scope="row">
-<?php echo __('Podcast Only Feeds', 'powerpress'); ?></th>
+<?php echo __('Podcast Only Feeds', 'powerpress'); ?></th> 
 <td>
 		<p><input type="hidden" name="cat_casting_podcast_feeds" value="0" />
 		<label><input type="checkbox" name="cat_casting_podcast_feeds" value="1" <?php echo ( !empty($General['cat_casting_podcast_feeds']) ?'checked ':''); ?>/>
@@ -229,5 +229,5 @@ function powerpress_admin_categoryfeeds()
 <p class="submit"><input type="submit" class="button" name="submit" value="<?php echo __('Save Settings', 'powerpress'); ?>" /></p>
 <?php
 	}
-
+	
 // eof

@@ -196,7 +196,7 @@ class DUP_Archive
             foreach ($this->FilterDirsAll as $item)
             {
                 $trimmed_item = rtrim($item, '/');
-                if ($val == $trimmed_item || strstr($val, $trimmed_item . '/'))
+                if ($val == $trimmed_item || strstr($val, $trimmed_item . '/')) 
 				{
                     unset($this->Dirs[$key]);
                     continue 2;
@@ -205,12 +205,12 @@ class DUP_Archive
 			
 			//WARNING: Find OS items that may have issues
 			$name = basename($val); 
-			$warn_test  =  strlen($val) > 250
-						|| preg_match('/(\/|\*|\?|\>|\<|\:|\\|\|)/', $name)
-						|| trim($name) == ""
+			$warn_test  =  strlen($val) > 250 
+						|| preg_match('/(\/|\*|\?|\>|\<|\:|\\|\|)/', $name) 
+						|| trim($name) == "" 
 						|| (strrpos($name, '.') == strlen($name) - 1  && substr($name, -1) == '.')
 						|| preg_match('/[^\x20-\x7f]/', $name);
-			if ($warn_test)
+			if ($warn_test) 
 			{
 				$this->FilterInfo->Dirs->Warning[] = DUP_Encoding::toUTF8($val);
 			} 
@@ -258,7 +258,7 @@ class DUP_Archive
 						} 
 						$this->Size += $fileSize;
 						$this->Files[] = $filePath;
-
+					
 						
 						if ($fileSize > DUPLICATOR_SCAN_WARNFILESIZE) 
 						{

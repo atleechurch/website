@@ -75,7 +75,7 @@ class EM_Ticket_Booking extends EM_Object{
 					//TODO better error handling
 					$result = $wpdb->insert($table, $data, $this->get_types($data));
 				    $this->ticket_booking_id = $wpdb->insert_id;  
-					$this->feedback_message = __('Ticket booking created','events-manager');
+					$this->feedback_message = __('Ticket booking created','events-manager'); 
 				}else{
 					//no point saving a booking with no spaces
 					$result = false;

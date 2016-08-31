@@ -56,7 +56,8 @@ class DUP_Installer {
 			"assets/inc.js.php"				=> "@@INC.JS.PHP@@",
 			"classes/class.logging.php"		=> "@@CLASS.LOGGING.PHP@@",
 			"classes/class.utils.php"		=> "@@CLASS.UTILS.PHP@@",
-			"classes/class.config.php"		=> "@@CLASS.CONFIG.PHP@@",
+			"classes/class.conf.wp.php"		=> "@@CLASS.CONF.WP.PHP@@",
+			"classes/class.conf.srv.php"	=> "@@CLASS.CONF.SRV.PHP@@",
 			"classes/class.serializer.php"	=> "@@CLASS.SERIALIZER.PHP@@",
 			"ajax.step1.php"				=> "@@AJAX.STEP1.PHP@@",
 			"ajax.step2.php"				=> "@@AJAX.STEP2.PHP@@",
@@ -131,7 +132,7 @@ class DUP_Installer {
 			"fwrite_version_wp"			=> $this->Package->VersionWP,
 			"fwrite_version_db"			=> $this->Package->VersionDB,
 			"fwrite_version_php"		=> $this->Package->VersionPHP,
-			"fwrite_version_os"			=> $this->Package->VersionOS,
+			"fwrite_version_os"			=> $this->Package->VersionOS,	
 			//GENERAL
 			"fwrite_url_old"			=> get_option('siteurl'),
 			"fwrite_package_name"		=> "{$this->Package->NameHash}_archive.zip",

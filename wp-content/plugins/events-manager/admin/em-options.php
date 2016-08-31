@@ -18,7 +18,7 @@ function em_options_save(){
 				if( in_array($postKey,$numeric_options) && !is_numeric($postValue) ){
 					//Do nothing, keep old setting.
 				}elseif( $postKey == 'dbem_category_default_color' && !preg_match("/^#([abcdef0-9]{3}){1,2}?$/i",$postValue)){
-					$EM_Notices->add_error( sprintf(esc_html_x('Colors must be in a valid %s format, such as #FF00EE.', 'hex format', 'events-manager'), '<a href="http://en.wikipedia.org/wiki/Web_colors">hex</a>').' '. esc_html__('This setting was not changed.', 'events-manager'), true);
+					$EM_Notices->add_error( sprintf(esc_html_x('Colors must be in a valid %s format, such as #FF00EE.', 'hex format', 'events-manager'), '<a href="http://en.wikipedia.org/wiki/Web_colors">hex</a>').' '. esc_html__('This setting was not changed.', 'events-manager'), true);					
 				}else{
 					//TODO slashes being added?
 					if( is_array($postValue) ){
@@ -194,12 +194,12 @@ function em_admin_email_test_ajax(){
         if( $EM_Event->email_send($subject,$content,$current_user->user_email) ){
         	$result = array(
         		'result' => true,
-			'message' => sprintf(__('Email sent successfully to %s','events-manager'),$current_user->user_email)
+        		'message' => sprintf(__('Email sent successfully to %s','events-manager'),$current_user->user_email)
         	);
         }else{
             $result = array(
             	'result' => false,
-		'message' => __('Email not sent.','events-manager')." <ul><li>".implode('</li><li>',$EM_Event->get_errors()).'</li></ul>'
+            	'message' => __('Email not sent.','events-manager')." <ul><li>".implode('</li><li>',$EM_Event->get_errors()).'</li></ul>'
             );
         }
         echo EM_Object::json_encode($result);
@@ -464,8 +464,8 @@ function em_admin_option_box_caps(){
 	<div class="inside">
             <table class="form-table">
             <tr><td colspan="2" class="em-boxheader">
-		<p><strong><?php _e('Warning: Changing these values may result in exposing previously hidden information to all users.', 'events-manager')?></strong></p>
-		<p><em><?php _e('You can now give fine grained control with regards to what your users can do with events. Each user role can have perform different sets of actions.','events-manager'); ?></em></p>
+            	<p><strong><?php _e('Warning: Changing these values may result in exposing previously hidden information to all users.', 'events-manager')?></strong></p>
+            	<p><em><?php _e('You can now give fine grained control with regards to what your users can do with events. Each user role can have perform different sets of actions.','events-manager'); ?></em></p>
             </td></tr>
 			<?php
             global $wp_roles;
@@ -486,7 +486,7 @@ function em_admin_option_box_caps(){
 					'delete_others_recurring_events' => sprintf(__('User can delete other users %s','events-manager'),__('recurring events','events-manager')),
 					'edit_others_recurring_events' => sprintf(__('User can edit other users %s','events-manager'),__('recurring events','events-manager')),
 					'delete_recurring_events' => sprintf(__('User can delete their own %s','events-manager'),__('recurring events','events-manager')),
-					'edit_recurring_events' => sprintf(__('User can create and edit %s','events-manager'),__('recurring events','events-manager'))
+					'edit_recurring_events' => sprintf(__('User can create and edit %s','events-manager'),__('recurring events','events-manager'))						
 				),
 				sprintf(__('%s Capabilities','events-manager'),__('Location','events-manager')) => array(
 					/* Location Capabilities */
@@ -579,28 +579,28 @@ function em_admin_option_box_uninstall(){
 		<div class="inside">
 			<table class="form-table">
     		    <tr class="em-header"><td colspan="2">
-				<h4><?php _e ( 'Development Versions &amp; Updates', 'events-manager'); ?></h4>
-				<p><?php _e('We\'re always making improvements, adding features and fixing bugs between releases. We incrementally make these changes in between updates and make it available as a development version. You can download these manually, but we\'ve made it easy for you. <strong>Warning:</strong> Development versions are not always fully tested before release, use wisely!','events-manager'); ?></p>
+        			<h4><?php _e ( 'Development Versions &amp; Updates', 'events-manager'); ?></h4>
+        			<p><?php _e('We\'re always making improvements, adding features and fixing bugs between releases. We incrementally make these changes in between updates and make it available as a development version. You can download these manually, but we\'ve made it easy for you. <strong>Warning:</strong> Development versions are not always fully tested before release, use wisely!','events-manager'); ?></p>
     			</td></tr>
 				<?php em_options_radio_binary ( __( 'Enable Dev Updates?', 'events-manager'), 'dbem_pro_dev_updates', __('If enabled, the latest dev version will always be checked instead of the latest stable version of the plugin.', 'events-manager') ); ?>
 				<tr>
-			    <th style="text-align:right;"><a href="<?php echo $recheck_updates_url; ?>" class="button-secondary"><?php _e('Re-Check Updates','events-manager'); ?></a></th>
-			    <td><?php _e('If you would like to check and see if there is a new stable update.','events-manager'); ?></td>
+    			    <th style="text-align:right;"><a href="<?php echo $recheck_updates_url; ?>" class="button-secondary"><?php _e('Re-Check Updates','events-manager'); ?></a></th>
+    			    <td><?php _e('If you would like to check and see if there is a new stable update.','events-manager'); ?></td>
     			</tr>
     			<tr>
-			    <th style="text-align:right;"><a href="<?php echo $check_devs; ?>" class="button-secondary"><?php _e('Check Dev Versions','events-manager'); ?></a></th>
-			    <td><?php _e('If you would like to download a dev version, but just as a one-off, you can force a dev version check by clicking the button below. If there is one available, it should appear in your plugin updates page as a regular update.','events-manager'); ?></td>
+    			    <th style="text-align:right;"><a href="<?php echo $check_devs; ?>" class="button-secondary"><?php _e('Check Dev Versions','events-manager'); ?></a></th>
+    			    <td><?php _e('If you would like to download a dev version, but just as a one-off, you can force a dev version check by clicking the button below. If there is one available, it should appear in your plugin updates page as a regular update.','events-manager'); ?></td>
 				</tr>
 			</table>
 			
 			<table class="form-table">
     		    <tr class="em-header"><td colspan="2">
-		        <h4><?php _e ( 'Uninstall/Reset', 'events-manager'); ?></h4>
-		        <p><?php _e('Use the buttons below to uninstall Events Manager completely from your system or reset Events Manager to original settings and keep your event data.','events-manager'); ?></p>
+    		        <h4><?php _e ( 'Uninstall/Reset', 'events-manager'); ?></h4>
+    		        <p><?php _e('Use the buttons below to uninstall Events Manager completely from your system or reset Events Manager to original settings and keep your event data.','events-manager'); ?></p>
     		    </td></tr>
     		    <tr><td colspan="2">
-				<a href="<?php echo $uninstall_url; ?>" class="button-secondary"><?php _e('Uninstall','events-manager'); ?></a>
-				<a href="<?php echo $reset_url; ?>" class="button-secondary"><?php _e('Reset','events-manager'); ?></a>
+        			<a href="<?php echo $uninstall_url; ?>" class="button-secondary"><?php _e('Uninstall','events-manager'); ?></a>
+        			<a href="<?php echo $reset_url; ?>" class="button-secondary"><?php _e('Reset','events-manager'); ?></a>
     		    </td></tr>
 			</table>
 			<?php do_action('em_options_page_panel_admin_tools'); ?>

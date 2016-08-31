@@ -271,7 +271,7 @@ function em_verify_nonce($action, $nonce_name='_wpnonce'){
 /**
  * Since WP 4.5 em_wp_get_referer() returns false if URL is the same. We use it to get a safe referrer url, so we use the new wp_get_raw_referer() argument instead.
  * @since 5.6.3
- * @return string
+ * @return string 
  */
 function em_wp_get_referer(){
 	if( function_exists('wp_get_raw_referer') ){
@@ -354,15 +354,15 @@ function em_booking_add_registration( $EM_Booking ){
     $registration = true;
     if( ((!is_user_logged_in() && get_option('dbem_bookings_anonymous')) || EM_Bookings::is_registration_forced()) && !get_option('dbem_bookings_registration_disable') ){
     	//find random username - less options for user, less things go wrong
-	$user_email = stripslashes($_REQUEST['user_email']); //otherwise may fail validation
-	$username_root = explode('@', wp_kses_data($user_email));
+    	$user_email = trim(stripslashes($_REQUEST['user_email'])); //otherwise may fail validation
+    	$username_root = explode('@', wp_kses_data($user_email));
     	$username_root = $username_rand = sanitize_user($username_root[0], true);
     	while( username_exists($username_rand) ) {
     		$username_rand = $username_root.rand(1,1000);
     	}
     	$_REQUEST['dbem_phone'] = (!empty($_REQUEST['dbem_phone'])) ? wp_kses_data($_REQUEST['dbem_phone']):''; //fix to prevent warnings
     	$_REQUEST['user_name'] = (!empty($_REQUEST['user_name'])) ? wp_kses_data($_REQUEST['user_name']):''; //fix to prevent warnings
-	$user_data = array('user_login' => $username_rand, 'user_email'=> $user_email, 'user_name'=> $_REQUEST['user_name'], 'dbem_phone'=> $_REQUEST['dbem_phone']);
+    	$user_data = array('user_login' => $username_rand, 'user_email'=> $user_email, 'user_name'=> $_REQUEST['user_name'], 'dbem_phone'=> $_REQUEST['dbem_phone']);
     	$id = em_register_new_user($user_data);
     	if( is_numeric($id) ){
     		$EM_Person = new EM_Person($id);

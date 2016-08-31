@@ -5,7 +5,7 @@
 		$cat_ID = $FeedAttribs['category_id'];
 	if( empty($FeedAttribs['type']) )
 		$FeedAttribs['type'] = '';
-
+	
 	$feed_url = '';
 	switch( $FeedAttribs['type'] )
 	{
@@ -29,7 +29,7 @@
 			$feed_url = get_feed_link('podcast');
 		}
 	}
-
+	
 	if( empty($FeedSettings['itunes_url']) )
 		$FeedSettings['itunes_url'] = '';
 	if( empty($FeedSettings['googleplay_url']) )
@@ -38,6 +38,8 @@
 		$FeedSettings['blubrry_url'] = '';
 	if( empty($FeedSettings['stitcher_url']) )
 		$FeedSettings['stitcher_url'] = '';
+	if( empty($FeedSettings['tunein_url']) )
+		$FeedSettings['tunein_url'] = '';	
 ?>
 
 
@@ -47,7 +49,7 @@
 
 <table class="form-table">
 <tr valign="top">
-<th scope="row">&nbsp;</th>
+<th scope="row">&nbsp;</th> 
 <td>
 <p><?php echo __('For your reference, your podcast feed URL is...', 'powerpress'); ?></p>
 <input type="text" style="width: 80%;" name="NULL[feed_url]" value="<?php echo esc_attr($feed_url); ?>" maxlength="1024" onclick="javascript: this.select();" onfocus="javascript: this.select();" />
@@ -60,7 +62,7 @@
 <p><?php echo __('Listing URLs are used by player subscribe links, subscribe sidebar widgets and subscribe to podcast page shortcodes.', 'powerpress'); ?></p>
 <table class="form-table">
 <tr valign="top">
-<th scope="row"><?php echo __('iTunes', 'powerpress'); ?></th>
+<th scope="row"><?php echo __('iTunes', 'powerpress'); ?></th> 
 <td>
 	<p><strong><a href="http://create.blubrry.com/manual/podcast-promotion/submit-podcast-to-itunes/?podcast-feed=<?php echo urlencode($feed_url); ?>" target="_blank"><?php echo __('Submit podcast to iTunes', 'powerpress'); ?></a></strong></p>
 	<label for="itunes_url" style="font-size: 120%; display: block; font-weight: bold;"><?php echo __('iTunes Subscription URL', 'powerpress'); ?></label>
@@ -116,7 +118,10 @@
 <th scope="row"><?php echo __('TuneIn', 'powerpress'); ?></th>
 <td>
 	<p><strong><a href="http://create.blubrry.com/manual/podcast-promotion/publish-podcast-tunein/?podcast-feed=<?php echo urlencode($feed_url); ?>" target="_blank"><?php echo  __('Submit podcast to TuneIn', 'powerpress'); ?></a></strong></p>
-	<p class="description"><?php echo __('TuneIn does not offer listing URLs at this time.', 'powerpress'); ?></p>
+	<label for="tunein_url" style="font-size: 120%; display: block; font-weight: bold;"><?php echo __('TuneIn Listing URL', 'powerpress'); ?></label>
+	<input type="text" class="bpp-input-normal" id="tunein_url" name="Feed[tunein_url]" value="<?php echo esc_attr($FeedSettings['tunein_url']); ?>" maxlength="255" />
+	<p class="description"><?php echo sprintf(__('e.g. %s', 'powerpress'), 'http://tunein.com/radio/your-podcast-p000000/'); ?></p>
+	
 </td>
 </tr>
 </table>

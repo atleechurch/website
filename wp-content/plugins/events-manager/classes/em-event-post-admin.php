@@ -122,7 +122,7 @@ class EM_Event_Post_Admin{
         		   if( key($wp_filter[$tag]) == $wp_filter_priority ) break; 
         		}while ( next($wp_filter[$tag]) !== false );
         		//save categories in case of default category
-			if( get_option('dbem_categories_enabled') ) $EM_Event->get_categories()->save();
+        		if( get_option('dbem_categories_enabled') ) $EM_Event->get_categories()->save();
 				//continue whether all went well or not
 				if( !$get_meta || !$validate_meta || !$save_meta ){
 					//failed somewhere, set to draft, don't publish
@@ -264,8 +264,8 @@ class EM_Event_Post_Admin{
 		global $EM_Event;
 		?>
 		<div class='updated'><p><?php _e('This event was submitted by a guest. You will find their details in the <em>Anonymous Submitter Info</em> box','events-manager')?></p></div>
-		<p><strong><?php _e('Name','events-manager'); ?> :</strong> <?php echo $EM_Event->event_owner_name; ?></p>
-		<p><strong><?php _e('Email','events-manager'); ?> :</strong> <?php echo $EM_Event->event_owner_email; ?></p>
+		<p><strong><?php _e('Name','events-manager'); ?> :</strong> <?php echo $EM_Event->event_owner_name; ?></p> 
+		<p><strong><?php _e('Email','events-manager'); ?> :</strong> <?php echo $EM_Event->event_owner_email; ?></p> 
 		<?php
 	}
 	

@@ -10,12 +10,12 @@ class EM_Widget_Calendar extends WP_Widget {
     /** constructor */
     function __construct() {
     	$this->defaults = array(
-		'title' => __('Calendar','events-manager'),
+    		'title' => __('Calendar','events-manager'),
     		'long_events' => 0,
     		'category' => 0
     	);
-	$widget_ops = array('description' => __( "Display your events in a calendar widget.", 'events-manager') );
-        parent::__construct(false, $name = __('Events Calendar','events-manager'), $widget_ops);
+    	$widget_ops = array('description' => __( "Display your events in a calendar widget.", 'events-manager') );
+        parent::__construct(false, $name = __('Events Calendar','events-manager'), $widget_ops);	
     }
 
     /** @see WP_Widget::widget */

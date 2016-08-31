@@ -330,10 +330,10 @@ function em_add_options() {
 
 	//event admin emails - new format to the above, standard format plus one unique line per booking status at the top of the body and subject line
 	$contact_person_email_body_template = '#_EVENTNAME - #_EVENTDATES @ #_EVENTTIMES'.'<br/>'
-		    .__('Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.','events-manager').'<br/>'.
-		    strtoupper(__('Booking Details','events-manager')).'<br/>'.
-		    __('Name','events-manager').' : #_BOOKINGNAME'."\n".
-		    __('Email','events-manager').' : #_BOOKINGEMAIL'.'<br/>'.
+ 		    .__('Now there are #_BOOKEDSPACES spaces reserved, #_AVAILABLESPACES are still available.','events-manager').'<br/>'.
+ 		    strtoupper(__('Booking Details','events-manager')).'<br/>'.
+ 		    __('Name','events-manager').' : #_BOOKINGNAME'."\n".
+ 		    __('Email','events-manager').' : #_BOOKINGEMAIL'.'<br/>'.
  		    '#_BOOKINGSUMMARY'.'<br/>'.
  		    '<br/>Powered by Events Manager - http://wp-events-plugin.com';
 	$contact_person_emails['confirmed'] = sprintf(__('The following booking is %s :','events-manager'),strtolower(__('Confirmed','events-manager'))).'<br/>'.$contact_person_email_body_template;
@@ -569,6 +569,7 @@ function em_add_options() {
 		'dbem_ical_location_format' => "#_LOCATION",
 		//Google Maps
 		'dbem_gmap_is_active'=> 1,
+		'dbem_google_maps_browser_key'=> '',
 		'dbem_map_default_width'=> '400px', //eventually will use %
 		'dbem_map_default_height'=> '300px',
 		'dbem_location_baloon_format' => '<strong>#_LOCATIONNAME</strong><br/>#_LOCATIONADDRESS - #_LOCATIONTOWN<br/><a href="#_LOCATIONPAGEURL">'.__('Events', 'events-manager').'</a>',
@@ -909,7 +910,7 @@ function em_add_options() {
 	    delete_option('dbem_bookings_contact_email_body');
 	}
 	if( get_option('dbem_version') != '' && get_option('dbem_version') < 5.62 ){
-	    //delete all _event_created_date and _event_date_modified records in post_meta, we don't need them anymore, they were never accurate to begin with, refer to the records in em_events table if still needed
+	    //delete all _event_created_date and _event_date_modified records in post_meta, we don't need them anymore, they were never accurate to begin with, refer to the records in em_events table if still needed 
 	    $wpdb->query('DELETE FROM '.$wpdb->postmeta." WHERE (meta_key='_event_date_created' OR meta_key='_event_date_modified') AND post_id IN (SELECT ID FROM ".$wpdb->posts." WHERE post_type='".EM_POST_TYPE_EVENT."' OR post_type='event-recurring')");
 	    $wpdb->query('ALTER TABLE '. $wpdb->prefix.'em_bookings CHANGE event_id event_id BIGINT(20) UNSIGNED NULL');
 	}

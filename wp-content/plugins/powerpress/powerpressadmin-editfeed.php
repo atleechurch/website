@@ -265,7 +265,7 @@ function powerpress_admin_editfeed($type='', $type_value = '', $feed_slug = fals
 		<li><a href="#feed_tab_appearance"><span><?php echo htmlspecialchars(__('Website', 'powerpress')); ?></span></a></li>
 	<?php } ?>
 	<li><a href="#feed_tab_destinations"><span><?php echo htmlspecialchars(__('Destinations', 'powerpress')); ?></span></a></li>
-
+	
 	<?php if( in_array($FeedAttribs['type'], array('category', 'ttid', 'post_type', 'channel') ) ) { ?>
 		<li><a href="#feed_tab_other"><span><?php echo htmlspecialchars(__('Other Settings', 'powerpress')); ?></span></a></li> 
 	<?php } ?>
@@ -293,7 +293,7 @@ function powerpress_admin_editfeed($type='', $type_value = '', $feed_slug = fals
 		powerpressadmin_edit_googleplay($FeedSettings, $General, $FeedAttribs);
 		?>
 	</div>
-
+	
 	<div id="feed_tab_artwork" class="powerpress_tab">
 		<?php
 		powerpressadmin_edit_artwork($FeedSettings, $General);
@@ -306,11 +306,11 @@ function powerpress_admin_editfeed($type='', $type_value = '', $feed_slug = fals
 		//powerpressadmin_appearance($General);
 		//if( $feed_slug )
 		//	powerpressadmin_edit_appearance_feed($General, $FeedSettings, $feed_slug, $FeedAttribs);
-
+		
 		powerpressadmin_settings_tab_appearance($General, $FeedSettings, $FeedAttribs);
 		?>
 	</div>
-
+	
 	<div id="feed_tab_destinations" class="powerpress_tab">
 		<?php
 		powerpressadmin_edit_destinations($FeedSettings, $General, $FeedAttribs);
@@ -416,7 +416,7 @@ function powerpressadmin_edit_feed_general($FeedSettings, $General)
 <input type="hidden" name="General[feed_action_hook]" value="0" />
 <p><label><input type="checkbox" name="General[feed_action_hook]" value="1" <?php if( !empty($General['feed_action_hook']) && $General['feed_action_hook'] == 1 ) echo 'checked '; ?>/> <?php echo __('Do not allow other plugins to modify podcast feeds.', 'powerpress'); ?></label></p>
 <input type="hidden" name="General[feed_accel]" value="0" />
-<p><label><input type="checkbox" name="General[feed_accel]" value="1" <?php if( !empty($General['feed_accel']) && $General['feed_accel'] == 1 ) echo 'checked '; ?>/> <?php echo __('Accelerate feed (may conflict with caching plugins)', 'powerpress'); ?></label></p>
+<p><label><input type="checkbox" name="General[feed_accel]" value="1" <?php if( !empty($General['feed_accel']) && $General['feed_accel'] == 1 ) echo 'checked '; ?>/> <?php echo __('Accelerate feed', 'powerpress'); ?></label></p>
 
 </td>
 </tr>
@@ -1135,7 +1135,7 @@ while( list($value,$desc) = each($explicit) )
 	<tr valign="top">
 	<th scope="row" >
 
-<span style="margin-left: 10px;"><?php echo __('iTunes Block', 'powerpress'); ?></span></th>
+<span style="margin-left: 10px;"><?php echo __('iTunes Block', 'powerpress'); ?></span></th> 
 	<td>
 		<input type="checkbox" name="Feed[itunes_block]" value="1" <?php if( !empty($FeedSettings['itunes_block']) ) echo 'checked'; ?> />
 		<?php echo __('Prevent the entire podcast from appearing in the iTunes Podcast directory.', 'powerpress'); ?>
@@ -1145,7 +1145,7 @@ while( list($value,$desc) = each($explicit) )
 	<tr valign="top">
 	<th scope="row" >
 
-<span style="margin-left: 10px;"><?php echo __('iTunes Complete', 'powerpress'); ?></span></th>
+<span style="margin-left: 10px;"><?php echo __('iTunes Complete', 'powerpress'); ?></span></th> 
 	<td>
 		<input type="checkbox" name="Feed[itunes_complete]" value="1" <?php if( !empty($FeedSettings['itunes_complete']) ) echo 'checked'; ?> />
 		<?php echo __('Indicate the completion of a podcast. iTunes will no longer update your listing in the iTunes Podcast directory.', 'powerpress'); ?>

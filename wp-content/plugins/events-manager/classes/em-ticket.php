@@ -131,7 +131,7 @@ class EM_Ticket extends EM_Object{
 				//TODO better error handling
 				$result = $wpdb->insert($table, $data, $this->get_types($data));
 			    $this->ticket_id = $wpdb->insert_id;
-				$this->feedback_message = __('Ticket created','events-manager');
+				$this->feedback_message = __('Ticket created','events-manager'); 
 			}
 			if( $result === false ){
 				$this->feedback_message = __('There was a problem saving the ticket.', 'events-manager');

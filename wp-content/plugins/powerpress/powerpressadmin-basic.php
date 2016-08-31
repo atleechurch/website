@@ -147,7 +147,7 @@ jQuery(document).ready(function($) {
 <div id="powerpress_settings_page" class="powerpress_tabbed_content"> 
   <ul class="powerpress_settings_tabs">
 		<li><a href="#tab0"><span><?php echo htmlspecialchars(__('Welcome', 'powerpress')); ?></span></a></li> 
-		<li><a href="#tab1"><span><?php echo htmlspecialchars(__('Episodes', 'powerpress')); ?></span></a></li>
+		<li><a href="#tab1"><span><?php echo htmlspecialchars(__('Episodes', 'powerpress')); ?></span></a></li> 
 		<li><a href="#tab2"><span><?php echo htmlspecialchars(__('Services & Stats', 'powerpress')); ?></span></a></li>
 		<li><a href="#tab3"><span><?php echo htmlspecialchars(__('Website', 'powerpress')); ?></span></a></li>
 		<li><a href="#tab4"><span><?php echo htmlspecialchars(__('Feeds', 'powerpress')); ?></span></a></li>
@@ -239,10 +239,10 @@ function powerpressadmin_advanced_options($General)
 <script language="javascript"><!--
 
 jQuery(document).ready( function() {
-
+	
 	jQuery('.pp-expand-section').click( function(e) {
 		e.preventDefault();
-
+		
 		if( jQuery(this).hasClass('pp-expand-section-expanded') ) {
 			jQuery(this).removeClass('pp-expand-section-expanded');
 			jQuery(this).parent().next('div').hide(400);
@@ -261,31 +261,31 @@ jQuery(document).ready( function() {
 	<h3><a href="#" class="pp-expand-section pp-expand-section-expanded"><?php echo __('Advanced Options', 'powerpress'); ?></a></h3>
 	<div style="margin-left: 50px;" >
 		<div>
-			<input type="checkbox" name="NULL[import_podcast]" value="1" checked disabled />
-			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_import_feed.php'); ?>"><?php echo __('Import Podcast', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> -
-			<?php echo __('Import podcast feed from SoundCloud, LibSyn, PodBean or other podcast service.', 'powerpress'); ?>
+			<input type="checkbox" name="NULL[import_podcast]" value="1" checked disabled /> 
+			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_import_feed.php'); ?>"><?php echo __('Import Podcast', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> - 
+			<?php echo __('Import podcast feed from SoundCloud, LibSyn, PodBean or other podcast service.', 'powerpress'); ?> 
 		</div>
 		<div>
-			<input type="checkbox" name="NULL[migrate_media]" value="1" checked disabled />
-			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_migrate.php'); ?>"><?php echo __('Migrate Media', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> -
-			<?php echo __('Migrate media files to Blubrry Podcast Media Hosting with only a few clicks.', 'powerpress'); ?>
+			<input type="checkbox" name="NULL[migrate_media]" value="1" checked disabled /> 
+			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_migrate.php'); ?>"><?php echo __('Migrate Media', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> - 
+			<?php echo __('Migrate media files to Blubrry Podcast Media Hosting with only a few clicks.', 'powerpress'); ?> 
 		</div>
 		<div>
-			<input type="checkbox" name="NULL[podcasting_seo]" value="1" checked disabled />
-			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_search.php'); ?>"><?php echo __('Podcasting SEO', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> -
-			<?php echo __('Select from 3 different web based audio players.', 'powerpress'); ?>
+			<input type="checkbox" name="NULL[podcasting_seo]" value="1" checked disabled /> 
+			<strong><a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_search.php'); ?>"><?php echo __('Podcasting SEO', 'powerpress'); ?></a></strong> <?php echo powerpressadmin_new(); ?> - 
+			<?php echo __('Select from 3 different web based audio players.', 'powerpress'); ?> 
 		</div>
-
+		
 		<div>
 			<input type="checkbox" name="NULL[player_options]" value="1" checked disabled /> 
 			<strong><?php echo __('Audio Player Options', 'powerpress'); ?></strong> - 
-			<?php echo __('Select from 3 different web based audio players.', 'powerpress'); ?>
+			<?php echo __('Select from 3 different web based audio players.', 'powerpress'); ?> 
 			<span style="font-size: 85%;">(<a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_player.php&sp=1'); ?>"><?php echo __('configure audio player', 'powerpress'); ?></a>)</span>
 		</div>
 		<div>
 			<input type="checkbox" name="NULL[video_player_options]" value="1" checked disabled /> 
 			<strong><?php echo __('Video Player Options', 'powerpress'); ?></strong> - 
-			<?php echo __('Select from 3 different web based video players.', 'powerpress'); ?>
+			<?php echo __('Select from 3 different web based video players.', 'powerpress'); ?> 
 			<span style="font-size: 85%;">(<a href="<?php echo admin_url('admin.php?page=powerpress/powerpressadmin_videoplayer.php&sp=1'); ?>"><?php echo __('configure video player', 'powerpress'); ?></a>)</span>
 			
 		</div>
@@ -345,7 +345,7 @@ jQuery(document).ready( function() {
 		</div>
 		<div>
 			<input type="checkbox" name="General[playlist_player]" value="1" <?php echo ( !empty($General['playlist_player']) ?' checked':''); ?> /> 
-			<strong><?php echo __('PowerPress Playlist Player', 'powerpress'); ?></strong> -
+			<strong><?php echo __('PowerPress Playlist Player', 'powerpress'); ?></strong> - 
 			<?php echo __('Create playlists for your podcasts.', 'powerpress'); ?> 
 			<span style="font-size: 85%;">(<a href="http://create.blubrry.com/resources/powerpress/advanced-tools-and-options/powerpress-playlist-shortcode/" target="_blank"><?php echo __('learn more', 'powerpress'); ?></a>)</span>
 		</div>
@@ -378,9 +378,9 @@ jQuery(document).ready( function() {
 
 <?php
 	return;
-
+	
 	// We will not pester folks with this stuff in PowerPress 7.0+
-
+	
 	if( isset($General['timestamp']) && $General['timestamp'] > 0 && $General['timestamp'] < ( time()- (60*60*24*14) ) ) // Lets wait 14 days before we annoy them asking for support
 	{
 ?>
@@ -492,15 +492,15 @@ function powerpressadmin_edit_entry_options($General)
 						(<?php echo __('Leave unchecked to use the first 250 characters of your blog post', 'powerpress'); ?>)</p>
 					<p style="margin-top: 15px;"><input id="episode_box_summary" class="episode_box_option" name="General[episode_box_summary]" type="checkbox" value="1"<?php if( !empty($General['episode_box_summary']) ) echo ' checked'; ?> /> <?php echo __('iTunes Summary Field', 'powerpress'); ?>
 						(<?php echo __('Leave unchecked to use your blog post', 'powerpress'); ?>)</p>
-
-
-
+					
+					
+						
 					<p style="margin-top: 15px;"><input id="episode_box_author" class="episode_box_option" name="General[episode_box_author]" type="checkbox" value="1"<?php if( !empty($General['episode_box_author']) ) echo ' checked'; ?> /> <?php echo __('iTunes Author Field', 'powerpress'); ?>
 						(<?php echo __('Leave unchecked to the post author name', 'powerpress'); ?>)</p>
-
+					
 					<p style="margin-top: 15px;"><input id="episode_box_explicit" class="episode_box_option" name="General[episode_box_explicit]" type="checkbox" value="1"<?php if( !empty($General['episode_box_explicit']) ) echo ' checked'; ?> /> <?php echo __('iTunes Explicit Field', 'powerpress'); ?>
 						(<?php echo __('Leave unchecked to use your feed\'s explicit setting', 'powerpress'); ?>)</p>
-
+					
 						
 					<p style="margin-top: 15px;"><label><input id="episode_box_itunes_image" class="episode_box_option" name="General[episode_box_itunes_image]" type="checkbox" value="1"<?php if( !empty($General['episode_box_itunes_image']) ) echo ' checked'; ?> /> <?php echo __('iTunes Episode Image Field', 'powerpress'); ?></label> <?php echo powerpressadmin_new(); ?>
 						(<?php echo __('Leave unchecked to use the image embedded into your media files.', 'powerpress'); ?>)</p>	
@@ -518,12 +518,12 @@ function powerpressadmin_edit_entry_options($General)
 						<em><strong><?php echo __('All other episodes will be listed following the featured episode.', 'powerpress'); ?></strong></em><br />
 						<em><strong><?php echo __('This feature only applies to the default podcast feed and Custom Podcast Channel feeds added by PowerPress.', 'powerpress'); ?></strong></em>
 						
-
+						
 					<p style="margin-top: 15px;"><input id="episode_box_gp_desc" class="episode_box_option" name="General[episode_box_gp_desc]" type="checkbox" value="1"<?php if( !empty($General['episode_box_gp_desc']) ) echo ' checked'; ?> /> <?php echo __('Google Play Description Field', 'powerpress'); ?>
 						(<?php echo __('Leave unchecked to use your blog post', 'powerpress'); ?>)</p>
 					<p style="margin-top: 15px;"><input id="episode_box_gp_explicit" class="episode_box_option" name="General[episode_box_gp_explicit]" type="checkbox" value="1"<?php if( !empty($General['episode_box_gp_explicit']) ) echo ' checked'; ?> /> <?php echo __('Google Play Explicit Field', 'powerpress'); ?>
 						(<?php echo __('Leave unchecked to use your feed\'s explicit setting', 'powerpress'); ?>)</p>
-
+						
 				<fieldset style="border: 1px dashed #333333; margin: 10px 0 10px -20px;">
 					<legend style="margin: 0 20px; padding: 0 5px 5px 5px; font-weight: bold;"><?php echo __('Advanced Options', 'powerpress');  ?></legend>
 					<p style="margin: 15px 0 0 20px;"><label><input id="episode_box_block" class="episode_box_option" name="General[episode_box_block]" type="checkbox" value="1"<?php if( !empty($General['episode_box_block']) ) echo ' checked'; ?> /> <?php echo __('iTunes Block', 'powerpress'); ?> (<?php echo htmlspecialchars('<itunes:block>yes</itunes:block>'); ?>)</label></p>
@@ -660,7 +660,7 @@ while( list($value,$desc) = each($options) )
 </div>
 <!-- end advanced features -->
 <?php
-
+		
 
 		global $wp_rewrite;
 		if( $wp_rewrite->permalink_structure ) // Only display if permalinks is enabled in WordPress
@@ -794,7 +794,7 @@ function powerpressadmin_edit_googleplay($FeedSettings, $General, $FeedAttribs =
 <table class="form-table">
 <tr valign="top">
 <th scope="row">
-<?php echo __('Google Play Email', 'powerpress'); ?>
+<?php echo __('Google Play Email', 'powerpress'); ?> 
 </th>
 <td>
 <input type="text" name="Feed[googleplay_email]" class="bpp_input_med" value="<?php echo esc_attr($FeedSettings['googleplay_email']); ?>" maxlength="255" />
@@ -804,7 +804,7 @@ function powerpressadmin_edit_googleplay($FeedSettings, $General, $FeedAttribs =
 </tr>
 <tr valign="top">
 <th scope="row">
-<?php echo __('Google Play Author', 'powerpress'); ?>
+<?php echo __('Google Play Author', 'powerpress'); ?> 
 </th>
 <td>
 <input type="text" name="Feed[googleplay_author]" class="bpp_input_med" value="<?php echo esc_attr($FeedSettings['googleplay_author']); ?>" maxlength="255" />
@@ -816,7 +816,7 @@ function powerpressadmin_edit_googleplay($FeedSettings, $General, $FeedAttribs =
 </tr>
 <tr valign="top">
 <th scope="row">
-<?php echo __('Google Play Description', 'powerpress'); ?>
+<?php echo __('Google Play Description', 'powerpress'); ?> 
 </th>
 <td>
 <p style="margin-top: 5px;"><?php echo __('Your description cannot exceed 4,000 characters in length.', 'powerpress'); ?></p>
@@ -829,7 +829,7 @@ function powerpressadmin_edit_googleplay($FeedSettings, $General, $FeedAttribs =
 </tr>
 <tr valign="top">
 <th scope="row">
-<?php echo __('Google Play Explicit', 'powerpress'); ?>
+<?php echo __('Google Play Explicit', 'powerpress'); ?> 
 </th>
 <td>
 <select name="Feed[googleplay_explicit]" class="bpp_input_med">
@@ -916,7 +916,7 @@ function powerpressadmin_edit_itunes_general($FeedSettings, $General, $FeedAttri
 			$itunes_feed_url = get_feed_link('podcast');
 		}
 	}
-
+	
 ?>
 <h3><?php echo __('iTunes Listing Information', 'powerpress'); ?></h3>
 
@@ -1050,7 +1050,7 @@ function powerpressadmin_edit_media_statistics($General)
 			<?php echo __('Redirect URL 1', 'powerpress'); ?> 
 			</th>
 			<td>
-			<input type="text" style="width: 60%;" name="<?php if( stripos($General['redirect1'], $StatsIntegrationURL) !== false ) echo 'NULL[redirect1]'; else echo 'General[redirect1]'; ?>" value="<?php echo esc_attr($General['redirect1']); ?>" onChange="return CheckRedirect(this);" maxlength="255" <?php if( stripos($General['redirect1'], $StatsIntegrationURL) !== false ) { echo ' readOnly="readOnly"';  $StatsIntegrationURL = false; } ?> />
+			<input type="text" style="width: 60%;" name="<?php if( stripos($General['redirect1'], $StatsIntegrationURL) !== false ) echo 'NULL[redirect1]'; else echo 'General[redirect1]'; ?>" value="<?php echo esc_attr($General['redirect1']); ?>" onChange="return CheckRedirect(this);" maxlength="255" <?php if( stripos($General['redirect1'], $StatsIntegrationURL) !== false ) { echo ' readOnly="readOnly"';  $StatsIntegrationURL = false; } ?> /> 
 			</td>
 			</tr>
 			</table>
@@ -1290,9 +1290,12 @@ function powerpressadmin_appearance($General=false, $Feed = false)
 	</p>
 </div>
 
+<p><input type="hidden" name="General[subscribe_feature_gp]" value="0" /><input type="checkbox" id="subscribe_feature_gp" name="General[subscribe_feature_gp]" value="1" <?php if( !empty($General['subscribe_feature_gp']) ) echo 'checked '; ?>/> <label for="subscribe_feature_gp"><?php echo __('Subscribe on Google Play', 'powerpress'); ?></label> <?php echo powerpressadmin_new(); ?></p>
+
 <p><input type="hidden" name="General[subscribe_feature_stitcher]" value="0" /><input type="checkbox" id="subscribe_feature_stitcher" name="General[subscribe_feature_stitcher]" value="1" <?php if( !empty($General['subscribe_feature_stitcher']) ) echo 'checked '; ?>/> <label for="subscribe_feature_stitcher"><?php echo __('Subscribe on Stitcher', 'powerpress'); ?></label> <?php echo powerpressadmin_new(); ?></p>
 
-<p><input type="hidden" name="General[subscribe_feature_gp]" value="0" /><input type="checkbox" id="subscribe_feature_gp" name="General[subscribe_feature_gp]" value="1" <?php if( !empty($General['subscribe_feature_gp']) ) echo 'checked '; ?>/> <label for="subscribe_feature_gp"><?php echo __('Subscribe on Google Play', 'powerpress'); ?></label> <?php echo powerpressadmin_new(); ?></p>
+<p><input type="hidden" name="General[subscribe_feature_tunein]" value="0" /><input type="checkbox" id="subscribe_feature_tunein" name="General[subscribe_feature_tunein]" value="1" <?php if( !empty($General['subscribe_feature_tunein']) ) echo 'checked '; ?>/> <label for="subscribe_feature_tunein"><?php echo __('Subscribe on TuneIn', 'powerpress'); ?></label> <?php echo powerpressadmin_new(); ?></p>
+
 </td>
 </tr>
 </table>
@@ -1417,9 +1420,9 @@ function powerpressadmin_edit_funding($FeedSettings = false, $feed_slug='podcast
 <table class="form-table">
 <tr valign="top">
 <th scope="row">
-<?php echo __('Donate Link', 'powerpress'); ?> <?php echo powerpressadmin_new(); ?></th>
+<?php echo __('Donate Link', 'powerpress'); ?> <?php echo powerpressadmin_new(); ?></th> 
 <td>
-	<p style="padding-top: 8px;"><label for="donate_link"><input type="checkbox" id="donate_link" name="Feed[donate_link]" value="1" <?php if( $FeedSettings['donate_link'] == 1 ) echo 'checked '; ?>/>
+	<p style="padding-top: 8px;"><label for="donate_link"><input type="checkbox" id="donate_link" name="Feed[donate_link]" value="1" <?php if( $FeedSettings['donate_link'] == 1 ) echo 'checked '; ?>/> 
 	<?php echo __('Syndicate a donate link with your podcast. Create your own croudfunding page with PayPal donate buttons, or link to a service such as Patreon.', 'powerpress'); ?></label></p>
 	<ul>
 	<li><label for="donate_url" style="width: 100px; display:inline-block; text-align: right;">Donate URL:</label> <input type="text" id="donate_url" value="<?php echo esc_attr($FeedSettings['donate_url']); ?>" name="Feed[donate_url]" style="width:50%; max-width: 300px;" />
@@ -1562,7 +1565,7 @@ function powerpressadmin_edit_artwork($FeedSettings, $General)
 
 <?php if( $SupportUploads ) { ?>
 
-<p><label class="powerpress-normal-font"><input name="googleplay_image_checkbox" type="checkbox" onchange="powerpress_show_field('googleplay_image_upload', this.checked)" value="1" /> <?php echo __('Upload new image', 'powerpress'); ?></label> &nbsp;
+<p><label class="powerpress-normal-font"><input name="googleplay_image_checkbox" type="checkbox" onchange="powerpress_show_field('googleplay_image_upload', this.checked)" value="1" /> <?php echo __('Upload new image', 'powerpress'); ?></label> &nbsp; 
 	<span style="font-size:85%;">(<?php echo __('Using this option should update your image on Google Play Music within 24 hours', 'powerpress'); ?>)</span>
 </p>
 <div style="display:none" id="googleplay_image_upload">
@@ -1608,3 +1611,4 @@ function powerpressadmin_edit_destinations($FeedSettings, $General, $FeedAttribs
 {
 	require_once( dirname(__FILE__).'/views/settings_tab_destinations.php' );
 }
+

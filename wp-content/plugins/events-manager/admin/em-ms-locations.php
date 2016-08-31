@@ -23,7 +23,7 @@ function em_admin_locations($message='', $fill_fields = false) {
 				<br/>
 			</div>
  	 		<h2>
-				<?php _e('Locations', 'events-manager'); ?>
+ 	 			<?php _e('Locations', 'events-manager'); ?>
  	 		</h2>   
 			<?php em_locations_admin(array('url' => $_SERVER['REQUEST_URI'])); ?>
 		</div>

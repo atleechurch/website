@@ -221,12 +221,12 @@ class EM_Events extends EM_Object {
 	
 	/**
 	 * Generate a grouped list of events by year, month, week or day.
-	 *
+	 * 
 	 * There is a nuance with this function, long_events won't work unless you add a limit of 0. The reason is because this won't work with pagination, due to the fact
 	 * that you need to alter the event total count to reflect each time an event is displayed in a time range. e.g. if an event lasts 2 days and it's daily grouping,
 	 * then that event would count as 2 events for pagination purposes. For that you need to count every single event and calculate date range etc. which is too resource
 	 * heavy and not scalabale, therefore we've added this limitation.
-	 *
+	 * 
 	 * @since 5.4.4.2
 	 * @param array $args
 	 * @return string

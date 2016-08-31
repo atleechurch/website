@@ -169,7 +169,7 @@ function powerpress_dashboard_stats_content()
 			if( !$new_content && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
 				$new_content = powerpress_remote_fopen($req_url, $UserPass, array(), 2, false, true); // Only give this 2 seconds to return results
 			}
-
+				
 			if( $new_content )
 			{
 				update_option('powerpress_stats', array('updated'=>time(), 'content'=>$new_content) );
@@ -285,7 +285,7 @@ function powerpress_dashboard_setup()
 {
 	if( !function_exists('wp_add_dashboard_widget') )
 		return; // We are not in the dashboard!
-
+		
 	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 1 )
 		return;
 	
@@ -301,38 +301,38 @@ function powerpress_dashboard_setup()
 		
 	if( !empty($Settings['use_caps']) && !current_user_can('view_podcast_stats') )
 		$StatsDashboard = false;
-
+	
 	$user = wp_get_current_user();
-
+	
 	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 2 ) {
 		return;
 	}
 	
 	if( $NewsDashboard )
 		wp_add_dashboard_widget( 'powerpress_dashboard_news', __( 'Blubrry PowerPress & Community Podcast', 'powerpress'), 'powerpress_dashboard_news_content' );
-
+	
 	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 3 ) {
 		return;
 	}
-
+	
 	if( $StatsDashboard )
 		wp_add_dashboard_widget( 'powerpress_dashboard_stats', __( 'Blubrry Podcast Statistics', 'powerpress'), 'powerpress_dashboard_stats_content' );
 
 	if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 4 ) {
 		return;
 	}
-
+	
 	if( !empty( $user ) ) {
 		$user_options = get_user_option('powerpress_user');
 		if( empty($user_options) || empty($user_options['dashboard_installed']) || $user_options['dashboard_installed'] < 2 )
 		{
 			if( !is_array($user_options) )
 				$user_options = array();
-
+			
 			if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 5 ) {
 				return;
 			}
-
+			
 			// First time we've seen this setting, so must be first time we've added the widgets, lets stack them at the top for convenience.
 			powerpressadmin_add_dashboard_widgets($user->ID);
 			$user_options['dashboard_installed'] = 2; // version of PowerPress
@@ -343,7 +343,7 @@ function powerpress_dashboard_setup()
 			if( !empty($_GET['powerpressdash']) && $_GET['powerpressdash'] == 6 ) {
 				return;
 			}
-
+			
 			powerpressadmin_add_dashboard_widgets(false);
 		}
 	}

@@ -1,17 +1,17 @@
 === Duplicator ===
 Contributors: corylamleorg, bobriley
 Donate link: www.lifeinthegrid.com/partner
-Tags: backup, restore, move, migrate, localhost, synchronize, duplicate, clone, automate, niche
+Tags: backup, restore, move, migrate, localhost, synchronize, duplicate, clone, automate, niche  
 Requires at least: 4.0
-Tested up to: 4.5.2
-Stable tag: 1.1.12
+Tested up to: 4.6
+Stable tag: 1.1.16
 License: GPLv2
 
-Duplicate, clone, backup, move and transfer an entire site from one location to another.
+Duplicate, clone, backup, move and transfer an entire site from one location to another. 
 
 == Description ==
 
-> The Duplicator gives WordPress administrators the ability to migrate, copy or clone a site from one location to another. The plugin also serves as a simple backup utility.    The Duplicator supports both serialized and base64 serialized string replacement.  If you need to move WordPress or backup WordPress this plugin can help simplify the process. For complete details visit [lifeinthegrid.com](http://lifeinthegrid.com/).
+> The Duplicator gives WordPress administrators the ability to migrate, copy or clone a site from one location to another. The plugin also serves as a simple backup utility.    The Duplicator supports both serialized and base64 serialized string replacement.  If you need to move WordPress or backup WordPress this plugin can help simplify the process. For complete details visit [lifeinthegrid.com](http://lifeinthegrid.com/).  
 
 = Quick Video Demo =
 http://www.youtube.com/watch?v=yZ7pHmR9JC8
@@ -20,7 +20,19 @@ http://www.youtube.com/watch?v=yZ7pHmR9JC8
  This tool is great to move or backup Wordpress sites and for pulling production sites down to your local machine for testing and validation. It also works good for developing locally and then pushing up to a production server for site releases/updates or just demoing a site.
 
 = Duplicator Pro =
-Take Duplicator to the next level with the [premium version](http://snapcreek.com/duplicator?wpo-premium) of the plugin.  With professional features like, scheduling, cloud storage to Dropbox, Google Drive, FTP and a long list of other enhancements.  For a full breakdown of the features found in the professional version checkout the [comparison page](https://snapcreek.com/duplicator/comparison?wpo-compare) .
+Duplicator Pro takes Duplicator to the next level with features you'll really appreciate, such as:
+
+* Scheduled backups
+* Cloud Storage to Dropbox, Google Drive, Amazon S3 and FTP
+* Multisite support
+* Large site support
+* Large database support
+* Database creation *in the installer*
+* Email notifications
+* Professional support
+* ..and much more!
+
+Check out [Duplicator Pro](https://snapcreek.com/duplicator/?utm_source=duplicator_free&utm_medium=wp_org&utm_content=wpo_premium&utm_campaign=duplicator_pro) today!
 
 = Please Note =
 The underlying logic to backup WordPress, move WordPress and transfer WordPress are very complex. It's impossible to know how each system is setup; this is why your feedback is important to us.  Thanks for helping us to make WordPress the best blogging platform in the world.
@@ -78,13 +90,13 @@ No.  Hopefully in future versions we will support MU
 
 
 == Screenshots ==
-
+ 
 1. Main Interface for all Packages
 2. Create Package Step 1
 3. Create Package Step 2
 4. Build Process
 5. Installer Screen
-
+ 
 
 == Changelog ==
 

@@ -1,11 +1,10 @@
 <?php
-	// Exit if accessed directly
+	// Exit if accessed directly 
 	if (! defined('DUPLICATOR_INIT')) {
-		$_baseURL =  strlen($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] :$_SERVER['HTTP_HOST'];
-		$_baseURL =  "http://" . $_baseURL;
+		$_baseURL = "http://" . strlen($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
 		header("HTTP/1.1 301 Moved Permanently");
 		header("Location:$_baseURL");
-		exit;
+		exit; 
 	}
 ?>
 <style>
@@ -23,9 +22,9 @@
 	COMMON VIEW ELEMENTS*/
 	div#content {border:1px solid #CDCDCD;  width:750px; min-height:550px; margin:auto; margin-top:18px; border-radius:5px;  box-shadow:0 8px 6px -6px #333;}
 	div#content-inner {padding:10px 30px; min-height:550px}
-	form.content-form {min-height:550px; position:relative; line-height:17px}
+	form.content-form {min-height:550px; position:relative; line-height:17px}	
 	div.dup-logfile-link {float:right; font-weight:normal; font-size:12px}
-
+	
 	/* WIZARD STEPS */
 	table.header-wizard {border-top-left-radius:5px; border-top-right-radius:5px; width:100%; box-shadow:0 6px 4px -4px #777;	background-color:#F1F1F1}
 	div#dup-wiz {padding:0px; margin:7px 0 10px 20px; height:20px }
@@ -45,7 +44,7 @@
 	#dup-wiz .active-step a:before {border-top:12px solid #999; border-bottom:12px solid #999;}
 	#dup-wiz .active-step a:after {border-left:12px solid #999;}
 	#dup-wiz .active-step span {color:#fff;}
-
+	
 	/*Help */
 	select#dup-hlp-lnk {border-radius:3px; font-size:11px; margin:3px 5px 0 0px; background-color:#efefef; border:1px solid silver}
 	div.dup-help-page {padding:5px 0 0 5px}
@@ -57,7 +56,7 @@
 	div.title-header {padding:2px; border-bottom:1px solid silver; font-weight:bold; margin-bottom:5px;}
 	div.hdr-main {font-size:18px; padding:0 0 5px 0; border-bottom:1px solid #999; font-weight:bold; margin:5px 0 10px 0;}
 	div.hdr-sub {font-size:14px; padding:2px 2px 2px 0; border-bottom:1px solid #dfdfdf; font-weight:bold; margin-bottom:5px;}
-
+	
 	/*BOXES:Expandable sections */
 	div.dup-box {padding:0px; display:block; background-color:#fff; border:1px solid #e5e5e5; box-shadow:0 1px 1px rgba(0,0,0,.04);}
 	div.dup-box-title {font-size:14px; padding:5px 0 0 10px; font-weight:bold; cursor:pointer; height:23px; margin:0px; background-color:#F9F9F9}
@@ -72,14 +71,14 @@
 	table.s1-opts td:first-child{width:125px;}
 	table.s1-opts-dbhost td {padding:0; margin:0}
 	table.s1-advopts td:first-child{width:125px; font-weight:bold}
-
+	
 	i#s1-sys-req-msg {font-weight:normal; display:block; padding:0px 0 0 20px;}
 	div.circle-pass, div.circle-fail {display:block;width:13px;height:13px;border-radius:50px;font-size:20px;color:#fff;line-height:100px;text-align:center;text-decoration:none;box-shadow:1px 1px 2px #000;background:#207D1D;opacity:0.95; display:inline-block;}
 	div.circle-fail {background:#9A0D1D !important;}
 	select#logging {font-size:11px}
 	div.s1-modes {padding:0px 15px 0 0px;}
 	div#s1-dbconn {margin:auto; text-align:center; margin:15px 0 20px 0px}
-
+	
 	input.s1-small-btn {font-size:11px; height:20px; border:1px solid gray; border-radius:3px; cursor:pointer}
 	input#s1-dbport-btn { width:80px}
 	div.dup-db-test small{display:block; font-style:italic; color:#333; padding:3px 2px 5px 2px; border-bottom:1px dashed silver; margin-bottom:10px; text-align: center }
@@ -89,7 +88,7 @@
 	div#s1-dbconn-status {border:1px solid silver; border-radius:3px; background-color:#f9f9f9; padding:2px 5px; margin-top:10px; height:165px; overflow-y: scroll}
 	div#s1-dbconn-status div.warn-msg {text-align: left; padding:5px; margin:10px 0 10px 0}
 	div#s1-dbconn-status div.warn-msg b{color:maroon}
-
+	
 	/*Warning Area and Message */
 	div.dup-step1-gopro {color: black;font-style: italic;margin-top: 11px; text-align:center;margin-top:30px; padding:5px}
 	div#dup-step1-warning {padding:5px;font-size:11px; color:gray; line-height:12px;font-style:italic; overflow-y:scroll; height:75px; border:1px solid #dfdfdf; background-color:#fff; border-radius:3px}
@@ -99,11 +98,12 @@
 
 	/*Dialog*/
 	div#dup-step1-dialog-data {height:90%; font-size:11px; padding:5px; line-height:16px; }
-	td.dup-step1-dialog-data-details {padding:0px 0 0 30px; border-radius:4px; line-height:14px; font-size:11px; display:none}
+	td.dup-step1-dialog-data-details {padding:1px 0 10px 30px; border-radius:4px; line-height:14px; font-size:11px; display:none}
 	td.dup-step1-dialog-data-details b {width:50px;display:inline-block}
 	.dup-pass {display:inline-block; color:green;}
 	.dup-ok {display:inline-block; color:#5860C7;}
 	.dup-fail {display:inline-block; color:#AF0000;}
+	.dup-notice {display:inline-block; color:#000;}
 	hr.dup-dots { border:none; border-top:1px dotted silver; height:1px; width:100%;}
 	div.dup-ui-error {padding-top:2px; font-size:14px}
 	div.help {color:#555; font-style:italic; font-size:11px}
@@ -156,7 +156,7 @@
 	}
 
 	/* ============================
-	BUTTONS */
+	BUTTONS */	
 	div.dup-footer-buttons {padding:10px; width:100%; text-align:right;}
 	div.dup-footer-buttons  input, button {
 		color:#000; font-size:12px; border-radius:5px;	padding:6px 8px 4px 8px; border:1px solid #999;

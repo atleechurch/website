@@ -11,7 +11,7 @@ class EM_Object {
 	var $mime_types = array(1 => 'gif', 2 => 'jpg', 3 => 'png');
 	
 	private static $taxonomies_array; //see self::get_taxonomies()
-	protected static $context = 'event'; //this should be overridden to the db table name for deciding on ambiguous fields to look up
+	protected static $context = 'event'; //this should be overridden to the db table name for deciding on ambiguous fields to look up 
 	
 	/**
 	 * Takes the array and provides a clean array of search parameters, along with details
@@ -98,7 +98,7 @@ class EM_Object {
 				$array['near_unit'] = !empty($array['near_unit']) && in_array($array['near_unit'], array('km','mi')) ? $array['near_unit']:$defaults['near_unit']; //default is 'mi'
 				$array['near_distance'] = !empty($array['near_distance']) && is_numeric($array['near_distance']) ? absint($array['near_distance']) : $defaults['near_distance']; //default is 25
 			}
-			//Country - Turn into array for multiple search if comma-separated
+			//Country - Turn into array for multiple search if comma-separated 
 			if( !empty($array['country']) && is_string($array['country']) && preg_match('/^( ?.+ ?,?)+$/', $array['country']) ){
 			    $array['country'] = explode(',',$array['country']);
 			}
@@ -1001,13 +1001,13 @@ class EM_Object {
 	    }
 	    return 0;
 	}
-
+	
 	/**
 	 * Returns the user id for the owner (author) of a particular object in the table it is stored, be it Event (event_owner) or Location (location_owner).
 	 * This function accounts for the fact that previously the property $this->owner was used by objects as a shortcut and consequently in code in EM_Object, which should now use this method instead.
-	 * Extending classes should override this and provide the relevant user id that owns this object instance.
+	 * Extending classes should override this and provide the relevant user id that owns this object instance. 
 	 * @return int
-	 */
+	 */	
 	function get_owner(){
 		if( !empty($this->owner) ) return $this->owner;
 	    switch( get_class($this) ){
@@ -1427,20 +1427,20 @@ class EM_Object {
 				if( $wpdb->get_var($sql) <= 1 ){
 				    //not used by any other CPT, so just delete the image entirely (would usually only be used via front-end which has no media manager)
 				    //@todo add setting option to delete images from filesystem/media if not used by other posts
-				$delete_attachment = wp_delete_attachment($post_thumbnail_id, $force_delete);
-				if( false === $delete_attachment ){
-					//check legacy image
-					$type_id_name = $type.'_id';
-					$file_name= EM_IMAGE_UPLOAD_DIR.$this->get_image_type(true)."-".$this->$type_id_name;
-					$result = false;
-					foreach($this->mime_types as $mime_type) {
-						if (file_exists($file_name.".".$mime_type)){
-							$result = unlink($file_name.".".$mime_type);
-						}
-					}
-				}else{
-				    $result = true;
-				}
+    				$delete_attachment = wp_delete_attachment($post_thumbnail_id, $force_delete);
+    				if( false === $delete_attachment ){
+    					//check legacy image
+    					$type_id_name = $type.'_id';
+    					$file_name= EM_IMAGE_UPLOAD_DIR.$this->get_image_type(true)."-".$this->$type_id_name;
+    					$result = false;
+    					foreach($this->mime_types as $mime_type) { 
+    						if (file_exists($file_name.".".$mime_type)){
+    					  		$result = unlink($file_name.".".$mime_type);
+    						}
+    					}
+    				}else{
+    				    $result = true;
+    				}
 				}else{
 				    //just delete image association
 				    delete_post_meta($this->post_id, '_thumbnail_id');
@@ -1491,7 +1491,7 @@ class EM_Object {
 			  		list($width, $height, $mime_type, $attr) = getimagesize($_FILES[$type.'_image']['tmp_name']);
 					$maximum_size = get_option('dbem_image_max_size'); 
 					if ($_FILES[$type.'_image']['size'] > $maximum_size){ 
-					$this->add_error( __('The image file is too big! Maximum size:', 'events-manager')." $maximum_size");
+				     	$this->add_error( __('The image file is too big! Maximum size:', 'events-manager')." $maximum_size");
 					}
 					$maximum_width = get_option('dbem_image_max_width'); 
 					$maximum_height = get_option('dbem_image_max_height');

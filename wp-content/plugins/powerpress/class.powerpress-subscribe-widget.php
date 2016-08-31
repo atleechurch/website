@@ -96,6 +96,9 @@ body .pp-ssb-widget a.pp-ssb-btn:hover {
 .pp-ssb-widget-modern a.pp-ssb-stitcher {
 	background-color: #197195;
 }
+.pp-ssb-widget-modern a.pp-ssb-tunein {
+	background-color: #2CB6A8;
+}
 .pp-ssb-widget-modern a.pp-ssb-gp {
 	background-color: #F15832;
 }
@@ -130,6 +133,9 @@ body .pp-ssb-widget a.pp-ssb-btn:hover {
 }
 .pp-ssb-stitcher .pp-ssb-ic {
 	background-position: -147px -98px;
+}
+.pp-ssb-tunein .pp-ssb-ic {
+	background-position: -245px -98px;
 }
 .pp-ssb-gp .pp-ssb-ic {
 	background-position: -196px -98px;
@@ -267,10 +273,10 @@ body .pp-ssb-widget a.pp-ssb-btn:hover {
 				$ExtraData['taxonomy_term_id'] = $instance['subscribe_term_taxonomy_id'];
 			}; break;
 			case 'category': {
-
+			 
 				if( empty($instance['subscribe_category_id']) )
 					return;
-
+				
 				if( is_numeric($instance['subscribe_category_id']) )
 				{
 					$ExtraData['cat_id'] = $instance['subscribe_category_id'];
@@ -284,7 +290,7 @@ body .pp-ssb-widget a.pp-ssb-btn:hover {
 				}
 			}; break;
 			default: {
-				// Doesn't matter, we're using the default podcast channel
+				// Doesn't matter, we're using the default podcast channel 
 
 			};
 		}
@@ -292,7 +298,7 @@ body .pp-ssb-widget a.pp-ssb-btn:hover {
 		$Settings = powerpresssubscribe_get_settings( $ExtraData, false );
 		if( empty($Settings) )
 			return;
-
+		
 		if( empty($instance['title']) )
 			$instance['title'] = __( 'Subscribe to Podcast' , 'powerpress');
 		$instance['title'] = trim($instance['title']);

@@ -102,8 +102,8 @@
 								<?php endif; ?>
 								<?php if( $can_edit_events ): ?>
 								    <?php if( $can_delete_events ) echo " | "; ?>
-								<a href="<?php echo $url ?>edit/?action=event_duplicate&amp;event_id=<?php echo $EM_Event->event_id . '&amp;_wpnonce=' . wp_create_nonce('event_duplicate_'.$EM_Event->event_id); ?>" title="<?php echo esc_attr ( sprintf(__('Duplicate %s','events-manager'), __('Event','events-manager')) ); ?>">
-									<?php esc_html_e('Duplicate','events-manager'); ?>
+        							<a href="<?php echo $url ?>edit/?action=event_duplicate&amp;event_id=<?php echo $EM_Event->event_id . '&amp;_wpnonce=' . wp_create_nonce('event_duplicate_'.$EM_Event->event_id); ?>" title="<?php echo esc_attr ( sprintf(__('Duplicate %s','events-manager'), __('Event','events-manager')) ); ?>">
+        								<?php esc_html_e('Duplicate','events-manager'); ?>
         							</a>
     							<?php endif; ?>
 							</div>

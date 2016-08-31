@@ -7,7 +7,7 @@ $hours_format = em_get_hour_format();
 <?php if( is_admin() ): ?><input type="hidden" name="_emnonce" value="<?php echo wp_create_nonce('edit_event'); ?>" /><?php endif; ?>
 <!-- START recurrence postbox -->
 <div id="em-form-recurrence" class="event-form-recurrence event-form-when">
-	<?php _e ( 'This event repeats', 'events-manager'); ?>
+	<?php _e ( 'This event repeats', 'events-manager'); ?> 
 		<select id="recurrence-frequency" name="recurrence_freq">
 			<?php
 				$freq_options = array ("daily" => __ ( 'Daily', 'events-manager'), "weekly" => __ ( 'Weekly', 'events-manager'), "monthly" => __ ( 'Monthly', 'events-manager'), 'yearly' => __('Yearly','events-manager') );
@@ -22,7 +22,7 @@ $hours_format = em_get_hour_format();
 		<span class='interval-desc' id="interval-weekly-plural"><?php _e ( 'weeks on', 'events-manager'); ?></span>
 		<span class='interval-desc' id="interval-monthly-singular"><?php _e ( 'month on the', 'events-manager')?></span>
 		<span class='interval-desc' id="interval-monthly-plural"><?php _e ( 'months on the', 'events-manager')?></span>
-		<span class='interval-desc' id="interval-yearly-singular"><?php _e ( 'year', 'events-manager')?></span>
+		<span class='interval-desc' id="interval-yearly-singular"><?php _e ( 'year', 'events-manager')?></span> 
 		<span class='interval-desc' id="interval-yearly-plural"><?php _e ( 'years', 'events-manager') ?></span>
 	<p class="alternate-selector" id="weekly-selector">
 		<?php
@@ -33,7 +33,7 @@ $hours_format = em_get_hour_format();
 	<p class="alternate-selector" id="monthly-selector" style="display:inline;">
 		<select id="monthly-modifier" name="recurrence_byweekno">
 			<?php
-				$weekno_options = array ("1" => __ ( 'first', 'events-manager'), '2' => __ ( 'second', 'events-manager'), '3' => __ ( 'third', 'events-manager'), '4' => __ ( 'fourth', 'events-manager'), '-1' => __ ( 'last', 'events-manager') );
+				$weekno_options = array ("1" => __ ( 'first', 'events-manager'), '2' => __ ( 'second', 'events-manager'), '3' => __ ( 'third', 'events-manager'), '4' => __ ( 'fourth', 'events-manager'), '-1' => __ ( 'last', 'events-manager') ); 
 				em_option_items ( $weekno_options, $EM_Event->recurrence_byweekno  ); 
 			?>
 		</select>
@@ -45,7 +45,7 @@ $hours_format = em_get_hour_format();
 	</p>
 	<div class="event-form-recurrence-when">
 		<p class="em-date-range">
-			<?php _e ( 'Recurrences span from ', 'events-manager'); ?>
+			<?php _e ( 'Recurrences span from ', 'events-manager'); ?>					
 			<input class="em-date-start em-date-input-loc" type="text" />
 			<input class="em-date-input" type="hidden" name="event_start_date" value="<?php echo $EM_Event->event_start_date ?>" />
 			<?php _e('to','events-manager'); ?>

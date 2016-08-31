@@ -18,7 +18,7 @@ class DUP_UI {
 	 * @param string $key A unique key to define the ui element
 	 * @param string $value A generic value to use for the view state
      */
-	static public function SaveViewState($key, $value) {
+	public static function SaveViewState($key, $value) {
 	   
 		$view_state = array();
 		$view_state = get_option(self::$OptionsTableKey);
@@ -41,7 +41,7 @@ class DUP_UI {
 	 * $ui_css_archive   = ($view_state == 1)   ? 'display:block' : 'display:none';
 	 * </code>
      */
-    static public function SaveViewStateByPost() {
+    public static function SaveViewStateByPost() {
 		
 		DUP_Util::CheckPermissions('read');
 		
@@ -63,7 +63,7 @@ class DUP_UI {
      *	Gets all the values from the settings array
 	 *  @return array Returns and array of all the values stored in the settings array
      */
-    static public function GetViewStateArray() {
+    public static function GetViewStateArray() {
 		return get_option(self::$OptionsTableKey);
 	}
 	
@@ -72,7 +72,7 @@ class DUP_UI {
 	  * @param type $searchKey The key to search on
 	  * @return string Returns the value of the key searched or null if key is not found
 	  */
-    static public function GetViewStateValue($searchKey) {
+    public static function GetViewStateValue($searchKey) {
 		$view_state = get_option(self::$OptionsTableKey);
 		if (is_array($view_state)) {
 			foreach ($view_state as $key => $value) {
@@ -88,7 +88,7 @@ class DUP_UI {
 	 * Shows a display message in the wp-admin if any researved files are found
 	 * @return type void
 	 */
-	static public function ShowReservedFilesNotice() 
+	public static function ShowReservedFilesNotice() 
 	{
 		//Show only on Duplicator pages and Dashboard when plugin is active
 		$dup_active = is_plugin_active('duplicator/duplicator.php');
@@ -116,5 +116,79 @@ class DUP_UI {
 		} 
 	}
 	
+	/**
+	 * Shows a random affilate link
+	 * @return type string
+	 */
+	public static function ShowRandomAffilateLink($format = 'one') 
+	{
+		/*-- AFFILIATES --*/
+		$aff_urls = array();
+		$aff_urls[0] = 'https://snapcreek.com/visit/bluehost';
+		$aff_urls[1] = 'https://snapcreek.com/visit/inmotion';
+		$aff_urls[2] = 'https://snapcreek.com/visit/elegantthemes';
+		$aff_urls[3] = 'https://snapcreek.com/visit/managewp';
+		$aff_urls[4] = 'https://snapcreek.com/visit/maxcdn';
+		//$aff_urls[5] = 'https://snapcreek.com/visit/ninjaforms';
+		//$aff_urls[6] = 'https://snapcreek.com/visit/optinmonster';
+
+		$aff_text = array();
+		// Bluehost
+		$aff_text[0] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Need a new host?', 'duplicator'), 
+							__('Get Bluehost Hosting for 50% off today!', 'duplicator'));
+		// InMotion
+		$aff_text[1] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('On a bad host?', 'duplicator'), 
+							__('Trade up to InMotion - with FREE SSDs and up to 25% off!', 'duplicator'));
+		// Elegant Themes
+		$aff_text[2] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Have a cheesy theme?', 'duplicator'), 
+							__('Change to an Elegant Theme and get 10% off today!', 'duplicator'));
+		// ManageWP
+		$aff_text[3] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Juggling multiple sites?', 'duplicator'), 
+							__('Control them all from ONE dashboard - 10% off ManageWP today!', 'duplicator'));
+		// MaxCDN
+		$aff_text[4] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Slow site?', 'duplicator'), 
+							__('Supercharge it with MaxCDN and get 25% off today!', 'duplicator'));		
+		
+		// Ninja Forms
+		$aff_text[5] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Need a great formbuilder?', 'duplicator'), 
+							__('Get Ninja Forms!', 'duplicator'));
+		// Optinmonster	
+		$aff_text[6] = sprintf("<b>%s</b> <i>%s</i>", 
+							__('Visitors leaving too quickly?', 'duplicator'), 
+							__('Snag \'em with Optinmonster!', 'duplicator'));
+	
+		$aff_icon = array();
+		$aff_fa[0] = "fa-th";
+		$aff_fa[1] = "fa-cube";
+		$aff_fa[2] = "fa-asterisk";
+		$aff_fa[3] = "fa-sitemap";
+		$aff_fa[4] = "fa-maxcdn";
+		$aff_fa[5] = "fa-check-square-o";
+		$aff_fa[6] = "fa-envelope";
+
+		if ($format == 'list')
+		{
+			//Generate a list
+			$html = '<div id="dup-add-slider"><ul>';
+			for ($i = 0; $i < count($aff_urls); $i++)
+			{
+				$html .= "<li><i class='fa {$aff_fa[$i]}'></i>&nbsp; <a target='_blank' href='{$aff_urls[$i]}'>$aff_text[$i]</a></li>";
+			}
+			$html .= '</ul></div>';
+		} 
+		else 
+		{
+			//Return single item
+			$aff_index = rand(0, count($aff_urls) - 1);
+			$html  = "<span id='dup-add-link'><i class='fa {$aff_fa[$aff_index]}'></i>&nbsp; <a href='admin.php?page=duplicator-perks&amp;a={$aff_index}'>$aff_text[$aff_index]</a> &nbsp; ";
+		}
+		return $html;
+	}
 }
 ?>

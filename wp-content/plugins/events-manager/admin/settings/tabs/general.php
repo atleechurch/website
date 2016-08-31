@@ -5,18 +5,18 @@
 	<div class="handlediv" title="<?php __('Click to toggle', 'events-manager'); ?>"><br /></div><h3><span><?php _e ( 'General Options', 'events-manager'); ?> </span></h3>
 	<div class="inside">
         <table class="form-table">
-            <?php em_options_radio_binary ( __( 'Disable thumbnails?', 'events-manager'), 'dbem_thumbnails_enabled', __( 'Select yes to disable Events Manager from enabling thumbnails (some themes may already have this enabled, which we cannot be turned off here).','events-manager') );  ?>
+            <?php em_options_radio_binary ( __( 'Disable thumbnails?', 'events-manager'), 'dbem_thumbnails_enabled', __( 'Select yes to disable Events Manager from enabling thumbnails (some themes may already have this enabled, which we cannot be turned off here).','events-manager') );  ?>					
 			<tr class="em-header">
 				<td colspan="2">
 					<h4><?php echo sprintf(__('%s Settings','events-manager'),__('Event','events-manager')); ?></h4>
 				</td>
 			</tr>
 			<?php
-			em_options_radio_binary ( __( 'Enable recurrence?', 'events-manager'), 'dbem_recurrence_enabled', __( 'Select yes to enable the recurrence features feature','events-manager') );
-			em_options_radio_binary ( __( 'Enable bookings?', 'events-manager'), 'dbem_rsvp_enabled', __( 'Select yes to allow bookings and tickets for events.','events-manager') );
+			em_options_radio_binary ( __( 'Enable recurrence?', 'events-manager'), 'dbem_recurrence_enabled', __( 'Select yes to enable the recurrence features feature','events-manager') ); 
+			em_options_radio_binary ( __( 'Enable bookings?', 'events-manager'), 'dbem_rsvp_enabled', __( 'Select yes to allow bookings and tickets for events.','events-manager') );     
 			em_options_radio_binary ( __( 'Enable tags?', 'events-manager'), 'dbem_tags_enabled', __( 'Select yes to enable the tag features','events-manager') );
 			if( !(EM_MS_GLOBAL && !is_main_site()) ){
-				em_options_radio_binary ( __( 'Enable categories?', 'events-manager'), 'dbem_categories_enabled', __( 'Select yes to enable the category features','events-manager') );
+				em_options_radio_binary ( __( 'Enable categories?', 'events-manager'), 'dbem_categories_enabled', __( 'Select yes to enable the category features','events-manager') );     
 				if( get_option('dbem_categories_enabled') ){
 					/*default category*/
 					$category_options = array();
@@ -25,7 +25,7 @@
 					foreach($EM_Categories as $EM_Category){
 				 		$category_options[$EM_Category->id] = $EM_Category->name;
 				 	}
-					echo "<tr><th>".__( 'Default Category', 'events-manager')."</th><td>";
+				 	echo "<tr><th>".__( 'Default Category', 'events-manager')."</th><td>";
 					wp_dropdown_categories(array( 'hide_empty' => 0, 'name' => 'dbem_default_category', 'hierarchical' => true, 'taxonomy' => EM_TAXONOMY_CATEGORY, 'selected' => get_option('dbem_default_category'), 'show_option_none' => __('None','events-manager'), 'class'=>''));
 					echo "</br><em>" .__( 'This option allows you to select the default category when adding an event.','events-manager').' '.__('If an event does not have a category assigned when editing, this one will be assigned automatically.','events-manager')."</em>";
 					echo "</td></tr>";
@@ -39,7 +39,7 @@
 			if( get_option('dbem_locations_enabled') ){
 				/*default location*/
 				if( defined('EM_OPTIMIZE_SETTINGS_PAGE_LOCATIONS') && EM_OPTIMIZE_SETTINGS_PAGE_LOCATIONS ){
-			em_options_input_text( __( 'Default Location', 'events-manager'), 'dbem_default_location', __('Please enter your Location ID, or leave blank for no location.','events-manager').' '.__( 'This option allows you to select the default location when adding an event.','events-manager')." ".__('(not applicable with event ownership on presently, coming soon!)','events-manager') );
+	            	em_options_input_text( __( 'Default Location', 'events-manager'), 'dbem_default_location', __('Please enter your Location ID, or leave blank for no location.','events-manager').' '.__( 'This option allows you to select the default location when adding an event.','events-manager')." ".__('(not applicable with event ownership on presently, coming soon!)','events-manager') );
 	            }else{
 					$location_options = array();
 					$location_options[0] = __('no default location','events-manager');
@@ -94,7 +94,7 @@
 	<div class="inside">
             <table class="form-table">
             <tr><td colspan="2" class="em-boxheader">
-		<?php echo sprintf(__('You can allow users to publicly submit events on your blog by using the %s shortcode, and enabling anonymous submissions below.','events-manager'), '<code>[event_form]</code>'); ?>
+            	<?php echo sprintf(__('You can allow users to publicly submit events on your blog by using the %s shortcode, and enabling anonymous submissions below.','events-manager'), '<code>[event_form]</code>'); ?>
 			</td></tr>
 			<?php
 				em_options_radio_binary ( __( 'Use Visual Editor?', 'events-manager'), 'dbem_events_form_editor', __( 'Users can now use the WordPress editor for easy HTML entry in the submission form.', 'events-manager') );
@@ -103,16 +103,16 @@
 				em_options_textarea ( __( 'Successfully Updated Message', 'events-manager'), 'dbem_events_form_result_success_updated', __( 'Customize the message your user sees when they resubmit/update their event.', 'events-manager').$events_placeholder_tip );
 			?>
             <tr class="em-header"><td colspan="2">
-		<h4><?php echo sprintf(__('Anonymous event submissions','events-manager'), '<code>[event_form]</code>'); ?></h4>
+            	<h4><?php echo sprintf(__('Anonymous event submissions','events-manager'), '<code>[event_form]</code>'); ?></h4>
 			</td></tr>
             <?php
 				em_options_radio_binary ( __( 'Allow anonymous event submissions?', 'events-manager'), 'dbem_events_anonymous_submissions', __( 'Would you like to allow users to submit bookings anonymously? If so, you can use the new [event_form] shortcode or <code>em_event_form()</code> template tag with this enabled.', 'events-manager') );
 				if( defined('EM_OPTIMIZE_SETTINGS_PAGE_USERS') && EM_OPTIMIZE_SETTINGS_PAGE_USERS ){
-			em_options_input_text( __('Guest Default User', 'events-manager'), 'dbem_events_anonymous_user', __('Please add a User ID.','events-manager').' '.__( 'Events require a user to own them. In order to allow events to be submitted anonymously you need to assign that event a specific user. We recommend you create a "Anonymous" subscriber with a very good password and use that. Guests will have the same event permissions as this user when submitting.', 'events-manager') );
+	            	em_options_input_text( __('Guest Default User', 'events-manager'), 'dbem_events_anonymous_user', __('Please add a User ID.','events-manager').' '.__( 'Events require a user to own them. In order to allow events to be submitted anonymously you need to assign that event a specific user. We recommend you create a "Anonymous" subscriber with a very good password and use that. Guests will have the same event permissions as this user when submitting.', 'events-manager') );
 	            }else{
-			em_options_select ( __('Guest Default User', 'events-manager'), 'dbem_events_anonymous_user', em_get_wp_users (), __( 'Events require a user to own them. In order to allow events to be submitted anonymously you need to assign that event a specific user. We recommend you create a "Anonymous" subscriber with a very good password and use that. Guests will have the same event permissions as this user when submitting.', 'events-manager') );
+	            	em_options_select ( __('Guest Default User', 'events-manager'), 'dbem_events_anonymous_user', em_get_wp_users (), __( 'Events require a user to own them. In order to allow events to be submitted anonymously you need to assign that event a specific user. We recommend you create a "Anonymous" subscriber with a very good password and use that. Guests will have the same event permissions as this user when submitting.', 'events-manager') );
 				}
-		em_options_textarea ( __( 'Success Message', 'events-manager'), 'dbem_events_anonymous_result_success', __( 'Anonymous submitters cannot see or modify their event once submitted. You can customize the success message they see here.', 'events-manager').$events_placeholder_tip );
+            	em_options_textarea ( __( 'Success Message', 'events-manager'), 'dbem_events_anonymous_result_success', __( 'Anonymous submitters cannot see or modify their event once submitted. You can customize the success message they see here.', 'events-manager').$events_placeholder_tip );
 			?>
 	        <?php echo $save_button; ?>
 		</table>
@@ -156,8 +156,8 @@
 		</div>
             <table class="form-table">
             <tr class="em-header"><td colspan="2">
-		<h4><?php _e('JavaScript Files','events-manager'); ?></h4>
-		<p><?php echo sprintf(__('If you are not using it already, we recommend you try the <a href="%s" target="_blank">Use Google Libraries</a> plugin, because without further optimization options below it already significantly reduces the number of files needed to display your Event pages and will most likely speed up your overall website loading time.' ,'events-manager'),'http://wordpress.org/extend/plugins/use-google-libraries/'); ?>
+            	<h4><?php _e('JavaScript Files','events-manager'); ?></h4>
+            	<p><?php echo sprintf(__('If you are not using it already, we recommend you try the <a href="%s" target="_blank">Use Google Libraries</a> plugin, because without further optimization options below it already significantly reduces the number of files needed to display your Event pages and will most likely speed up your overall website loading time.' ,'events-manager'),'http://wordpress.org/extend/plugins/use-google-libraries/'); ?>
 			</td></tr>
 			<?php
 				em_options_radio_binary ( __( 'Limit JS file loading?', 'events-manager'), 'dbem_js_limit', __( 'Prevent unnecessary loading of JavaScript files on pages where they are not needed.', 'events-manager') );
@@ -165,7 +165,7 @@
 			<tbody id="dbem-js-limit-options">
 				<tr class="em-subheader"><td colspan="2">
 	            	<?php 
-			_e('Aside from pages we automatically generate and include certain jQuery files, if you are using Widgets, Shortcode or PHP to display specific items you may need to tell us where you are using them for them to work properly. Below are options for you to include specific jQuery dependencies only on certain pages.','events-manager');
+	            	_e('Aside from pages we automatically generate and include certain jQuery files, if you are using Widgets, Shortcode or PHP to display specific items you may need to tell us where you are using them for them to work properly. Below are options for you to include specific jQuery dependencies only on certain pages.','events-manager');
 	            	echo $performance_opt_page_instructions;
 	            	?>
 				</td></tr>
@@ -194,10 +194,10 @@
             	<?php
 			?>
 			<tr  class="em-header"><td  colspan="2">  
-			    <h4><?php  _e('Thumbnails','events-manager');  ?></h4>
+			    <h4><?php  _e('Thumbnails','events-manager');  ?></h4>  
 			</td></tr>  
 			<?php
-            em_options_radio_binary  (  __(  'Disable  WordPress Thumbnails?',  'events-manager'),  'dbem_disable_thumbnails',  __(  'If set to yes, full sized images will be used and HTML width and height attributes will be used to determine the size.',  'events-manager').' '.sprintf(__('Setting this to yes will also make your images crop efficiently with the %s feature in the %s plugin.','events-manager'), '<a href="http://jetpack.me/support/photon/">Photon</a>','<a href="https://wordpress.org/plugins/jetpack/">JetPack</a>') );
+            em_options_radio_binary  (  __(  'Disable  WordPress Thumbnails?',  'events-manager'),  'dbem_disable_thumbnails',  __(  'If set to yes, full sized images will be used and HTML width and height attributes will be used to determine the size.',  'events-manager').' '.sprintf(__('Setting this to yes will also make your images crop efficiently with the %s feature in the %s plugin.','events-manager'), '<a href="http://jetpack.me/support/photon/">Photon</a>','<a href="https://wordpress.org/plugins/jetpack/">JetPack</a>') );  
             ?>  
 	        <?php echo $save_button; ?>
 		</table>

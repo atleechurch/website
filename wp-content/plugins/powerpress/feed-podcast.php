@@ -25,7 +25,7 @@
 	$GeneralSettings = get_option('powerpress_general');
 	$iTunesOrderNumber = 0;
 	$FeaturedPodcastID = 0;
-
+	
 	if( !empty($GeneralSettings['episode_box_feature_in_itunes']) ) {
 		$iTunesFeatured = get_option('powerpress_itunes_featured');
 		$feed_slug = get_query_var('feed');
@@ -48,7 +48,7 @@ $more = 1;
 $FeedActionHook = '';
 if( !empty($GeneralSettings['feed_action_hook']) )
 	$FeedActionHook = '_powerpress';
-
+	
 echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'."\n"; ?>
 <rss version="2.0"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
@@ -74,7 +74,7 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'."\n"; 
 		$ItemCount = 0;
 	?>
 <?php while( have_posts()) :
-
+		
 		if( empty($GeneralSettings['feed_accel']) )
 			the_post();
 		else
@@ -88,13 +88,13 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'."\n"; 
 <?php
 		if( empty($GLOBALS['powerpress_feed']['feed_maximizer_on']) ) // If feed maximizer off
 		{
-
+			
 			if( empty($GeneralSettings['feed_accel']) ) {
 		?>
 		<comments><?php comments_link_feed(); ?></comments>
 		<wfw:commentRss><?php echo esc_url( get_post_comments_feed_link(null, 'rss2') ); ?></wfw:commentRss>
 		<slash:comments><?php echo get_comments_number(); ?></slash:comments>
-<?php } // end powerpress feed comments
+<?php } // end powerpress feed comments  
 
 	if( empty($GeneralSettings['feed_accel']) ) {
 		the_category_rss('rss2');
@@ -182,3 +182,4 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'."\n"; 
 ?>
 </channel>
 </rss>
+<?php exit; // exit feed to prevent possible notices ?>

@@ -163,17 +163,17 @@ class EM_Event_Posts_Admin{
 		if( array_key_exists('cb', $columns) ){
 			$cb = $columns['cb'];
 	    	unset($columns['cb']);
-		$id_array = array('cb'=>$cb, 'event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
+	    	$id_array = array('cb'=>$cb, 'event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
 		}else{
-		$id_array = array('event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
+	    	$id_array = array('event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
 		}
 	    unset($columns['comments']);
 	    unset($columns['date']);
 	    unset($columns['author']);
 	    $columns = array_merge($id_array, $columns, array(
-		'location' => __('Location','events-manager'),
-		'date-time' => __('Date and Time','events-manager'),
-		'author' => __('Owner','events-manager'),
+	    	'location' => __('Location','events-manager'),
+	    	'date-time' => __('Date and Time','events-manager'),
+	    	'author' => __('Owner','events-manager'),
 	    	'extra' => ''
 	    ));
 	    if( !get_option('dbem_locations_enabled') ){
@@ -300,17 +300,17 @@ class EM_Event_Recurring_Posts_Admin{
 		if( array_key_exists('cb', $columns) ){
 			$cb = $columns['cb'];
 	    	unset($columns['cb']);
-		$id_array = array('cb'=>$cb, 'event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
+	    	$id_array = array('cb'=>$cb, 'event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
 		}else{
-		$id_array = array('event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
+	    	$id_array = array('event-id' => sprintf(__('%s ID','events-manager'),__('Event','events-manager')));
 		}
 	    unset($columns['comments']);
 	    unset($columns['date']);
 	    unset($columns['author']);
 	    return array_merge($id_array, $columns, array(
-		'location' => __('Location','events-manager'),
-		'date-time' => __('Date and Time','events-manager'),
-		'author' => __('Owner','events-manager'),
+	    	'location' => __('Location','events-manager'),
+	    	'date-time' => __('Date and Time','events-manager'),
+	    	'author' => __('Owner','events-manager'),
 	    ));
 	}
 

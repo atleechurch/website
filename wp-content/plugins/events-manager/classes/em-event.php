@@ -195,7 +195,7 @@ class EM_Event extends EM_Object{
 	var $post_date;
 	var $post_date_gmt;
 	var $post_title;
-	var $post_excerpt;
+	var $post_excerpt = '';
 	var $post_status;
 	var $comment_status;
 	var $ping_status;
@@ -680,9 +680,9 @@ class EM_Event extends EM_Object{
 			$this->get_status();
 			//Categories
 			if( get_option('dbem_categories_enabled') ){
-			$this->get_categories()->event_id = $this->event_id;
-			$this->categories->post_id = $this->post_id;
-			$this->categories->save();
+    			$this->get_categories()->event_id = $this->event_id;
+    			$this->categories->post_id = $this->post_id;
+    			$this->categories->save();
 			}
 			//anonymous submissions should save this information
 			if( !empty($this->event_owner_anonymous) ){
@@ -795,7 +795,7 @@ class EM_Event extends EM_Object{
 			    $this->get_previous_status();
 				$this->event_date_modified = $event_array['event_date_modified'] = current_time('mysql');
 				if ( $wpdb->update(EM_EVENTS_TABLE, $event_array, array('event_id'=>$this->event_id) ) === false ){
-					$this->add_error( sprintf(__('Something went wrong updating your %s to the index table. Please inform a site administrator about this.','events-manager'),__('event','events-manager')));
+					$this->add_error( sprintf(__('Something went wrong updating your %s to the index table. Please inform a site administrator about this.','events-manager'),__('event','events-manager')));			
 				}else{
 					//Also set the status here if status != previous status
 					if( $this->previous_status != $this->get_status() ) $this->set_status($this->get_status());
@@ -820,12 +820,12 @@ class EM_Event extends EM_Object{
 			}
 			$result = count($this->errors) == 0;
 			//If we're saving event categories in MS Global mode, we'll add them here, saving by term id (cat ids are gone now)
-			if( EM_MS_GLOBAL && get_option('dbem_categories_enabled') ){ //EM_MS_Globals should look up original blog
-			if( !is_main_site() ){
-				$this->get_categories()->save(); //it'll know what to do
-			}else{
-				$this->get_categories()->save_index(); //just save to index, we assume cats are saved in $this->save();
-			}
+			if( EM_MS_GLOBAL && get_option('dbem_categories_enabled') ){ //EM_MS_Globals should look up original blog 
+    			if( !is_main_site() ){
+    				$this->get_categories()->save(); //it'll know what to do
+    			}else{
+    				$this->get_categories()->save_index(); //just save to index, we assume cats are saved in $this->save();
+    			}
 			}
 		    $this->compat_keys(); //compatability keys, loaded before saving recurrences
 			//build recurrences if needed
@@ -1574,7 +1574,7 @@ class EM_Event extends EM_Object{
 					}
 					break;
 				//Links
-				case '#_EVENTPAGEURL': //deprecated
+				case '#_EVENTPAGEURL': //deprecated	
 				case '#_LINKEDNAME': //deprecated
 				case '#_EVENTURL': //Just the URL
 				case '#_EVENTLINK': //HTML Link
@@ -1744,7 +1744,7 @@ class EM_Event extends EM_Object{
 					$replace = $this->get_contact()->ID;
 					break;
 				case '#_CONTACTPHONE':
-				$replace = ( $this->get_contact()->phone != '') ? $this->get_contact()->phone : __('N/A', 'events-manager');
+		      		$replace = ( $this->get_contact()->phone != '') ? $this->get_contact()->phone : __('N/A', 'events-manager');
 					break;
 				case '#_CONTACTAVATAR': 
 					$replace = get_avatar( $this->get_contact()->ID, $size = '50' ); 
@@ -1782,26 +1782,26 @@ class EM_Event extends EM_Object{
 				case '#_EVENTCATEGORIESIMAGES':
 				    $replace = '';
 				    if( get_option('dbem_categories_enabled') ){
-					ob_start();
-					$template = em_locate_template('placeholders/eventcategoriesimages.php', true, array('EM_Event'=>$this));
-					$replace = ob_get_clean();
+    					ob_start();
+    					$template = em_locate_template('placeholders/eventcategoriesimages.php', true, array('EM_Event'=>$this));
+    					$replace = ob_get_clean();
 				    }
 					break;
 				case '#_EVENTTAGS':
 				    $replace = '';
                     if( get_option('dbem_tags_enabled') ){
-					ob_start();
-					$template = em_locate_template('placeholders/eventtags.php', true, array('EM_Event'=>$this));
-					$replace = ob_get_clean();
+    					ob_start();
+    					$template = em_locate_template('placeholders/eventtags.php', true, array('EM_Event'=>$this));
+    					$replace = ob_get_clean();
                     }
 					break;
 				case '#_CATEGORIES': //deprecated
 				case '#_EVENTCATEGORIES':
 				    $replace = '';
 				    if( get_option('dbem_categories_enabled') ){
-					ob_start();
-					$template = em_locate_template('placeholders/categories.php', true, array('EM_Event'=>$this));
-					$replace = ob_get_clean();
+    					ob_start();
+    					$template = em_locate_template('placeholders/categories.php', true, array('EM_Event'=>$this));
+    					$replace = ob_get_clean();
 				    }
 					break;
 				//Ical Stuff
@@ -1891,13 +1891,13 @@ class EM_Event extends EM_Object{
 		}
 		
 		if( get_option('dbem_categories_enabled') ){
-		//for backwards compat and easy use, take over the individual category placeholders with the frirst cat in th elist.
-		$EM_Categories = $this->get_categories();
-		if( count($EM_Categories->categories) > 0 ){
-			$EM_Category = $EM_Categories->get_first();
-		}
-		if( empty($EM_Category) ) $EM_Category = new EM_Category();
-		$event_string = $EM_Category->output($event_string, $target);
+    		//for backwards compat and easy use, take over the individual category placeholders with the frirst cat in th elist.
+    		$EM_Categories = $this->get_categories();
+    		if( count($EM_Categories->categories) > 0 ){
+    			$EM_Category = $EM_Categories->get_first();
+    		}
+    		if( empty($EM_Category) ) $EM_Category = new EM_Category();
+    		$event_string = $EM_Category->output($event_string, $target);
 		}
 		
 		//Finally, do the event notes, so that previous placeholders don't get replaced within the content, which may use shortcodes
@@ -2089,7 +2089,7 @@ class EM_Event extends EM_Object{
 			 	if( count($meta_inserts) > 0 ){
 				 	$result = $wpdb->query("INSERT INTO ".$wpdb->postmeta." (post_id,meta_key,meta_value) VALUES ".implode(',',$meta_inserts));
 				 	if($result === false){
-						$this->add_error('There was a problem adding custom fields to your recurring events.','events-manager');
+				 		$this->add_error('There was a problem adding custom fields to your recurring events.','events-manager');
 				 	}
 			 	}
 			 	//copy the event tags and categories
@@ -2190,7 +2190,7 @@ class EM_Event extends EM_Object{
 			 		$result = $wpdb->query($sql);
 			 	}
 			}else{
-				$this->add_error('You have not defined a date range long enough to create a recurrence.','events-manager');
+		 		$this->add_error('You have not defined a date range long enough to create a recurrence.','events-manager');
 		 		$result = false;
 		 	}
 		 	return apply_filters('em_event_save_events', !in_array(false, $event_saves) && $result !== false, $this, $event_ids, $post_ids);
@@ -2406,7 +2406,7 @@ class EM_Event extends EM_Object{
 	    }
 	    return null;
 	}
-
+	
 	/**
 	 * Can the user manage this? 
 	 */

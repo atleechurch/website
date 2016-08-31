@@ -1,8 +1,8 @@
 <?php
 	require_once (DUPLICATOR_PLUGIN_PATH . 'classes/package.php');
-	$Package = DUP_Package::GetActive();
+	$Package = DUP_Package::GetActive();	
 	$ajax_nonce	= wp_create_nonce('dup_package_build');
-
+	
 ?>
 
 <style>
@@ -12,7 +12,7 @@
 	div#dup-progress-area h2.title {background-color:#efefef; margin:0px}
 	div#dup-progress-area span.label {font-weight:bold}
 	div#dup-msg-success {color:#18592A; padding:5px;}
-	div#dup-msg-success fieldset,
+	div#dup-msg-success fieldset, 
 	div#dup-msg-error fieldset {text-align:left; width:95%; border:1px solid #dfdfdf; border-radius:5px;}
 	div.dup-msg-error-area {overflow-y: scroll; padding:5px 15px 5px 15px; max-height:150px; max-width: 700px}
 	div.dup-msg-success-stats{color:#999;margin:10px 0px 0px 0px}
@@ -39,7 +39,7 @@ TOOL BAR: STEPS -->
 				</div>
 				<div id="dup-wiz-title">
 					<?php _e('Step 3: Build Package', 'duplicator'); ?>
-				</div>
+				</div> 
 			</div>
 		</td>
 		<td class="dup-toolbar-btns">
@@ -47,7 +47,7 @@ TOOL BAR: STEPS -->
 			<span> <?php _e("Create New", 'duplicator'); ?></span>
 		</td>
 	</tr>
-</table>
+</table>		
 <hr style="margin-bottom:10px">
 
 
@@ -61,7 +61,7 @@ TOOL BAR: STEPS -->
 		<i><?php _e('Keep this window open during the build process.', 'duplicator'); ?></i><br/>
 		<i><?php _e('This may take several minutes.', 'duplicator'); ?></i><br/>
 	</div>
-
+	
 	<div id="dup-progress-area" class="dup-panel" style="display:none">
 		<div class="dup-panel-title dup-box-title-fancy"><b style="font-size:18px"><?php _e('Build Status', 'duplicator'); ?></b></div>
 		<div class="dup-panel-panel">
@@ -72,12 +72,12 @@ TOOL BAR: STEPS -->
 				<div class="dup-hdr-success">
 					<i class="fa fa-check-square-o fa-lg"></i> <?php _e('Package Completed', 'duplicator'); ?>
 				</div>
-
+				
 				<div class="dup-msg-success-stats">
 					<b><?php _e('Name', 'duplicator'); ?>:</b> <span id="data-name-hash"></span><br/>
 					<b><?php _e('Process Time', 'duplicator'); ?>:</b> <span id="data-time"></span><br/>
 				</div><br/>
-
+				
 				<button id="dup-btn-installer" class="button button-primary button-large">
 					<i class="fa fa-bolt"></i> <?php _e("Installer", 'duplicator') ?>
 					<span id="dup-btn-installer-size" class="dup-btn-size"></span>
@@ -90,23 +90,23 @@ TOOL BAR: STEPS -->
 					<small><i><?php _e("click buttons to download", 'duplicator') ?></i></small>
 				</div>
 				<div class="dup-msg-success-links">
-					<?php printf("<a href='?page=duplicator'>[ %s ]</a>", 	__('All Packages', 'duplicator'));?>
+					<?php printf("<a href='?page=duplicator'>[ %s ]</a>", 	__('All Packages', 'duplicator'));?> 
 				</div><br/>
-
+				
 				<!-- Used for iMacros testing do not remove -->
 				<div id="dup-automation-imacros"></div>
 			</div>
-
+			
 			<!--  =========================
 			ERROR MESSAGE -->
 			<div id="dup-msg-error" style="display:none">
 				<div class="done-title"><i class="fa fa-chain-broken"></i> <?php _e('Build Interrupt', 'duplicator'); ?></div>
 				<b><?php _e('The current build has experienced an issue.', 'duplicator'); ?></b><br/>
-
+			
 				<i><?php _e('Please try the process again.', 'duplicator'); ?></i><br/><br/>
-
+				  
 				<input type="button" style="margin-right:10px;" class="button" value="<?php _e('Diagnose', 'duplicator'); ?>" onclick="window.open('http://lifeinthegrid.com/support/knowledgebase.php?article=12#faq-trouble-timeout', '_blank');return false;" />
-                <input type="button" class="button" value="<?php _e('Try Again', 'duplicator'); ?>" onclick="window.location = 'admin.php?page=duplicator&tab=new1'" />
+                <input type="button" class="button" value="<?php _e('Try Again', 'duplicator'); ?>" onclick="window.location = 'admin.php?page=duplicator&tab=new1'" />                                
 				<fieldset>
 					<legend><b><i class="fa fa-exclamation"></i> <?php _e('Details', 'duplicator'); ?></b></legend>
 					<div class="dup-msg-error-area">
@@ -120,7 +120,7 @@ TOOL BAR: STEPS -->
 						</div>
 					</div>
 				</fieldset><br/>
-
+				
 				<fieldset style="color:#777">
 					<legend><b> <?php _e('Notice', 'duplicator'); ?></b></legend>
 					<div class="dup-msg-error-area">
@@ -132,17 +132,17 @@ TOOL BAR: STEPS -->
 						?> <br/>
 					</div>
 				</fieldset>
-
+				
 				<!-- LOGS -->
 				<div id="dup-logs">
 					<div style="font-weight:bold">
-						<i class="fa fa-list-alt"></i> <a href='javascript:void(0)' style="color:#A62426" onclick='Duplicator.OpenLogWindow()'> <?php _e('Package Log', 'duplicator');?> </a>
-					</div>
+						<i class="fa fa-list-alt"></i> <a href='javascript:void(0)' style="color:#A62426" onclick='Duplicator.OpenLogWindow()'> <?php _e('Package Log', 'duplicator');?> </a>						
+					</div> 
 					<br/>
 				</div>
 
 			</div>
-
+			
 		</div>
 	</div>
 </form>
@@ -153,7 +153,7 @@ jQuery(document).ready(function($) {
 	*	METHOD: Performs Ajax post to create a new package
 	*	Timeout (10000000 = 166 minutes)  */
 	Duplicator.Pack.Create = function() {
-
+		
 		var data = {action : 'duplicator_package_build', nonce: '<?php echo $ajax_nonce; ?>'}
 
 		$.ajax({
@@ -164,27 +164,27 @@ jQuery(document).ready(function($) {
 			data: data,
 			beforeSend: function() {},
 			complete:   function() {},
-			success:    function(data) {
-				$('#dup-progress-bar-area').hide();
+			success:    function(data) { 
+				$('#dup-progress-bar-area').hide(); 
 				$('#dup-progress-area, #dup-msg-success').show(300);
-
+				
 				var Pack = data.Package;
 				var InstallURL = Pack.StoreURL + Pack.Installer.File + "?get=1&file=" + Pack.Installer.File;
 				var ArchiveURL = Pack.StoreURL + Pack.Archive.File   + "?get=1";
-
+				
 				$('#dup-btn-archive-size').append('&nbsp; (' + data.ZipSize + ')')
 				$('#data-name-hash').text(Pack.NameHash || 'error read');
 				$('#data-time').text(data.Runtime || 'unable to read time');
-
+				
 				//Wire Up Downloads
 				$('#dup-btn-installer').on("click", {name: InstallURL }, Duplicator.Pack.DownloadFile  );
 				$('#dup-btn-archive').on("click",   {name: ArchiveURL }, Duplicator.Pack.DownloadFile  );
 				//Imacros testing required
 				$('#dup-automation-imacros').html('<input type="hidden" id="dup-finished" value="done" />');
-
+					
 			},
-			error: function(data) {
-				$('#dup-progress-bar-area').hide();
+			error: function(data) { 
+				$('#dup-progress-bar-area').hide(); 
 				$('#dup-progress-area, #dup-msg-error').show(200);
 				var status = data.status + ' -' + data.statusText;
 				var response = (data.responseText != undefined && data.responseText.length > 1) ? data.responseText : 'Unknown Error - See Log File';

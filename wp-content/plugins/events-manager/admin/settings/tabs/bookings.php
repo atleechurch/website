@@ -147,9 +147,9 @@
 				$current_user[$user->ID] = $user->display_name;
 			}
 			if( defined('EM_OPTIMIZE_SETTINGS_PAGE_USERS') && EM_OPTIMIZE_SETTINGS_PAGE_USERS ){
-		em_options_input_text ( __( 'Assign bookings to', 'events-manager'), 'dbem_bookings_registration_user', __('Please add a User ID.','events-manager').' '.__( 'Choose a parent user to assign bookings to. People making their booking will be unaware of this and will never have access to those user details. This should be a subscriber user you do not use to log in with yourself.', 'events-manager') );
+            	em_options_input_text ( __( 'Assign bookings to', 'events-manager'), 'dbem_bookings_registration_user', __('Please add a User ID.','events-manager').' '.__( 'Choose a parent user to assign bookings to. People making their booking will be unaware of this and will never have access to those user details. This should be a subscriber user you do not use to log in with yourself.', 'events-manager') );
             }else{
-		em_options_select ( __( 'Assign bookings to', 'events-manager'), 'dbem_bookings_registration_user', em_get_wp_users(array('role' => 'subscriber'), $current_user), __( 'Choose a parent user to assign bookings to. People making their booking will be unaware of this and will never have access to those user details. This should be a subscriber user you do not use to log in with yourself.', 'events-manager') );
+            	em_options_select ( __( 'Assign bookings to', 'events-manager'), 'dbem_bookings_registration_user', em_get_wp_users(array('role' => 'subscriber'), $current_user), __( 'Choose a parent user to assign bookings to. People making their booking will be unaware of this and will never have access to those user details. This should be a subscriber user you do not use to log in with yourself.', 'events-manager') );
 			}
 			echo $save_button; 
 			?>

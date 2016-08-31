@@ -42,8 +42,8 @@
 				<?php endif; ?>
 				<th><?php _e('Name', 'events-manager') ?></th>
 				<th><?php _e('Address', 'events-manager') ?></th>
-				<th><?php _e('State', 'events-manager') ?></th>
-				<th><?php _e('Country', 'events-manager') ?></th>
+				<th><?php _e('State', 'events-manager') ?></th>  
+				<th><?php _e('Country', 'events-manager') ?></th>                
 			</tr> 
 		</thead>
 		<tfoot>
@@ -53,8 +53,8 @@
 				<?php endif; ?>
 				<th><?php _e('Name', 'events-manager') ?></th>
 				<th><?php _e('Address', 'events-manager') ?></th>
-				<th><?php _e('State', 'events-manager') ?></th>
-				<th><?php _e('Country', 'events-manager') ?></th>
+				<th><?php _e('State', 'events-manager') ?></th> 
+				<th><?php _e('Country', 'events-manager') ?></th>      
 			</tr>             
 		</tfoot>
 		<tbody>

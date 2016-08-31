@@ -11,7 +11,7 @@ $admin_recurring = is_admin() && $EM_Event->is_recurring();
 	<p><?php _e('This is a recurring event.', 'events-manager'); ?> <input type="checkbox" id="em-recurrence-checkbox" name="recurring" value="1" <?php if($EM_Event->is_recurring()) echo 'checked' ?> /></p>
 	<p class="em-date-range">
 		<span class="em-recurring-text"><?php _e ( 'Recurrences span from ', 'events-manager'); ?></span>
-		<span class="em-event-text"><?php _e ( 'From ', 'events-manager'); ?></span>
+		<span class="em-event-text"><?php _e ( 'From ', 'events-manager'); ?></span>				
 		<input class="em-date-start em-date-input-loc" type="text" />
 		<input class="em-date-input" type="hidden" name="event_start_date" value="<?php echo $EM_Event->event_start_date ?>" />
 		<span class="em-recurring-text"><?php _e('to','events-manager'); ?></span>
@@ -29,7 +29,7 @@ $admin_recurring = is_admin() && $EM_Event->is_recurring();
 	</p>
 	<div class="em-recurring-text">
 		<p>
-			<?php _e ( 'This event repeats', 'events-manager'); ?>
+			<?php _e ( 'This event repeats', 'events-manager'); ?> 
 			<select id="recurrence-frequency" name="recurrence_freq">
 				<?php
 					$freq_options = array ("daily" => __ ( 'Daily', 'events-manager'), "weekly" => __ ( 'Weekly', 'events-manager'), "monthly" => __ ( 'Monthly', 'events-manager'), 'yearly' => __('Yearly','events-manager') );
@@ -44,7 +44,7 @@ $admin_recurring = is_admin() && $EM_Event->is_recurring();
 			<span class='interval-desc' id="interval-weekly-plural"><?php _e ( 'weeks on', 'events-manager'); ?></span>
 			<span class='interval-desc' id="interval-monthly-singular"><?php _e ( 'month on the', 'events-manager')?></span>
 			<span class='interval-desc' id="interval-monthly-plural"><?php _e ( 'months on the', 'events-manager')?></span>
-			<span class='interval-desc' id="interval-yearly-singular"><?php _e ( 'year', 'events-manager')?></span>
+			<span class='interval-desc' id="interval-yearly-singular"><?php _e ( 'year', 'events-manager')?></span> 
 			<span class='interval-desc' id="interval-yearly-plural"><?php _e ( 'years', 'events-manager') ?></span>
 		</p>
 		<p class="alternate-selector" id="weekly-selector">
@@ -56,7 +56,7 @@ $admin_recurring = is_admin() && $EM_Event->is_recurring();
 		<p class="alternate-selector" id="monthly-selector" style="display:inline;">
 			<select id="monthly-modifier" name="recurrence_byweekno">
 				<?php
-					$weekno_options = array ("1" => __ ( 'first', 'events-manager'), '2' => __ ( 'second', 'events-manager'), '3' => __ ( 'third', 'events-manager'), '4' => __ ( 'fourth', 'events-manager'), '-1' => __ ( 'last', 'events-manager') );
+					$weekno_options = array ("1" => __ ( 'first', 'events-manager'), '2' => __ ( 'second', 'events-manager'), '3' => __ ( 'third', 'events-manager'), '4' => __ ( 'fourth', 'events-manager'), '-1' => __ ( 'last', 'events-manager') ); 
 					em_option_items ( $weekno_options, $EM_Event->recurrence_byweekno  ); 
 				?>
 			</select>

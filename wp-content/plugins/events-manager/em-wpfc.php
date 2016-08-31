@@ -211,7 +211,7 @@ function wpfc_em_ajax() {
 						$end_date = date('Y-m-d\T00:00:00', $EM_Event->end + (60*60*24)); //on all day events the end date/time is next day of end date at 00:00:00 - see end attribute on http://fullcalendar.io/docs/event_data/Event_Object/
 					}else{
 						$start_date = date('Y-m-d\TH:i:s', $EM_Event->start);
-						$end_date = date('Y-m-d\TH:i:s', $EM_Event->end);
+						$end_date = date('Y-m-d\TH:i:s', $EM_Event->end);						
 					}
 					$event_array = array ("title" => $title, "color" => $color, 'textColor'=>$textColor, 'borderColor'=>$borderColor, "start" => $start_date, "end" => $end_date, "url" => $EM_Event->get_permalink(), 'post_id' => $EM_Event->post_id, 'event_id' => $EM_Event->event_id, 'allDay' => $allDay );
 					if( $args['long_events'] == 0 ) $event_array['end'] = $event_array['start']; //if long events aren't wanted, make the end date same as start so it shows this way on the calendar

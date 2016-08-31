@@ -6,7 +6,7 @@ require_once (DUPLICATOR_PLUGIN_PATH . 'classes/package.archive.php');
  *  DUP_ZIP
  *  Creates a zip file using the built in PHP ZipArchive class
  */
-class DUP_Zip  extends DUP_Archive
+class DUP_Zip  extends DUP_Archive 
 {
 	//PRIVATE 
 	private static $compressDir;	
@@ -24,9 +24,9 @@ class DUP_Zip  extends DUP_Archive
 	/**
      *  CREATE
      *  Creates the zip file and adds the SQL file to the archive */
-	static public function Create(DUP_Archive $archive)
+	static public function Create(DUP_Archive $archive) 
 	{
-		try
+		try 
 		{
 			$timerAllStart = DUP_Util::GetMicrotime();
 			$package_zip_flush = DUP_Settings::Get('package_zip_flush');
@@ -76,11 +76,11 @@ class DUP_Zip  extends DUP_Archive
 			//ZIP DIRECTORIES
 			foreach(self::$scanReport->ARC->Dirs as $dir)
 			{
-				if (is_readable($dir) && self::$zipArchive->addEmptyDir(ltrim(str_replace(self::$compressDir, '', $dir), '/')))
+				if (is_readable($dir) && self::$zipArchive->addEmptyDir(ltrim(str_replace(self::$compressDir, '', $dir), '/'))) 
 				{
 					self::$countDirs++;
-				}
-				else
+				} 
+				else 
 				{
 					//Don't warn when dirtory is the root path
 					if (strcmp($dir, rtrim(self::$compressDir, '/')) != 0)
@@ -91,21 +91,21 @@ class DUP_Zip  extends DUP_Archive
 			/* ZIP FILES: Network Flush
 			*  This allows the process to not timeout on fcgi 
 			*  setups that need a response every X seconds */
-			if (self::$networkFlush)
+			if (self::$networkFlush) 
 			{
-				foreach(self::$scanReport->ARC->Files as $file)
+				foreach(self::$scanReport->ARC->Files as $file) 
 				{
-					if (is_readable($file) && self::$zipArchive->addFile($file, ltrim(str_replace(self::$compressDir, '', $file), '/')))
+					if (is_readable($file) && self::$zipArchive->addFile($file, ltrim(str_replace(self::$compressDir, '', $file), '/'))) 
 					{
 						self::$limitItems++;
 						self::$countFiles++;
-					}
-					else
+					} 
+					else 
 					{
 						DUP_Log::Info("WARNING: Unable to zip file: {$file}");
 					}
 					//Trigger a flush to the web server after so many files have been loaded.
-					if(self::$limitItems > DUPLICATOR_ZIP_FLUSH_TRIGGER)
+					if(self::$limitItems > DUPLICATOR_ZIP_FLUSH_TRIGGER) 
 					{
 						$sumItems = (self::$countDirs + self::$countFiles);
 						self::$zipArchive->close();
@@ -116,10 +116,10 @@ class DUP_Zip  extends DUP_Archive
 					}
 				}
 			//Normal
-			}
-			else
+			} 
+			else 
 			{
-				foreach(self::$scanReport->ARC->Files as $file)
+				foreach(self::$scanReport->ARC->Files as $file) 
 				{
 					if (is_readable($file) && self::$zipArchive->addFile($file, ltrim(str_replace(self::$compressDir, '', $file), '/'))) {
 						self::$countFiles++;

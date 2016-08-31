@@ -265,7 +265,7 @@ function powerpress_admin_init()
 			{
 				$filename = str_replace(" ", "_", basename($_FILES['googleplay_image_file']['name']) );
 				$temp = $_FILES['googleplay_image_file']['tmp_name'];
-
+				
 				if( file_exists($upload_path . $filename ) )
 				{
 					$filenameParts = pathinfo($filename);
@@ -276,12 +276,12 @@ function powerpress_admin_init()
 						} while( file_exists($upload_path . $filename ) );
 					}
 				}
-
+				
 				// Check the image...
 				if( file_exists($temp) )
 				{
 					$ImageData = @getimagesize($temp);
-
+					
 					$rgb = true; // We assume it is RGB
 					if( defined('POWERPRESS_IMAGICK') && POWERPRESS_IMAGICK )
 					{
@@ -294,10 +294,10 @@ function powerpress_admin_init()
 							}
 						}
 					}
-
+					
 					if( empty($ImageData['channels']) )
 						$ImageData['channels'] = 3; // Assume it's ok if we cannot detect it.
-
+				
 					if( $ImageData )
 					{
 						if( $rgb && ( $ImageData[2] == IMAGETYPE_JPEG || $ImageData[2] == IMAGETYPE_PNG ) && $ImageData[0] == $ImageData[1] && $ImageData[0] >= 1200  && $ImageData[0] <= 7000 && $ImageData['channels'] == 3 ) // Just check that it is an image, the correct image type and that the image is square
@@ -342,7 +342,7 @@ function powerpress_admin_init()
 					}
 				}
 			}
-
+			
 			// New mp3 coverart image
 			if( !empty($_POST['coverart_image_checkbox']) )
 			{
@@ -564,7 +564,7 @@ function powerpress_admin_init()
 						$General['episode_box_feature_in_itunes'] = 0;	
 					else
 						$General['episode_box_order'] = 0;
-
+					
 					if( !isset($General['episode_box_block'] ) )
 						$General['episode_box_block'] = 0;
 					if( !isset($General['episode_box_gp_block'] ) )
@@ -803,7 +803,7 @@ function powerpress_admin_init()
 				else
 					update_option('powerpress_clammr', 1);
 			}
-
+			
 			if( isset($_POST['EpisodeBoxBGColor']) )
 			{
 				$GeneralSettingsTemp = get_option('powerpress_general');
@@ -1075,14 +1075,14 @@ function powerpress_admin_init()
 				case 'powerpress-category-settings': {
 					// Save here!
 					check_admin_referer('powerpress-category-settings');
-
+					
 					if( isset($_POST['cat_casting_podcast_feeds']) && isset($_POST['cat_casting_strict']) )
 					{
 						$Save = array('cat_casting_podcast_feeds'=>$_POST['cat_casting_podcast_feeds'], 'cat_casting_strict'=>$_POST['cat_casting_strict']);
 						powerpress_save_settings($Save);
 						powerpress_page_message_add_notice( __('Settings saved successfully.', 'powerpress') );
 					}
-
+					
 				}; break;
 			}
 		}
@@ -1357,11 +1357,11 @@ function powerpress_admin_init()
 	}
 	
 	add_filter( 'plugin_row_meta', 'powerpress_plugin_row_meta', 10, 2);
-
+	
 	// Hnadle player settings
 	require_once( POWERPRESS_ABSPATH .'/powerpressadmin-player.php');
 	powerpress_admin_players_init();
-
+	
 	// Handle notices
 	require_once( POWERPRESS_ABSPATH .'/powerpressadmin-notifications.php');
 }
@@ -1437,7 +1437,7 @@ function powerpress_save_settings($SettingsNew=false, $field = 'powerpress_gener
 			if( isset($Settings['episode_box_gp_block'] ) && $Settings['episode_box_gp_block'] == 0 )
 				unset($Settings['episode_box_gp_block']);
 			if( isset($Settings['episode_box_gp_explicit'] ) && $Settings['episode_box_gp_explicit'] == 0 )
-				unset($Settings['episode_box_gp_explicit']);
+				unset($Settings['episode_box_gp_explicit']);	
 			if( isset($Settings['episode_box_closed_captioned'] ) && $Settings['episode_box_closed_captioned'] == 0 )
 				unset($Settings['episode_box_closed_captioned']);	
 			if( isset($Settings['episode_box_author'] ) && $Settings['episode_box_author'] == 0 )
@@ -1771,7 +1771,7 @@ function powerpress_admin_menu()
 			if( !empty($Powerpress['podpress_stats']) )
 				add_submenu_page($parent_slug, __('PodPress Stats', 'powerpress'), __('PodPress Stats', 'powerpress'), POWERPRESS_CAPABILITY_EDIT_PAGES, 'powerpress/powerpressadmin_podpress-stats.php', 'powerpress_admin_page_podpress_stats');
 			//if( !empty($Powerpress['blubrry_hosting']) &&  $Powerpress['blubrry_hosting'] !== 'false' )
-
+			
 			add_submenu_page($parent_slug, __('PowerPress MP3 Tags', 'powerpress'), __('MP3 Tags', 'powerpress'), POWERPRESS_CAPABILITY_EDIT_PAGES, 'powerpress/powerpressadmin_tags.php', 'powerpress_admin_page_tags');
 			add_submenu_page($parent_slug, __('PowerPress Tools', 'powerpress'), __('Tools', 'powerpress'), POWERPRESS_CAPABILITY_EDIT_PAGES, 'powerpress/powerpressadmin_tools.php', 'powerpress_admin_page_tools');
 	}
@@ -1932,7 +1932,7 @@ function powerpress_edit_post($post_ID, $post)
 				if( isset($Powerpress['summary']) && trim($Powerpress['summary']) != '' ) 
 					$ToSerialize['summary'] = stripslashes($Powerpress['summary']);
 				// Google Play Description
-				if( isset($Powerpress['gp_desc']) && trim($Powerpress['gp_desc']) != '' )
+				if( isset($Powerpress['gp_desc']) && trim($Powerpress['gp_desc']) != '' ) 
 					$ToSerialize['gp_desc'] = stripslashes($Powerpress['gp_desc']);
 				// iTunes keywords (Deprecated by Apple)
 				if( isset($Powerpress['keywords']) && trim($Powerpress['keywords']) != '' ) 
@@ -1962,7 +1962,7 @@ function powerpress_edit_post($post_ID, $post)
 				if( isset($Powerpress['block']) && $Powerpress['block'] == '1' ) 
 					$ToSerialize['block'] = 1;
 				// Google Play Block
-				if( isset($Powerpress['gp_block']) && $Powerpress['gp_block'] == '1' )
+				if( isset($Powerpress['gp_block']) && $Powerpress['gp_block'] == '1' ) 
 					$ToSerialize['gp_block'] = 1;
 				// Player Embed
 				if( isset($Powerpress['embed']) && trim($Powerpress['embed']) != '' )
@@ -2030,7 +2030,7 @@ function powerpress_edit_post($post_ID, $post)
 				{
 					update_post_meta($post_ID, $field, $EnclosureData);
 				}
-
+				
 				if( !empty($ToSerialize['category']) )
 				{
 					$Categories = wp_get_post_categories($post_ID);
@@ -2288,7 +2288,7 @@ jQuery(document).ready(function($) {
 	jQuery('.goto-artwork-tab').click( function(event) {
 		event.preventDefault();
 		// TODO:
-
+		
 	});
 });
 
@@ -2554,7 +2554,7 @@ function powerpress_get_media_info(FeedSlug)
 							jQuery( '#powerpress_warning_'+FeedSlug ).html( Parts[1] );
 						else
 							jQuery( '#powerpress_warning_'+FeedSlug ).text( '<?php echo __('Unknown error occurred while checking Media URL.', 'powerpress'); ?>' );
-
+							
 						<?php
 						if( defined('POWERPRESS_AJAX_DEBUG') )
 							echo "\t\t\t\tjQuery( '#powerpress_warning_'+FeedSlug ).append( '<br/>Complete Response: '+ response);\n";
@@ -2593,11 +2593,11 @@ function powerpress_get_media_info(FeedSlug)
 					else {
 						jQuery( '#powerpress_warning_'+FeedSlug ).text( '<?php echo __('AJAX Error', 'powerpress') .': '. __('Unknown', 'powerpress'); ?>' );
 					}
-
+					
 					if( textStatus != 'error' && errorThrown ) { // If we have an error thrown, lets append it to the error message
 						jQuery('#powerpress_warning_'+FeedSlug).append('<br/>'+errorThrown);
 					}
-
+					
 					<?php
 					if( defined('POWERPRESS_AJAX_DEBUG') ) {
 						echo "\t\t\tif( objAJAXRequest.responseText ) {\n";
@@ -2605,7 +2605,7 @@ function powerpress_get_media_info(FeedSlug)
 						echo "\t\t\t}\n";
 					}
 					?>
-
+					
 					jQuery( '#powerpress_warning_'+FeedSlug ).css('display', 'block');
 				}
 			});
@@ -2841,7 +2841,7 @@ add_action('wp_ajax_powerpress_dashboard_dismiss', 'powerpress_dashboard_dismiss
 function powerpress_create_subscribe_page()
 {
 	$ajax = ( defined('DOING_AJAX') && DOING_AJAX ); // Now we can use this function without an ajax call! :)
-
+	
 	$template_url = 'http://plugins.svn.wordpress.org/powerpress/assets/subscribe_template/';
 	$languages = array();
 	$language = get_option( 'WPLANG' );
@@ -2879,7 +2879,7 @@ function powerpress_create_subscribe_page()
 	$page['post_author']  = $user_ID;
 	$page['post_status']  = 'publish';
 	$page['post_title']   = __('Subscribe to Podcast', 'powerpress');
-
+	
 	$pageid = wp_insert_post ($page);
 	if ($pageid == 0)
 	{
@@ -3027,7 +3027,7 @@ function powerpress_admin_page_header($page=false, $nonce_field = 'powerpress-ed
 	}
 	if( !empty($page_type) )
 		echo '<input type="hidden" name="page_type" value="'. $page_type .'" />';
-
+			
 	powerpress_page_message_print();
 }
 
@@ -3037,7 +3037,7 @@ function powerpress_admin_page_footer($SaveButton=true, $form=true)
 	if( $SaveButton ) { ?>
 <p class="submit">
 <input type="submit" name="Submit" id="powerpress_save_button" class="button-primary button-blubrry" value="<?php echo __('Save Changes', 'powerpress') ?>" />
- &nbsp; &mdash;
+ &nbsp; &mdash; 
 <strong><i><?php echo powerpress_review_message(); ?></i></strong>
 </p>
 <?php } ?>
@@ -3429,7 +3429,7 @@ function powerpress_remote_fopen($url, $basic_auth = false, $post_args = array()
 	
 	if( $force_curl )
 		return false; // Do not continue, we wanted to use cURL
-
+	
 	$options = array();
 	$options['timeout'] = $timeout;
 	$options['user-agent'] = 'Blubrry PowerPress/'.POWERPRESS_VERSION;
@@ -4051,7 +4051,7 @@ function powerpress_get_media_info($file)
 		if( !$content && $api_url == 'https://api.blubrry.com/' ) { // Lets force cURL and see if that helps...
 			$content = powerpress_remote_fopen($req_url, $Settings['blubrry_auth'], array(), 15, false, true);
 		}
-
+		
 		if( $content != false )
 			break;
 	}
@@ -4519,7 +4519,7 @@ function powerpress_admin_plugin_action_links( $links, $file )
 }
 add_filter( 'plugin_action_links', 'powerpress_admin_plugin_action_links', 10, 2 );
 
-
+			
 // At bottom of powerpressadmin.php
 function powerpresspartner_clammr_info($Settings=true)
 {
@@ -4531,7 +4531,7 @@ function powerpresspartner_clammr_info($Settings=true)
 ?>
 <h3 style="position: relative;margin-left: 30px; margin-bottom: 5px;">
 <img src="<?php echo powerpress_get_root_url(); ?>images/clammr.png" style="width: 30px; height: 30px; position: absolute; top: 0; left: -34px;" />
-<?php echo __('Clammr Player PowerPress Add-on', 'powerpress'); ?>  <?php echo powerpressadmin_new(); ?></h3>
+<?php echo __('Clammr Player PowerPress Add-on', 'powerpress'); ?>  <?php echo powerpressadmin_new(); ?></h3> 
 <p style="margin-left: 50px;">
 	<?php echo __('Blubrry has partnered with Clammr to enable a social-themed audio player for your site. As visitors listen to your podcast, they can tap the integrated Clammr Button to tag their favorite highlights and share them to Facebook and Twitter. The shared highlights contain links back to your full audio and site, driving additional audience and traffic to you.', 'powerpress'); ?>
 </p>
@@ -4541,12 +4541,12 @@ function powerpresspartner_clammr_info($Settings=true)
 		'&TB_iframe=true&width=640&height=662' ) ) .'" class="thickbox" title="' .
 		esc_attr__('Install Plugin') . '">'. __('Install Clammr Audio Player add-on plugin', 'powerpress') . '</a>';
 ?>
-<p style="margin-left: 50px;"><strong><?php echo $plugin_link; ?></strong></p><?php } else {
+<p style="margin-left: 50px;"><strong><?php echo $plugin_link; ?></strong></p><?php } else { 
 $PowerPressClammr = get_option('powerpress_clammr');
 ?>
 <p style="margin-bottom: 20px; margin-left: 50px;">
 	<input type="hidden" name="PowerPressClammr" value="0" />
-	<input type="checkbox" name="PowerPressClammr" value="1" <?php if( !empty($PowerPressClammr) ) echo 'checked'; ?> />
+	<input type="checkbox" name="PowerPressClammr" value="1" <?php if( !empty($PowerPressClammr) ) echo 'checked'; ?> /> 
 	<strong><?php echo __('Enable Clammr Audio Player with PowerPress', 'powerpress'); ?></strong>
 </p>
 <?php
@@ -4555,18 +4555,18 @@ $PowerPressClammr = get_option('powerpress_clammr');
 }
 
 function powerpress_plugin_row_meta( $links, $file ) {
-
+	
 	if ( strpos( $file, 'powerpress.php' ) !== false ) {
-
+	
 		$new_links = array();
 		$new_links[] = powerpress_get_documentation_link();
 		//$new_links[] = '<a href="http://create.blubrry.com/resources/powerpress/powerpress-documentation/" target="_blank">' . __( 'Support', 'powerpress' ) . '</a>';
 		$new_links[] = powerpress_get_review_link();
-
-
+		
+		
 		$links = array_merge( $links, $new_links );
 	}
-
+	
 	return $links;
 }
 
@@ -4601,3 +4601,5 @@ require_once( POWERPRESS_ABSPATH .'/powerpressadmin-dashboard.php');
 if( defined('WP_LOAD_IMPORTERS') ) {
 	require_once( POWERPRESS_ABSPATH .'/powerpressadmin-rss-import.php');
 }
+
+

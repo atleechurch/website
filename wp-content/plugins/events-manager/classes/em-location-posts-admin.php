@@ -44,18 +44,18 @@ class EM_Location_Posts_Admin{
 		if( array_key_exists('cb', $columns) ){
 			$cb = $columns['cb'];
 	    	unset($columns['cb']);
-		$id_array = array('cb'=>$cb, 'location-id' => sprintf(__('%s ID','events-manager'),__('Location','events-manager')));
+	    	$id_array = array('cb'=>$cb, 'location-id' => sprintf(__('%s ID','events-manager'),__('Location','events-manager')));
 		}else{
-		$id_array = array('location-id' => sprintf(__('%s ID','events-manager'),__('Location','events-manager')));
+	    	$id_array = array('location-id' => sprintf(__('%s ID','events-manager'),__('Location','events-manager')));
 		}
 	    unset($columns['author']);
 	    unset($columns['date']);
 	    unset($columns['comments']);
 	    return array_merge($id_array, $columns, array(
-		'address' => __('Address','events-manager'),
-		'town' => __('Town','events-manager'),
-		'state' => __('State','events-manager'),
-		'country' => __('Country','events-manager')
+	    	'address' => __('Address','events-manager'), 
+	    	'town' => __('Town','events-manager'),
+	    	'state' => __('State','events-manager'),
+	    	'country' => __('Country','events-manager') 
 	    ));
 	}
 	

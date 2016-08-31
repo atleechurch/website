@@ -150,12 +150,13 @@ function powerpress_admin_migrate_get_status()
 	
 	if( !$json_data )
 	{
+		$error = '';
 		if( !empty($GLOBALS['g_powerpress_remote_errorno']) && $GLOBALS['g_powerpress_remote_errorno'] == 401 )
-			$error .=  __('Incorrect sign-in email address or password.', 'powerpress') .' '. __('Verify your account settings then try again.', 'powerpress');
+			$error =  __('Incorrect sign-in email address or password.', 'powerpress') .' '. __('Verify your account settings then try again.', 'powerpress');
 		else if( !empty($GLOBALS['g_powerpress_remote_error']) )
-			$error .= $GLOBALS['g_powerpress_remote_error'];
+			$error = $GLOBALS['g_powerpress_remote_error'];
 		else
-			$error .= __('Authentication failed.', 'powerpress');
+			$error = __('Authentication failed.', 'powerpress');
 		powerpress_page_message_add_error($error);
 		return false;
 	}
@@ -868,7 +869,7 @@ function powerpress_admin_migrate()
 
 <p><?php echo __('Migrate all of your media to Blubrry with only a few clicks.', 'powerpress'); ?></p>
 <?php
-
+	
 	// If not hosting
 	if( empty($General['blubrry_hosting']) || $General['blubrry_hosting'] === 'false' ) {
 ?>

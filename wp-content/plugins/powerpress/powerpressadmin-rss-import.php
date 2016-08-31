@@ -17,7 +17,7 @@ if ( !class_exists( 'WP_Importer' ) ) {
 /**
  * PowerPress RSS Podcast Importer
  *
- * Will process a Podcast RSS feed for importing posts into WordPress.
+ * Will process a Podcast RSS feed for importing posts into WordPress. 
  *
  */
 if ( class_exists( 'WP_Importer' ) ) {
@@ -30,36 +30,36 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 	var $m_item_migrate_count = 0;
 	var $m_step = 0;
 	var $m_errors = array();
-
+	
 	function migrateCount() {
 		return $this->m_item_migrate_count;
 	}
-
+	
 	function importCount() {
 		return $this->m_item_inserted_count;
 	}
-
+	
 	function skippedCount() {
 		return $this->m_item_skipped_count;
 	}
-
+	
 	function errorsExist() {
 		return ( count($this->m_errors) > 0 );
 	}
-
+	
 	function getErrors() {
 		return $this->m_errors;
 	}
-
+	
 	function addError($msg) {
 		$this->m_errors[] = $msg;
 	}
-
+	
 
 	function header() {
 		echo '<div class="wrap" style="padding-left: 5%">';
 		screen_icon();
-
+		
 		if( !empty($_GET['import']) )
 		{
 			switch($_GET['import'] )
@@ -68,7 +68,7 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 				case 'powerpress-libsyn-rss-podcast': echo '<h2>'.__('Import Podcast from LibSyn', 'powerpress').'</h2>'; break;
 				case 'powerpress-podbean-rss-podcast': echo '<h2>'.__('Import Podcast from PodBean', 'powerpress').'</h2>'; break;
 				case 'powerpress-squarespace-rss-podcast': echo '<h2>'.__('Import Podcast from Squarespace', 'powerpress').'</h2>'; break;
-				case 'powerpress-rss-podcast':
+				case 'powerpress-rss-podcast': 
 				default: echo '<h2>'.__('Import Podcast RSS Feed', 'powerpress').'</h2>'; break;
 			}
 		}
@@ -126,12 +126,12 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 .ppi-option > p,
 .ppi-option > label {
 	font-size: 16px;
-
+	
 }
 
 </style>
 <div class="submit">
-
+	
 	<div class="ppi-option">
 		<h3><?php echo __('Import Podcast To', 'powerpress'); ?></h3>
 	</div>
@@ -163,7 +163,7 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 				</div>
 			</div>
 		</div>
-
+		
 		<!-- coming soon -->
 		<!--
 		<div class="ppi-option">
@@ -182,9 +182,9 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 		</div>
 		-->
 	</div>
-
+	
 <div>
-<?php
+<?php 
 	//$Settings = get_option('powerpress_general');
 	/*
 	if( !empty($Settings['blubrry_auth']) ) { ?>
@@ -217,10 +217,10 @@ class PowerPress_RSS_Podcast_Import extends WP_Importer {
 <script language="javascript"><!--
 
 jQuery(document).ready( function() {
-
+	
 	jQuery('.pp-expand-section').click( function(e) {
 		e.preventDefault();
-
+		
 		if( jQuery(this).hasClass('pp-expand-section-expanded') ) {
 			jQuery(this).removeClass('pp-expand-section-expanded');
 			jQuery(this).parent().next('div').hide(400);
@@ -237,7 +237,7 @@ jQuery(document).ready( function() {
 </script>
 
 <div class="ppi-option">
-
+	
 </div>
 
 <h3><a href="#" class="pp-expand-section"><?php echo __('Advanced Options', 'powerpress'); ?></a></h3>
@@ -262,8 +262,8 @@ jQuery(document).ready( function() {
 		<label for="import_item_limit"><?php echo __('Item limit', 'powerpress'); ?></label> &nbsp;
 		<input type="text" name="import_item_limit" id="import_item_limit" class="small-text" value="" /> (<?php echo __('leave blank for no limit', 'powerpress'); ?>)
 	</div>
-
-
+	
+	
 </div>
 <?php submit_button( __('Import Podcast', 'powerpress' ), 'button-blubrry'); ?>
 </div>
@@ -271,7 +271,7 @@ jQuery(document).ready( function() {
 </div>
 <script>
 jQuery(document).ready( function() {
-
+	
 	var import_type = jQuery("input[name='import_to']:checked").val()
 	jQuery('#import-to-'+import_type).show();
 	//alert(import_type);
@@ -284,7 +284,7 @@ jQuery(document).ready( function() {
 <?php
 	return;
 		echo '<div class="narrow">';
-
+		
 		echo '<h2>'.__('Import saved Feed', 'powerpress') .'</h2>';
 		wp_import_upload_form("admin.php?import=rss-podcast&amp;step=1");
 		echo '</div>';
@@ -293,86 +293,86 @@ jQuery(document).ready( function() {
 	function _normalize_tag( $matches ) {
 		return '<' . strtolower( $matches[1] );
 	}
-
+	
 	function import_program_info($channel, $overwrite=false, $download_itunes_image=false, $category_id = '', $feed_slug ='') {
 		$Feed = get_option('powerpress_feed_podcast' );
 		if( empty($Feed) )
 			$Feed = get_option('powerpress_feed');
-
+		
 		$NewSettings = array();
-
+		
 		$matches = array();
 		$program_title = false;
 		if( preg_match('|<title>(.*?)</title>|is', $channel, $matches) ) {
 			$program_title = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['title']) )
 				$NewSettings['title'] = $program_title;
 		}
-
+		
 		// language
 		$language = false;
 		if( preg_match('|<language>(.*?)</language>|is', $channel, $matches) ) {
 			$language = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['rss_language']) )
 				$NewSettings['rss_language'] = $language;
 		}
-
+		
 		// copyright
 		$copyright = false;
 		if( preg_match('|<copyright>(.*?)</copyright>|is', $channel, $matches) ) {
 			$copyright = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['copyright']) )
 				$NewSettings['copyright'] = $copyright;
 		}
-
+		
 		// description
 		$description = false;
 		if( preg_match('|<description>(.*?)</description>|is', $channel, $matches) ) {
 			$description = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['description']) )
 				$NewSettings['description'] = $description;
 		}
-
+		
 		// itunes:subtitle
 		$itunes_subtitle = false;
 		if( preg_match('|<itunes:subtitle>(.*?)</itunes:subtitle>|is', $channel, $matches) ) {
 			$itunes_subtitle = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['itunes_subtitle']) )
 				$NewSettings['itunes_subtitle'] = $itunes_subtitle;
 		}
-
+		
 		// itunes:summary
 		$itunes_summary = false;
 		if( preg_match('|<itunes:summary>(.*?)</itunes:summary>|is', $channel, $matches) ) {
 			$itunes_summary = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['itunes_summary']) )
 				$NewSettings['itunes_summary'] = $itunes_summary;
 		}
-
+		
 		// itunes:email
 		$itunes_email = false;
 		if( preg_match('|<itunes:email>(.*?)</itunes:email>|is', $channel, $matches) ) {
 			$itunes_email = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['email']) )
 				$NewSettings['email'] = $itunes_email;
 		}
-
+		
 		// itunes:author
 		$itunes_talent_name = false;
 		if( preg_match('|<itunes:author>(.*?)</itunes:author>|is', $channel, $matches) ) {
 			$itunes_talent_name = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['itunes_talent_name']) )
 				$NewSettings['itunes_talent_name'] = $itunes_talent_name;
 		}
-
+		
 		// itunes:explicit
 		if( preg_match('|<itunes:explicit>(.*?)</itunes:explicit>|is', $channel, $explicit) )
 		{
@@ -391,10 +391,10 @@ jQuery(document).ready( function() {
 		if( preg_match('/<itunes:image.*href="(.*?)".*(\/>|>.*<\/itunes:image>)/i', $channel, $image) )
 		{
 			$itunes_image = html_entity_decode( trim( $image[1] ) ); // Now we need to download and save the image locally...
-
+			
 			// download the image then save it locally...
 			if( $download_itunes_image ) {
-
+				
 				$upload_path = false;
 				$upload_url = false;
 				$UploadArray = wp_upload_dir();
@@ -403,7 +403,7 @@ jQuery(document).ready( function() {
 					$upload_path =  $UploadArray['basedir'].'/powerpress/';
 					$upload_url =  $UploadArray['baseurl'].'/powerpress/';
 					$filename = str_replace(" ", "_", basename($itunes_image) );
-
+					
 					if( file_exists($upload_path . $filename ) )
 					{
 						$filenameParts = pathinfo($filename);
@@ -414,20 +414,20 @@ jQuery(document).ready( function() {
 							} while( file_exists($upload_path . $filename ) );
 						}
 					}
-
+					
 					$options = array();
 					$options['user-agent'] = 'Blubrry PowerPress/'.POWERPRESS_VERSION;
 					if( !empty($_GET['import']) && $_GET['import'] == 'powerpress-squarespace-rss-podcast' )
 						$options['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36';
 					$options['timeout'] = 10;
-
+					
 					$image_data = '';
 					$response = wp_safe_remote_get($itunes_image, $options);
 					if ( !is_wp_error( $response ) ) {
 						$image_data = wp_remote_retrieve_body( $response );
 						$this->addError( __('Error downloading itunes image.', 'powerpress') );
 					}
-
+		
 					if( !empty($image_data) ) {
 						file_put_contents($upload_path.$filename, $image_data);
 						$NewSettings['itunes_image'] = $upload_url . $filename;
@@ -439,15 +439,15 @@ jQuery(document).ready( function() {
 				$NewSettings['rss2_image'] = $itunes_image;
 			}
 		}
-
-
+		
+			
 		if( preg_match('|<itunes:author>(.*?)</itunes:author>|is', $channel, $matches) ) {
 			$itunes_talent_name = $this->_sanatize_tag_value( $matches[1] );
-
+			
 			if( $overwrite || empty($Feed['itunes_talent_name']) )
 				$NewSettings['itunes_talent_name'] = $itunes_talent_name;
 		}
-
+		
 		// itunes:category (up to 3)
 		$itunes_categories  = false;
 		if( preg_match_all('|<itunes:category.*text="(.*?)"|is', $channel, $matches) ) {
@@ -456,7 +456,7 @@ jQuery(document).ready( function() {
 			$Categories = powerpress_itunes_categories();
 			$Categories = array_map('strtolower', $Categories);
 			$cats_by_title = array_flip( $Categories );
-
+			
 			$FoundCategories = array();
 			while( list($index,$category) = each($itunes_categories) )
 			{
@@ -465,7 +465,7 @@ jQuery(document).ready( function() {
 				if( !empty($cats_by_title[ $category ] ) )
 					$FoundCategories[] = $cats_by_title[ $category ];
 			}
-
+			
 			// Now walk trouigh found categories and stack them correctly...
 			// this logic rebuilds the categorires in the correct order no matter what method the service stacked them
 			$FinalCats = array(1=>'', 2=>'', 3=>'');
@@ -484,24 +484,24 @@ jQuery(document).ready( function() {
 					}
 					// else we can overwrite this category with subcategory
 				}
-
+				
 				if( $last_category_index > 3 )
 					break; // We are at the max cats available...
-
+				
 				$FinalCats[ $last_category_index ] = $cat_id;
 			}
-
+			
 			while( list($field_no, $cat_id) = each($FinalCats) ) {
 				if( empty( $cat_id) )
 					continue;
 				$field = sprintf('itunes_cat_%d', $field_no);
-
+				
 				if( $overwrite || empty($Feed[ $field  ]) ) {
 					$NewSettings[ $field ] = $cat_id;
 				}
 			}
 		}
-
+		
 		if( !empty($NewSettings) )
 		{
 			if( empty($category_id) && empty($feed_slug) ) {
@@ -512,10 +512,10 @@ jQuery(document).ready( function() {
 					powerpress_save_settings($NewSettings, 'powerpress_feed' );
 				}
 			} else if( !empty($category_id) ) {
-
+				
 				// First save the new settings into the specified options row...
 				powerpress_save_settings($NewSettings, 'powerpress_cat_feed_'.$category_id ); // save a copy here if that is the case.
-
+				
 				// Then add the category id to the global array...
 				$CurrentSettings = powerpress_get_settings('powerpress_general');
 				if( !in_array($category_id, $CurrentSettings['custom_cat_feeds']) )
@@ -527,16 +527,16 @@ jQuery(document).ready( function() {
 						$NewSettings['cat_casting_podcast_feeds'] = 1;
 						$NewSettings['cat_casting_strict'] = 1;
 					}
-
+					
 					powerpress_save_settings($NewSettings);
 				}
 			} else if ( !empty($feed_slug) ) {
-
+				
 				powerpress_save_settings($NewSettings, 'powerpress_feed_'.$feed_slug ); // save a copy here if that is the case.
 			}
-
-
-
+			
+			
+			
 			echo '<hr />';
 			echo '<p><strong>'. __('Program information imported', 'powerpress') .'</strong></p>';
 			echo '<ul class="ul-disc">';
@@ -544,7 +544,7 @@ jQuery(document).ready( function() {
 			{
 				if( $field == 'rss2_image' )
 					continue;
-
+				
 				echo '<li>';
 				switch( $field )
 				{
@@ -575,11 +575,11 @@ jQuery(document).ready( function() {
 			echo '</ul>';
 		}
 	}
-
-	function import_item($post, $MatchFilter, $import_blog_posts=false, $category_strict='', $feed_slug='') {
+	
+	function import_item($post, $MatchFilter, $import_blog_posts=false, $category_strict='', $feed_slug='') {	
 		global $wpdb;
 		$this->m_item_pos++;
-
+		
 		$matches = array();
 		$post_title = false;
 		if( !preg_match('|<title>(.*?)</title>|is', $post, $matches) ) {
@@ -588,7 +588,7 @@ jQuery(document).ready( function() {
 			return false;
 		}
 		$post_title = $this->_sanatize_tag_value($matches[1]);
-
+			
 		// Look for an enclosure, if not found skip it...
 		$enclosure_data = false;
 		if( !preg_match('|<enclosure(.*?)/>|is', $post, $enclosure_data) ) {
@@ -597,7 +597,7 @@ jQuery(document).ready( function() {
 				$this->m_item_skipped_count++;
 				return false;
 			}
-
+			
 			echo ' - ';
 		}
 		if( !empty($enclosure_data[1]) ) {
@@ -610,19 +610,19 @@ jQuery(document).ready( function() {
 				}
 			}
 		}
-
+		
 		// GUID has to be last, as we will use the media URL as the guid as a last resort
-
+		
 		$guid = false;
 		if( preg_match('|<guid.*?>(.*?)</guid>|is', $post, $matches) )
 			$guid = $this->_sanatize_tag_value( $matches[1] );
 		else if( !empty($enclosure['url']) )
 			$guid = $enclosure['url'];
-
+		
 		$media_url = '';
 		if( !empty($enclosure['url']) )
 			$media_url = $enclosure['url'];
-
+			
 		$post_date_gmt = false;
 		if( preg_match('|<pubdate>(.*?)</pubdate>|is', $post, $matches) ) {
 			$post_date_gmt = strtotime($matches[1]);
@@ -638,7 +638,7 @@ jQuery(document).ready( function() {
 
 		$post_date_gmt = gmdate('Y-m-d H:i:s', $post_date_gmt);
 		$post_date = get_date_from_gmt( $post_date_gmt );
-
+		
 		// Before we go any further, lets see if we have imported this one already...
 		$exists = $this->_find_post(
 			(empty($MatchFilter['match_guid'])?'':$guid),
@@ -647,14 +647,14 @@ jQuery(document).ready( function() {
 			(empty($MatchFilter['match_filename'])?'':$media_url),
 			$feed_slug
 			);
-
+		
 		if( !empty($exists) )
 		{
 			echo sprintf(__('<i>%s</i> already imported.', 'powerpress'), htmlspecialchars($post_title) );
 			$this->m_item_skipped_count++;
 			return false;
 		}
-
+		
 		// Okay awesome, lets dig through the rest...
 		$categories = array();
 		if( preg_match_all('|<category>(.*?)</category>|is', $post, $matches) )
@@ -664,13 +664,13 @@ jQuery(document).ready( function() {
 			if( preg_match_all('|<dc:subject>(.*?)</dc:subject>|is', $post, $matches) )
 				$categories = $matches[1];
 		}
-
+		
 		$cat_index = 0;
 		foreach ($categories as $category) {
 			$categories[$cat_index] = $this->_sanatize_tag_value( $category );
 			$cat_index++;
 		}
-
+		
 		$post_content = '';
 		if( preg_match('|<content:encoded>(.*?)</content:encoded>|is', $post, $matches) )
 			$post_content = $this->_sanatize_tag_value( $matches[1] );
@@ -680,7 +680,7 @@ jQuery(document).ready( function() {
 			if( preg_match('|<description>(.*?)</description>|is', $post, $matches) )
 				$post_content = $this->_sanatize_tag_value( $matches[1] );
 		}
-
+		
 		if ( empty($post_content) && !empty($enclosure['summary']) ) { // Last case situation lets used the itunes:summary if no description was available
 			$post_content = $enclosure['summary'];
 		}
@@ -692,7 +692,7 @@ jQuery(document).ready( function() {
 
 		$post_author = 1;
 		$post_status = 'publish';
-
+		
 		// Save this episode to the database...
 		$post_to_save = compact('post_author', 'post_date', 'post_date_gmt', 'post_content', 'post_title', 'post_status', 'guid', 'categories', 'enclosure');
 		$this->m_item_inserted_count++;
@@ -700,28 +700,28 @@ jQuery(document).ready( function() {
 		echo sprintf(__('<i>%s</i> imported.', 'powerpress'), htmlspecialchars($post_title) );
 		echo '</span>';
 		$post_id = $this->_import_post_to_db($post_to_save);
-
+		
 		// Category strict
 		if( !empty($category_strict) )
 		{
 			wp_set_post_categories( $post_id, array($category_strict), true );
 		}
-
+		
 		return ( $post_id > 0 );
 	}
-
+	
 	function _sanatize_tag_value($value)
 	{
 		if( !is_string($value) )
 			return '';
-
+		
 		$value = trim($value);
 		if( preg_match('/^<!\[CDATA\[(.*)\]\]>$/is', $value, $matches) ) {
 			$value = $matches[1];
 		} else {
 			$value = html_entity_decode($value);
 		}
-
+		
 		return $value;
 	}
 
@@ -729,27 +729,27 @@ jQuery(document).ready( function() {
 		global $wpdb;
 		@set_time_limit(60*15); // Give it 15 minutes
 		$this->m_item_pos = 0;
-
+		
 		$item_count = substr_count( $this->m_content, '<item>');
 		$item_count += substr_count( $this->m_content, '<ITEM>');
-
+		
 		echo '<hr />';
 		echo '<p><strong>';
 		echo __('Importing Episodes...', 'powerpress');
 		echo '</strong></p>';
-
+		
 		echo '<p>';
 		echo sprintf( __('Items Found: %d', 'powerpress'), $item_count);
 		echo '</p>';
 		@flush();
 
 		echo '<ol>';
-
+		
 		$item_start_pos = 0;
 		$item_start_pos = (function_exists('mb_stripos')?mb_stripos($this->m_content, '<item>', $item_start_pos):stripos($this->m_content, '<item>', $item_start_pos) );
 		$item_end_pos = $item_start_pos;
 		$item_end_pos = (function_exists('mb_stripos')?mb_stripos($this->m_content, '</item>', $item_end_pos):stripos($this->m_content, '</item>', $item_end_pos) );
-
+		
 		$count = 0;
 		while( $item_start_pos !== false && $item_end_pos !== false ) // If one were to return false, we stap!
 		{
@@ -757,20 +757,20 @@ jQuery(document).ready( function() {
 			if( $import_item_limit > 0 && $this->m_item_pos >= $import_item_limit ) {
 				break; // Item limit reached, stop!
 			}
-
+			
 			echo '<li>';
 			$new_start = $item_start_pos + mb_strlen('<item>');
 			$item_content = mb_substr($this->m_content, $new_start, $item_end_pos - $new_start);
 			$this->import_item($item_content, $MatchFilter, $import_blog_posts, $category, $feed_slug);
 			echo '</li>';
-
+			
 			// Extra stop just in case...
 			if( $count > 3000 )
 				break;
-
+				
 			if( $count % 25 == 0 )
 				@flush();
-
+			
 			$item_start_pos = (function_exists('mb_stripos')?mb_stripos($this->m_content, '<item>', $item_end_pos):stripos($this->m_content, '<item>', $item_end_pos) );
 			$item_end_pos = (function_exists('mb_stripos')?mb_stripos($this->m_content, '</item>', $item_start_pos):stripos($this->m_content, '</item>', $item_start_pos) );
 		}
@@ -778,11 +778,11 @@ jQuery(document).ready( function() {
 	}
 
 	function import() {
-?>
+?>	
 <div class="wrap">
 <h3><?php _e('Importing Podcast', 'powerpress') ?></h3>
 <?php
-
+		
 		$result = false;
 		if ( empty($_POST['podcast_feed_url']) ) {
 			?><p><?php _e('From Uploaded file...', 'powerpress'); ?></p><?php
@@ -793,18 +793,18 @@ jQuery(document).ready( function() {
 			?><p><?php _e('From URL', 'powerpress'); ?> <?php echo esc_html($_POST['podcast_feed_url']); ?></p><?php
 			$result = $this->_import_handle_url();
 		}
-
+		
 		if( $result == false ) {
 			$this->addError( __('Error occurred importing podcast.', 'powerpress') );
 			return;
 		}
-
+		
 		// Match posts by:
 		$MatchFilter = array('match_guid'=>true);
 		$MatchFilter['match_date'] = (!empty($_POST['match_date'])?true:false);
 		$MatchFilter['match_title'] = (!empty($_POST['match_title'])?true:false);
 		$MatchFilter['match_filename'] = (!empty($_POST['match_filename'])?true:false);
-
+		
 		$import_blog_posts = (!empty($_POST['import_blog_posts'])?true:false);
 		$import_item_limit  = (!empty($_POST['import_item_limit'])?intval($_POST['import_item_limit']):0);
 		$category  = (!empty($_POST['category'])?intval($_POST['category']):0);
@@ -813,8 +813,8 @@ jQuery(document).ready( function() {
 		$import_to = 'default';
 		if( !empty($_POST['import_to']) && $_POST['import_to'] != 'default' )
 			$import_to = $_POST['import_to'];
-
-
+		
+		
 		// First import program info...
 		if( preg_match('/^(.*)<item>/is', $this->m_content, $matches) )
 		{
@@ -835,21 +835,21 @@ jQuery(document).ready( function() {
 					$this->import_program_info($matches[1], $overwrite_program_info, $import_itunes_image, false, $feed_slug);
 			}
 		}
-
+		
 		$this->import_episodes($MatchFilter, $import_blog_posts, $import_item_limit, $category, $feed_slug);
-
+		
 		$migrated_to_blubrry = false;
 		if( !empty($_POST['migrate_to_blubrry'])  && !empty($GLOBALS['pp_migrate_media_urls']) ) {
 			require_once( POWERPRESS_ABSPATH .'/powerpressadmin-migrate.php');
 			$migrated_to_blubrry = true;
-
+			
 			$update_option = true;
 			$QueuedFiles = get_option('powerpress_migrate_queued');
 			if( !is_array($QueuedFiles) ) {
 				$QueuedFiles = array();
 				$update_option = false;
 			}
-
+			
 			$add_urls = '';
 			while( list($meta_id, $url) = each($GLOBALS['pp_migrate_media_urls']) )
 			{
@@ -862,14 +862,14 @@ jQuery(document).ready( function() {
 					$add_urls .= $url;
 				}
 			}
-
+			
 			echo '<h3>';
 			echo __('Migration request...', 'powerpress');
 			echo '</h3>';
 			echo '<pre style="border: 1px solid #333; background-color: #FFFFFF; padding: 4px 8px;">';
 			echo $add_urls;
 			echo '</pre>';
-
+			
 			$UpdateResults = powepress_admin_migrate_add_urls($add_urls);
 			if( !empty($UpdateResults) )
 			{
@@ -885,7 +885,7 @@ jQuery(document).ready( function() {
 				echo '<p>Failed to request migration.</p>';
 			}
 		}
-
+		
 		powerpress_page_message_print();
 
 		echo '<h3>';
@@ -895,7 +895,7 @@ jQuery(document).ready( function() {
 		echo '<p>'. sprintf(__('Items Inserted: %d', 'powerpress'), $this->m_item_inserted_count).'</p>';
 		if( !empty( $this->m_item_migrate_count ) )
 			echo '<p>'. sprintf(__('Media files queued for migration: %d', 'powerpress'), $this->m_item_migrate_count).'</p>';
-
+		
 		echo '';
 		if( $migrated_to_blubrry ) {
 			echo '<p>'. sprintf(__('Visit %s to monitor the migration process.','powerpress'), '<strong><a href="'.admin_url('admin.php?page=powerpress/powerpressadmin_migrate.php') .'">'. __('Migrate Media', 'powerpress') .'</a></strong>' ). '</p>';
@@ -905,14 +905,14 @@ jQuery(document).ready( function() {
 	}
 
 	function dispatch() {
-
+		
 		$this->m_step = 0;
 		if( !empty($_POST['step']) )
 			$this->m_step = intval($_POST['step']);
 		else if( !empty($_GET['step']) )
 			$this->m_step = intval($_GET['step']);
-
-
+			
+		
 		// Drop back down a step if not setup for hosting...
 		if( !empty($_POST['migrate_to_blubrry']) ) {
 			$Settings = get_option('powerpress_general');
@@ -921,7 +921,7 @@ jQuery(document).ready( function() {
 				$this->m_step = 0; // Drop back a step
 			}
 		}
-
+		
 		$this->header();
 
 		switch ($this->m_step) {
@@ -943,7 +943,7 @@ jQuery(document).ready( function() {
 
 		return $this->m_step;
 	}
-
+	
 	function _find_post_by_guid($guid)
 	{
 		global $wpdb;
@@ -963,10 +963,10 @@ jQuery(document).ready( function() {
 			if( $found > 0 )
 				return $found;
 		}
-
+		
 		return 0;
 	}
-
+	
 	function _find_post_by_title($title)
 	{
 		global $wpdb;
@@ -986,10 +986,10 @@ jQuery(document).ready( function() {
 			if( $found > 0 )
 				return $found;
 		}
-
+		
 		return 0;
 	}
-
+	
 	function _find_post_by_date($date)
 	{
 		global $wpdb;
@@ -1009,20 +1009,20 @@ jQuery(document).ready( function() {
 			if( $found > 0 )
 				return $found;
 		}
-
+		
 		return 0;
 	}
-
+	
 	function _find_post_by_enclosure_filename($filename, $feed_slug = '')
 	{
 		global $wpdb;
-
+		
 		$meta_key = 'podcast';
 		if( !empty($feed_slug) && $feed_slug != 'podcast' )
 			$meta_key = '_'. $feed_slug .':enclosure';
-
+		
 		$meta_value = $filename;
-
+		
 		$query = "SELECT p.ID ";
 		$query .= "FROM {$wpdb->posts} AS p ";
 		$query .= "INNER JOIN {$wpdb->postmeta} AS pm ON p.ID = pm.post_id ";
@@ -1032,7 +1032,7 @@ jQuery(document).ready( function() {
 		$query .= "GROUP BY p.ID ";
 		$query .= "ORDER BY p.post_date DESC LIMIT 1 "; // Make sure we use the oldest date
 		$query = $wpdb->prepare($query, $meta_key, $meta_value );
-
+		
 		$results = $wpdb->get_results($query, ARRAY_A);
 		if( !empty($results) )
 		{
@@ -1041,20 +1041,20 @@ jQuery(document).ready( function() {
 				return $row['ID'];
 			}
 		}
-
+		
 		return 0;
 	}
-
+	
 	function _find_post($guid = '', $title = '', $date = '', $media_url = '', $feed_slug='') {
 		global $wpdb;
-
+		
 		if( !empty($guid) )
 		{
 			$found = $this->_find_post_by_guid($guid);
 			if( $found )
 				return $found;
 		}
-
+		
 		if( !empty($media_url) )
 		{
 			$filename = basename($media_url);
@@ -1064,14 +1064,14 @@ jQuery(document).ready( function() {
 					return $found;
 			}
 		}
-
+		
 		if( !empty($title) )
 		{
 			$found = $this->_find_post_by_title($title);
 			if( $found )
 				return $found;
 		}
-
+		
 		if( !empty($date) )
 		{
 			$found = $this->_find_post_by_date($date);
@@ -1080,7 +1080,7 @@ jQuery(document).ready( function() {
 
 		return 0;
 	}
-
+	
 	function _import_post_to_db($post)
 	{
 		extract($post);
@@ -1094,7 +1094,7 @@ jQuery(document).ready( function() {
 
 		if (0 != count($categories))
 			wp_create_categories($categories, $post_id);
-
+					
 		if( !empty($enclosure['url']) )
 		{
 			$encstring = $enclosure['url'] . "\n" . $enclosure['length'] . "\n" . $enclosure['type'];
@@ -1121,7 +1121,7 @@ jQuery(document).ready( function() {
 				$serialize['explicit'] = $enclosure['explicit'];
 			if( !empty($enclosure['category']) )
 				$serialize['category'] = $enclosure['category'];
-
+				
 			if( !empty($serialize) )
 				$encstring .= "\n". serialize( $serialize );
 			$meta_id = add_post_meta($post_id, 'enclosure', $encstring, true);
@@ -1133,7 +1133,7 @@ jQuery(document).ready( function() {
 		}
 		return $post_id;
 	}
-
+	
 	function _parse_enclosure($string, $post, $category_strict='')
 	{
 		global $wpdb;
@@ -1155,55 +1155,55 @@ jQuery(document).ready( function() {
 			{
 				$enclosure['duration'] = $this->_sanatize_tag_value( $matches[1] );
 			}
-
+			
 			// keywords No longer supported by iTunes:
 			if( preg_match('|<itunes:keywords>(.*?)</itunes:keywords>|i', $post, $matches) )
 			{
 				$enclosure['keywords'] = $this->_sanatize_tag_value( $matches[1] );
 			}
-
+			
 			if( preg_match('|<itunes:summary>(.*?)</itunes:summary>|is', $post, $matches) )
 			{
 				$enclosure['summary'] = $this->_sanatize_tag_value( $matches[1] );
 			}
-
+			
 			if( preg_match('|<itunes:subtitle>(.*?)</itunes:subtitle>|i', $post, $matches) )
 			{
 				$enclosure['subtitle'] = $this->_sanatize_tag_value( $matches[1] );
 			}
-
+			
 			if( preg_match('|<itunes:author>(.*?)</itunes:author>|i', $post, $matches) )
 			{
 				$enclosure['author'] = $this->_sanatize_tag_value(  $matches[1] );
 			}
-
+			
 			if( preg_match('|<itunes:block>(.*?)</itunes:block>|i', $post, $matches) )
 			{
 				$value = strtolower(trim( $matches[1] ));
 				if( $value == 'yes' )
 					$enclosure['block'] = 1;
 			}
-
+			
 			// <itunes:image href="http://example.com/podcasts/everything/AllAboutEverything.jpg" />
 			if( preg_match('/<itunes:image[^h]*href="(.*?)".*(\/>|>.*<\/itunes:image>)/i', $post, $matches) )
 			{
 				$enclosure['itunes_image'] = html_entity_decode( trim( $matches[1] ) );
 			}
-
+			
 			if( preg_match('|<itunes:isClosedCaptioned>(.*?)</itunes:isClosedCaptioned>|i', $post, $matches) )
 			{
 				$value = strtolower(trim( $matches[1] ));
 				if( $value == 'yes' )
 					$enclosure['cc'] = 1;
 			}
-
+			
 			if( preg_match('|<itunes:order>(.*?)</itunes:order>|i', $post, $matches) )
 			{
 				$value = trim( $matches[1] );
 				if( !empty($value) )
 					$enclosure['order'] = intval($value);
 			}
-
+			
 			if( preg_match('|<itunes:explicit>(.*?)</itunes:explicit>|i', $post, $matches) )
 			{
 				$explicit_array = array('yes'=>1, 'clean'=>2); // No need to save 'no'
@@ -1211,25 +1211,25 @@ jQuery(document).ready( function() {
 				if( !empty($explicit_array[ $value ]) )
 					$enclosure['explicit'] = $explicit_array[ $value ];
 			}
-
+			
 			if( !empty($category_strict) )
 			{
 				$enclosure['category'] = $category_strict;
 			}
-
+				
 			return $enclosure;
 		}
-
+		
 		return '';
 	}
-
+	
 	function _import_handle_url() {
-
+		
 		if( empty($_POST['podcast_feed_url']) ) {
 			echo '<p>'.	__( 'URL is empty.', 'powerpress' ) .'<p>';
 			return false;
 		}
-
+		
 		$options = array();
 		$options['user-agent'] = 'Blubrry PowerPress/'.POWERPRESS_VERSION;
 		if( !empty($_GET['import']) && $_GET['import'] == 'powerpress-squarespace-rss-podcast' )
@@ -1238,23 +1238,23 @@ jQuery(document).ready( function() {
 			$options['user-agent'] = 'iTunes/12.2.2 (Macintosh; OS X 10.10.5) AppleWebKit/600.8.9';  // Common user agent
 		// 'gPodder/3.8.4 (+http://gpodder.org/)';
 		$options['timeout'] = 10;
-
+		
 		$response = wp_safe_remote_get($_POST['podcast_feed_url'], $options);
 		if ( is_wp_error( $response ) ) {
 			echo '<p>'.	$response->get_error_message() .'<p>';
 			return false;
 		}
-
+		
 		$this->m_content = wp_remote_retrieve_body( $response );
 		return true;
 	}
-
+	
 	function _import_handle_upload() {
 		if ( ! isset( $_FILES['podcast_feed_file'] )  || empty($_FILES['podcast_feed_file']['tmp_name']) ) {
 			echo '<p>'.	__( 'Upload failed.', 'powerpress' ).'<p>';
 			return false;
 		}
-
+		
 		$this->m_content = file_get_contents($_FILES['podcast_feed_file']['tmp_name']);
 		return true;
 	}
@@ -1267,7 +1267,7 @@ jQuery(document).ready( function() {
 	register_importer('powerpress-podbean-rss-podcast', __('Podcast from PodBean ', 'powerpress'), __('Import episodes from a PodBean podcast feed.', 'powerpress'), array ($powerpress_rss_podcast_import, 'dispatch'));
 	register_importer('powerpress-squarespace-rss-podcast', __('Podcast from Squarespace', 'powerpress'), __('Import episodes from a Squarespace podcast feed.', 'powerpress'), array ($powerpress_rss_podcast_import, 'dispatch'));
 	register_importer('powerpress-rss-podcast', __('Podcast RSS Feed', 'powerpress'), __('Import episodes from a RSS podcast feed.', 'powerpress'), array ($powerpress_rss_podcast_import, 'dispatch'));
-
+	
 }; // end if WP_Importer exists
 
 // eof

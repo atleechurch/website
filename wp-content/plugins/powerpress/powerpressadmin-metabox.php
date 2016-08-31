@@ -97,7 +97,7 @@ function powerpress_meta_box($object, $box)
 				if( isset($ExtraData['gp_desc']) )
 					$GooglePlayDesc = $ExtraData['gp_desc'];
 				if( isset($ExtraData['gp_explicit']) )
-					$GooglePlayExplicit = $ExtraData['gp_explicit'];
+					$GooglePlayExplicit = $ExtraData['gp_explicit'];	
 				if( isset($ExtraData['gp_block']) )
 					$GooglePlayBlock = $ExtraData['gp_block'];
 				if( isset($ExtraData['author']) )
@@ -419,7 +419,7 @@ function powerpress_meta_box($object, $box)
 		</div>
 <?php
 		}
-
+		
 		if( !empty($GeneralSettings['episode_box_gp_desc']) || $GooglePlayDesc )
 		{
 ?>
@@ -427,7 +427,7 @@ function powerpress_meta_box($object, $box)
 			<label for="Powerpress[<?php echo $FeedSlug; ?>][gp_desc]"><?php echo __('Google Play Description', 'powerpress'); ?></label>
 			<div class="powerpress_row_content">
 				<textarea id="powerpress_gp_desc_<?php echo $FeedSlug; ?>" name="Powerpress[<?php echo $FeedSlug; ?>][gp_desc]" style="width: 90%; height: 80px; font-size: 90%;"><?php echo esc_textarea($GooglePlayDesc); ?></textarea>
-			</div>
+			</div>	
 			<div class="powerpress_row_content">
 				<em><?php echo __('Your summary cannot exceed 4,000 characters in length. Leave blank to use your blog post.', 'powerpress'); ?></em>
 			</div>
@@ -489,12 +489,12 @@ while( list($value,$desc) = each($explicit_array) )
 
 ?>
 					</select>
-			</div>
+			</div>	
 		</div>
 <?php
 		}
-
-
+		
+		
 		if( !empty($GeneralSettings['episode_box_closed_captioned']) || $iTunesCC )
 		{
 ?>
@@ -581,11 +581,11 @@ while( list($value,$desc) = each($block_array) )
 unset($block_array);
 ?>
 					</select>
-			</div>
+			</div>	
 		</div>
 <?php
 		}
-
+		
 		if( !empty($GeneralSettings['episode_box_itunes_image']) || !empty($ExtraData['itunes_image']) )
 		{
 			if( empty($ExtraData['itunes_image']) )
@@ -609,11 +609,11 @@ unset($block_array);
 			$cur_cat_id = intval(!empty($ExtraData['category'])?$ExtraData['category']:0);
 			if( count($GeneralSettings['custom_cat_feeds']) == 1 ) // Lets auto select the category
 			{
-
+				
 				list($null, $cur_cat_id) = each($GeneralSettings['custom_cat_feeds']);
 				reset($GeneralSettings['custom_cat_feeds']);
 			}
-
+			
 		?>
 		<div class="powerpress_row">
 			<label for="Powerpress[<?php echo $FeedSlug; ?>][category]"><?php echo __('Category', 'powerpress'); ?></label>
@@ -621,12 +621,12 @@ unset($block_array);
 				echo '<select id="powerpress_category_'. $FeedSlug . '" name="Powerpress['. $FeedSlug .'][category]" style="width: 70%;">';
 				echo '<option value="0"';
 				echo '>' . esc_html( __('Select category', 'powerpress') ) . '</option>' . "\n";
-
+				
 				while( list($null, $cat_id) = each($GeneralSettings['custom_cat_feeds']) ) {
 					$catObj = get_category( $cat_id );
 					if( empty($catObj->name ) )
 						continue; // Do not allow empty categories forward
-
+					
 					$label = $catObj->name; // TODO: Get the category title
 					echo '<option value="' . esc_attr( $cat_id ) . '"';
 					if ( $cat_id == $cur_cat_id )

@@ -269,13 +269,13 @@ function powerpress_generate_embed($player, $EpisodeData) // $post_id, $feed_slu
 {
 	if( empty($EpisodeData['id']) && empty($EpisodeData['feed']) )
 		return '';
-
+		
 	if( $player == 'blubrryaudio' )
 	{
 		$extension = powerpressplayer_get_extension($EpisodeData['url']);
-		if( $extension == 'mp3' || $extension == 'm4a' )
+		if( $extension == 'mp3' || $extension == 'm4a' ) 
 		{
-			return powerpressplayer_build_blubrryaudio($EpisodeData['url']);
+			return powerpressplayer_build_blubrryaudio($EpisodeData['url'], $EpisodeData);
 		}
 		return '';
 	}
@@ -628,7 +628,7 @@ function powerpressplayer_player_other($content, $media_url, $EpisodeData = arra
 		case 'oga':
 		case 'flv':
 		case 'm4a': {
-
+			
 			return $content; 
 		}; break;
 		case 'swf': // No more support for flash swf files
@@ -1086,7 +1086,7 @@ function powerpress_do_pinw($pinw, $process_podpress)
 	
 	do_action('wp_powerpress_player_scripts');
 	
-
+	
 	if( !empty($GLOBALS['ClammrPlayer']) ) {
 		$GLOBALS['ClammrPlayer']->initialize();
 		wp_head();
@@ -1322,8 +1322,8 @@ function powerpressplayer_build_mediaelementvideo($media_url, $EpisodeData=array
 		$shortcode_value .= ']';
 		$shortcode .= do_shortcode($shortcode_value);
 	}
-
-
+		
+	
 	if( $embed )
 	{
 		$shortcode = str_replace( array('"123"', '"456"', '456px;'), array('"100%"', '"100%"', '100%;'), $shortcode);
@@ -1402,9 +1402,16 @@ function powerpressplayer_build_blubrryaudio($media_url, $EpisodeData=array(), $
 	// media URL is all we need., as long as it's hosted at blubrry.com...
 	if( preg_match('/content\.blubrry\.com/', $media_url) )
 	{
-		return '<iframe src="//player.blubrry.com?media_url='. urlencode($media_url) .'" scrolling="no" width="100%" height="138px" frameborder="0"></iframe>';
+		$url = '//player.blubrry.com?media_url='. urlencode($media_url);
+		if( !empty($EpisodeData['id']) ) {
+			// Get permalink URL
+			$permalink = get_permalink( $EpisodeData['id'] );
+			if( !empty($permalink) )
+				$url.= '&amp;podcast_link='. urlencode($permalink);
+		}
+		return '<iframe src="'. $url .'" scrolling="no" width="100%" height="138px" frameborder="0"></iframe>';
 	}
-
+	
 	return powerpressplayer_build_mediaelementaudio($media_url, $EpisodeData, $embed);
 }
 
@@ -1776,4 +1783,5 @@ function powerpressplayer_build_videojs($media_url, $EpisodeData = array())
 
 	return $content;
 }
+
 
