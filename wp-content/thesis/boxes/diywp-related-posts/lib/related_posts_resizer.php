@@ -38,7 +38,12 @@ $rel_path = str_replace( $upload_url, '', $url);
 $img_path = $upload_dir . $rel_path;
 
 //check if img path exists, and is an image indeed
-if( !file_exists($img_path) OR !getimagesize($img_path) ) return false;
+# This has been commented out as if the image is not physically on the
+# filesystem, this would return false and break things, even if the path
+# is mapped to an S3 bucket.  This should fix some issues with preview images
+# for related articles in the diywp_related_posts box for thesis, but this
+# is a change specific to Atlee, and likely is not what most people want
+# if( !file_exists($img_path) OR !getimagesize($img_path) ) return false;
 
 //get image info
 $info = pathinfo($img_path);
